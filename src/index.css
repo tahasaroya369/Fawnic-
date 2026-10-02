@@ -1,0 +1,253 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Eliminate 300ms mobile touch delay and ensure instantaneous touch response */
+button,
+a,
+input,
+select,
+textarea,
+[role="button"],
+.cursor-pointer {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@keyframes clipProgress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* Product HTML Description styling */
+.product-html-description {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+.product-html-description h1 {
+  font-family: Georgia, Cambria, 'Times New Roman', Times, serif;
+  font-size: 1.5rem;
+  line-height: 1.3;
+  font-weight: 700;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-stone-900, #1c1917);
+}
+.dark .product-html-description h1 {
+  color: var(--color-stone-100, #f5f5f4);
+}
+.product-html-description h2 {
+  font-family: Georgia, Cambria, 'Times New Roman', Times, serif;
+  font-size: 1.25rem;
+  line-height: 1.35;
+  font-weight: 700;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-stone-900, #1c1917);
+}
+.dark .product-html-description h2 {
+  color: var(--color-stone-100, #f5f5f4);
+}
+.product-html-description h3 {
+  font-family: Georgia, Cambria, 'Times New Roman', Times, serif;
+  font-size: 1.1rem;
+  line-height: 1.4;
+  font-weight: 700;
+  margin-top: 1rem;
+  margin-bottom: 0.4rem;
+  color: var(--color-stone-900, #1c1917);
+}
+.dark .product-html-description h3 {
+  color: var(--color-stone-100, #f5f5f4);
+}
+.product-html-description h4,
+.product-html-description h5,
+.product-html-description h6 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-top: 0.75rem;
+  margin-bottom: 0.35rem;
+  color: var(--color-stone-900, #1c1917);
+}
+.dark .product-html-description h4,
+.dark .product-html-description h5,
+.dark .product-html-description h6 {
+  color: var(--color-stone-100, #f5f5f4);
+}
+.product-html-description p {
+  margin-bottom: 0.85rem;
+  line-height: 1.65;
+}
+.product-html-description ul {
+  list-style-type: disc;
+  padding-left: 1.35rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+.product-html-description ol {
+  list-style-type: decimal;
+  padding-left: 1.35rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+.product-html-description li {
+  margin-bottom: 0.35rem;
+  line-height: 1.6;
+}
+.product-html-description strong,
+.product-html-description b {
+  font-weight: 700;
+  color: var(--color-stone-900, #1c1917);
+}
+.dark .product-html-description strong,
+.dark .product-html-description b {
+  color: var(--color-stone-100, #f5f5f4);
+}
+.product-html-description em,
+.product-html-description i {
+  font-style: italic;
+}
+.product-html-description a {
+  color: #b45309;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.15s;
+}
+.product-html-description a:hover {
+  color: #92400e;
+}
+.dark .product-html-description a {
+  color: #f59e0b;
+}
+.dark .product-html-description a:hover {
+  color: #fbbf24;
+}
+.product-html-description table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.825rem;
+  display: block;
+  overflow-x: auto;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-stone-200, #e7e5e4);
+}
+.dark .product-html-description table {
+  border-color: var(--color-stone-800, #292524);
+}
+.product-html-description th,
+.product-html-description td {
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--color-stone-200, #e7e5e4);
+  text-align: left;
+}
+.dark .product-html-description th,
+.dark .product-html-description td {
+  border-color: var(--color-stone-800, #292524);
+}
+.product-html-description th {
+  background-color: var(--color-stone-100, #f5f5f4);
+  font-weight: 700;
+  color: var(--color-stone-900, #1c1917);
+}
+.dark .product-html-description th {
+  background-color: var(--color-stone-900, #1c1917);
+  color: var(--color-stone-100, #f5f5f4);
+}
+.product-html-description blockquote {
+  border-left: 3px solid #d97706;
+  padding-left: 1rem;
+  margin: 1rem 0;
+  font-style: italic;
+  color: var(--color-stone-600, #57534e);
+}
+.dark .product-html-description blockquote {
+  color: var(--color-stone-400, #a8a29e);
+}
+.product-html-description code {
+  background-color: var(--color-stone-100, #f5f5f4);
+  padding: 0.15rem 0.35rem;
+  border-radius: 0.375rem;
+  font-size: 0.85em;
+  font-family: monospace;
+}
+.dark .product-html-description code {
+  background-color: var(--color-stone-800, #292524);
+}
+.product-html-description hr {
+  margin: 1.5rem 0;
+  border: 0;
+  border-top: 1px solid var(--color-stone-200, #e7e5e4);
+}
+.dark .product-html-description hr {
+  border-top-color: var(--color-stone-800, #292524);
+}
+
+/* Hide scrollbars while allowing smooth scrolling */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide everything except the invoice print area */
+  .no-print,
+  nav,
+  aside,
+  header,
+  footer,
+  button,
+  .admin-sidebar,
+  .admin-header {
+    display: none !important;
+  }
+
+  #fawnic-invoice-sheet {
+    display: block !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 24px !important;
+    background: #ffffff !important;
+    color: #111111 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
+
+@keyframes clipFill {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+

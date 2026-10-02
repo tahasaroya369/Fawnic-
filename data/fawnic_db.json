@@ -1,0 +1,2166 @@
+{
+  "users": [
+    {
+      "id": "usr_admin_1",
+      "email": "alichishtia111@gmail.com",
+      "name": "Ali Chishti",
+      "phone": "03711661611",
+      "role": "admin",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
+      "createdAt": "2026-09-12T13:37:41.333Z",
+      "passwordHash": "cbb3d466de30abaa2a9eea4b4503394626e8f98b65255c1bf6d0f27f1dda9237c92bdc71826328ec229be293012fea5c86f4c982f56066148a5dc11601529048",
+      "salt": "e57fbb13aefd72c43f4792a061c43a37"
+    },
+    {
+      "id": "usr_1789586536928_tqjpi",
+      "email": "tahahussainsaroya329@gmail.com",
+      "name": "Taha Saroya",
+      "phone": "+92 3440017711",
+      "role": "customer",
+      "createdAt": "2026-09-16T19:22:16.928Z",
+      "passwordHash": "9600a52816d018fb5269fe24965402370dd8c004b7884979bf805b86b2f66b6b541206c39bbc78cfca78957e0db53af881dac2b5b34d1c7469b9001c62bab1ab",
+      "salt": "22fc2f7f02af41576dacd8c8183d1302"
+    }
+  ],
+  "categories": [
+    {
+      "id": "cat_wallets",
+      "name": "Men's Wallets",
+      "slug": "wallets",
+      "icon": "Wallet",
+      "banner": "/assets/images/cat_mens_wallet_v2_1790449008902.jpg",
+      "description": "Handcrafted bifold, slim front-pocket, long continental, and RFID-protected wallets cut from the finest full-grain cowhide.",
+      "featured": true,
+      "subcategories": [
+        "Bifold Wallets",
+        "Slim Front-Pocket",
+        "Long Continental",
+        "RFID Wallets",
+        "Zipper Wallets"
+      ]
+    },
+    {
+      "id": "cat_belts",
+      "name": "Men's Belts",
+      "slug": "belts",
+      "icon": "Shield",
+      "banner": "/assets/images/cat_mens_belt_v2_1790449023189.jpg",
+      "description": "Cut from continuous steerhide bends with hand-burnished edges, solid brass hardware, and dual-tone reversible buckles.",
+      "featured": true,
+      "subcategories": [
+        "Formal Dress Belts",
+        "Casual Harness Belts",
+        "Reversible Belts",
+        "Braided Belts"
+      ]
+    },
+    {
+      "id": "cat_cardholders",
+      "name": "Card Holders",
+      "slug": "card-holders",
+      "icon": "CreditCard",
+      "banner": "https://images.unsplash.com/photo-1559563458-527698bf5295?w=1400&auto=format&fit=crop&q=85",
+      "description": "Ultra-thin card sleeves and accordion cases for seamless everyday carry without pocket bulk.",
+      "featured": true,
+      "subcategories": [
+        "Minimalist Sleeves",
+        "Accordion Cases",
+        "Lanyard ID Holders"
+      ]
+    },
+    {
+      "id": "cat_accessories",
+      "name": "Leather Accessories",
+      "slug": "accessories",
+      "icon": "Package",
+      "banner": "https://images.unsplash.com/photo-1544816155-12df9643f363?w=1400&auto=format&fit=crop&q=85",
+      "description": "Key cloches, valet catchall trays, travel watch rolls, and heirloom gift box ensembles.",
+      "featured": true,
+      "subcategories": [
+        "Heirloom Gift Sets",
+        "Valet Trays",
+        "Key Accessories",
+        "Watch Rolls"
+      ]
+    },
+    {
+      "id": "cat_leather",
+      "name": "Leather Atelier",
+      "slug": "leather",
+      "icon": "Award",
+      "banner": "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=1400&auto=format&fit=crop&q=85",
+      "description": "Bespoke full-grain hides, executive folios, and heirloom creations crafted by master leatherworkers.",
+      "featured": true,
+      "image": "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=1000&auto=format&fit=crop&q=85",
+      "subcategories": [
+        "Heritage Hides",
+        "Folios",
+        "Desk Accessories",
+        "Custom Pieces"
+      ]
+    },
+    {
+      "id": "cat_watches",
+      "name": "Premium Watches",
+      "slug": "watches",
+      "icon": "Clock",
+      "banner": "/assets/images/cat_luxury_watch_v2_1790449038082.jpg",
+      "description": "Precision mechanical chronographs, automatic movements, and handcrafted sapphire crystal timepieces.",
+      "featured": true,
+      "image": "/assets/images/cat_luxury_watch_v2_1790449038082.jpg",
+      "subcategories": [
+        "Automatic Chronographs",
+        "Dress Watches",
+        "Field Watches",
+        "Watch Straps"
+      ]
+    },
+    {
+      "id": "cat_bags",
+      "name": "Artisan Bags",
+      "slug": "bags",
+      "icon": "Briefcase",
+      "banner": "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=1400&auto=format&fit=crop&q=85",
+      "description": "Full-grain leather weekenders, travel duffles, briefcase satchels, and everyday messenger bags.",
+      "featured": true,
+      "image": "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=1000&auto=format&fit=crop&q=85",
+      "subcategories": [
+        "Weekender Duffels",
+        "Executive Briefcases",
+        "Crossbody Messengers",
+        "Tote Bags"
+      ]
+    }
+  ],
+  "products": [
+    {
+      "id": "fwn_wlt_01",
+      "name": "The Sovereign Executive Bifold Wallet",
+      "slug": "sovereign-executive-bifold-wallet",
+      "shortDescription": "Handcrafted from full-grain vegetable-tanned Italian cowhide with hand-burnished edges, 8 card slots, and RFID defense.",
+      "description": "<p>A timeless cornerstone of the Fawnic collection.</p><h3>Atelier Specifications</h3><ul><li>Hand-burnished vegetable tanned cowhide</li><li>8 dedicated card slots</li><li>RFID blocking barrier</li></ul><table><thead><tr><th>Feature</th><th>Detail</th></tr></thead><tbody><tr><td>Dimensions</td><td>11.5cm x 9.5cm</td></tr><tr><td>Origin</td><td>Handcrafted in Pakistan</td></tr></tbody></table>",
+      "categoryId": "cat_wallets",
+      "categoryName": "Men's Leather Wallets",
+      "subcategoryId": "Bifold Wallets",
+      "subcategoryName": "Bifold Wallets",
+      "brand": "FAWNIC",
+      "leatherType": "Full-Grain Italian Vegetable-Tanned Cowhide",
+      "sku": "FWN-SOV-01",
+      "regularPrice": 5200,
+      "salePrice": 4450,
+      "costPrice": 2200,
+      "stock": 49,
+      "lowStockThreshold": 8,
+      "stockStatus": "in_stock",
+      "mainImage": "https://images.unsplash.com/photo-1627123424574-724758594e93?w=1000&auto=format&fit=crop&q=85",
+      "images": [
+        "https://images.unsplash.com/photo-1627123424574-724758594e93?w=1000&auto=format&fit=crop&q=85",
+        "https://images.unsplash.com/photo-1559563458-527698bf5295?w=1000&auto=format&fit=crop&q=85",
+        "https://images.unsplash.com/photo-1544816155-12df9643f363?w=1000&auto=format&fit=crop&q=85"
+      ],
+      "tags": [
+        "bifold",
+        "wallet",
+        "rfid",
+        "leather",
+        "luxury",
+        "cognac"
+      ],
+      "variants": [
+        {
+          "id": "var_sov_color",
+          "name": "Leather Color",
+          "options": [
+            {
+              "label": "Vintage Cognac",
+              "stock": 20
+            },
+            {
+              "label": "Midnight Onyx Black",
+              "stock": 15
+            },
+            {
+              "label": "Mahogany Brown",
+              "stock": 10
+            }
+          ]
+        }
+      ],
+      "features": [
+        "Cut from 100% Full-Grain Vegetable-Tanned Cowhide",
+        "Certified 13.56 MHz RFID signal blocking layer",
+        "8 precision-beveled card slots + 2 hidden compartments",
+        "Dual-section currency divider fits Pakistani Rupee banknotes cleanly",
+        "Hand-waxed beeswax edge burnishing for lifelong durability"
+      ],
+      "specifications": {
+        "Leather Grade": "Full-Grain Vegetable-Tanned Cowhide (Grade A)",
+        "Dimensions": "11.5 cm x 9.2 cm x 1.4 cm",
+        "Weight": "85 grams",
+        "Hardware / Lining": "German bonded nylon thread, Japanese cotton twill lining",
+        "Origin": "Handcrafted in Fawnic Atelier, Pakistan"
+      },
+      "careInstructions": "Apply organic leather balm once every 6 months. Avoid prolonged water exposure. If wet, let dry naturally away from direct heat.",
+      "rating": 5,
+      "reviewCount": 0,
+      "isFeatured": true,
+      "isBestSeller": true,
+      "isNewArrival": false,
+      "status": "published",
+      "createdAt": "2026-01-10T10:00:00.000Z",
+      "vendorStoreName": "FAWNIC Atelier",
+      "vendorId": "vdr_fawnic",
+      "updatedAt": "2026-09-30T17:22:53.108Z"
+    },
+    {
+      "id": "fwn_wlt_02",
+      "name": "The Apex Slim Front-Pocket Wallet",
+      "slug": "apex-slim-front-pocket-wallet",
+      "shortDescription": "Ultra-thin silhouette designed for seamless front pocket carry with quick-pull card strap.",
+      "description": "Engineered for the discerning minimalist who rejects pocket bulge. The Apex maintains a razor-thin 0.7cm footprint while effortlessly carrying up to 7 cards and folded bills. Equipped with a textured leather pull-strap that fans out your secondary cards in an instant, and a front quick-access slot for your everyday transit or payment card.",
+      "categoryId": "cat_wallets",
+      "categoryName": "Men's Leather Wallets",
+      "subcategoryId": "Slim Front-Pocket",
+      "subcategoryName": "Slim Front-Pocket",
+      "brand": "FAWNIC",
+      "leatherType": "Top-Grain Nappa Leather",
+      "sku": "FWN-APX-02",
+      "regularPrice": 4200,
+      "salePrice": 3450,
+      "costPrice": 1600,
+      "stock": 60,
+      "lowStockThreshold": 10,
+      "stockStatus": "in_stock",
+      "mainImage": "https://images.unsplash.com/photo-1559563458-527698bf5295?w=1000&auto=format&fit=crop&q=85",
+      "images": [
+        "https://images.unsplash.com/photo-1559563458-527698bf5295?w=1000&auto=format&fit=crop&q=85",
+        "https://images.unsplash.com/photo-1627123424574-724758594e93?w=1000&auto=format&fit=crop&q=85"
+      ],
+      "tags": [
+        "slim",
+        "wallet",
+        "minimalist",
+        "front-pocket"
+      ],
+      "variants": [
+        {
+          "id": "var_apx_color",
+          "name": "Leather Color",
+          "options": [
+            {
+              "label": "Saddle Tan",
+              "stock": 25
+            },
+            {
+              "label": "Obsidian Black",
+              "stock": 25
+            },
+            {
+              "label": "British Racing Green",
+              "stock": 10
+            }
+          ]
+        }
+      ],
+      "features": [
+        "Only 7mm thick when empty",
+        "Quick-draw pull strap for rapid card access",
+        "Integrated RFID shielding protects all internal slots",
+        "Beveled edges with matching tonal saddle stitching"
+      ],
+      "specifications": {
+        "Leather Grade": "Full-Grain Top-Grade Nappa",
+        "Dimensions": "10.2 cm x 7.6 cm x 0.7 cm",
+        "Weight": "42 grams",
+        "Capacity": "5-8 cards plus folded cash"
+      },
+      "careInstructions": "Buff gently with a soft microfiber cloth. Store in dust bag when traveling.",
+      "rating": 5,
+      "reviewCount": 0,
+      "isFeatured": true,
+      "isBestSeller": true,
+      "isNewArrival": false,
+      "status": "published",
+      "createdAt": "2026-01-15T12:00:00.000Z",
+      "vendorStoreName": "FAWNIC Atelier",
+      "vendorId": "vdr_fawnic"
+    },
+    {
+      "id": "fwn_wlt_03",
+      "name": "The Royal Continental Long Wallet",
+      "slug": "royal-continental-long-wallet",
+      "shortDescription": "Prestigious breast-pocket wallet holding 16 cards, unfolded cash, and travel documents.",
+      "description": "Crafted for distinguished business travel and formal occasions. Fits cleanly into suit jacket breast pockets without folding banknotes. Features 16 dedicated card slots, two full-length currency sleeves, a zippered receipt compartment, and dedicated passport slot.",
+      "categoryId": "cat_wallets",
+      "categoryName": "Men's Leather Wallets",
+      "subcategoryId": "Long Continental",
+      "subcategoryName": "Long Continental",
+      "brand": "FAWNIC",
+      "leatherType": "Full-Grain Pull-Up Harness Leather",
+      "sku": "FWN-RYL-03",
+      "regularPrice": 7800,
+      "salePrice": 6800,
+      "costPrice": 3400,
+      "stock": 25,
+      "lowStockThreshold": 5,
+      "stockStatus": "in_stock",
+      "mainImage": "https://images.unsplash.com/photo-1544816155-12df9643f363?w=1000&auto=format&fit=crop&q=85",
+      "images": [
+        "https://images.unsplash.com/photo-1544816155-12df9643f363?w=1000&auto=format&fit=crop&q=85",
+        "https://images.unsplash.com/photo-1627123424574-724758594e93?w=1000&auto=format&fit=crop&q=85"
+      ],
+      "tags": [
+        "long wallet",
+        "continental",
+        "executive",
+        "suit"
+      ],
+      "variants": [
+        {
+          "id": "var_ryl_color",
+          "name": "Leather Color",
+          "options": [
+            {
+              "label": "Deep Havana Brown",
+              "stock": 15
+            },
+            {
+              "label": "Classic Black",
+              "stock": 10
+            }
+          ]
+        }
+      ],
+      "features": [
+        "16 individual card slots",
+        "Full-length cash compartment (no folding needed)",
+        "Antique brass YKK zipper compartment",
+        "Fits standard passport and boarding passes"
+      ],
+      "specifications": {
+        "Leather Grade": "Full-Grain Vegetable-Tanned Oiled Leather",
+        "Dimensions": "19 cm x 9.5 cm x 1.8 cm",
+        "Weight": "130 grams"
+      },
+      "rating": 5,
+      "reviewCount": 0,
+      "isFeatured": false,
+      "isBestSeller": false,
+      "isNewArrival": true,
+      "status": "published",
+      "createdAt": "2026-02-01T14:00:00.000Z",
+      "vendorStoreName": "FAWNIC Atelier",
+      "vendorId": "vdr_fawnic"
+    },
+    {
+      "id": "fwn_wlt_04",
+      "name": "The Armour RFID Tactical Bifold Wallet",
+      "slug": "armour-rfid-tactical-bifold-wallet",
+      "shortDescription": "Reinforced ballistic leather construction with quick-action thumb ejection and card lock.",
+      "description": "A blend of rugged durability and executive refinement. Features reinforced corners, matte gunmetal emblem, and internal ballistic nylon reinforcement for extreme durability.",
+      "categoryId": "cat_wallets",
+      "categoryName": "Men's Leather Wallets",
+      "subcategoryId": "RFID Wallets",
+      "subcategoryName": "RFID Wallets",
+      "brand": "FAWNIC",
+      "leatherType": "Top-Grain Waxed Cowhide",
+      "sku": "FWN-ARM-04",
+      "regularPrice": 6500,
+      "salePrice": 5200,
+      "costPrice": 2600,
+      "stock": 35,
+      "lowStockThreshold": 6,
+      "stockStatus": "in_stock",
+      "mainImage": "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=1000&auto=format&fit=crop&q=85",
+      "images": [
+        "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=1000&auto=format&fit=crop&q=85",
+        "https://images.unsplash.com/photo-1627123424574-724758594e93?w=1000&auto=format&fit=crop&q=85"
+      ],
+      "tags": [
+        "tactical",
+        "rfid",
+        "wallet",
+        "durable"
+      ],
+      "variants": [],
+      "features": [
+        "Full 360-degree electromagnetic RFID blocking",
+        "Quick-slide thumb thumb window for national CNIC / driver license",
+        "Triple-stitched stress points"
+      ],
+      "specifications": {
+        "Dimensions": "11 cm x 8.8 cm x 1.3 cm",
+        "Weight": "78 grams",
+        "Capacity": "10 cards + 15 banknotes"
+      },
+      "rating": 5,
+      "reviewCount": 0,
+      "isFeatured": false,
+      "isBestSeller": false,
+      "isNewArrival": true,
+      "status": "published",
+      "createdAt": "2026-02-10T10:00:00.000Z",
+      "vendorStoreName": "FAWNIC Atelier",
+      "vendorId": "vdr_fawnic"
+    },
+    {
+      "id": "fwn_blt_01",
+      "name": "The Artisan Solid Brass Full-Grain Formal Belt",
+      "slug": "artisan-solid-brass-full-grain-formal-belt",
+      "shortDescription": "35mm dress belt cut from continuous 9oz full-grain steerhide with solid forged brass hardware.",
+      "description": "The definitive formal belt crafted without filler, cardboard, or synthetic bonded backing. Cut directly from dense 3.8mm thick vegetable-tanned steerhide. Each belt is hand-edged, burnished with natural carnauba wax, and anchored by a hand-polished solid brass buckle secured by Chicago screws for easy buckle swapping.",
+      "categoryId": "cat_belts",
+      "categoryName": "Leather Belts",
+      "subcategoryId": "Formal Dress Belts",
+      "subcategoryName": "Formal Dress Belts",
+      "brand": "FAWNIC",
+      "leatherType": "9oz Full-Grain Steerhide",
+      "sku": "FWN-BLT-01",
+      "regularPrice": 5500,
+      "salePrice": 4650,
+      "costPrice": 2200,
+      "stock": 55,
+      "lowStockThreshold": 10,
+      "stockStatus": "in_stock",
+      "mainImage": "https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=1000&auto=format&fit=crop&q=85",
+      "images": [
+        "https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=1000&auto=format&fit=crop&q=85",
+        "https://images.unsplash.com/photo-1551854838-212c50b4c184?w=1000&auto=format&fit=crop&q=85"
+      ],
+      "tags": [
+        "belt",
+        "formal",
+        "brass",
+        "leather",
+        "steerhide"
+      ],
+      "variants": [
+        {
+          "id": "var_blt1_size",
+          "name": "Waist Size (Inches)",
+          "options": [
+            {
+              "label": "30 inches",
+              "stock": 8
+            },
+            {
+              "label": "32 inches",
+              "stock": 12
+            },
+            {
+              "label": "34 inches",
+              "stock": 15
+            },
+            {
+              "label": "36 inches",
+              "stock": 10
+            },
+            {
+              "label": "38 inches",
+              "stock": 6
+            },
+            {
+              "label": "40 inches",
+              "stock": 4
+            }
+          ]
+        },
+        {
+          "id": "var_blt1_color",
+          "name": "Leather & Hardware",
+          "options": [
+            {
+              "label": "Jet Black (Brushed Nickel Buckle)",
+              "stock": 25
+            },
+            {
+              "label": "Cognac Amber (Antique Brass Buckle)",
+              "stock": 20
+            },
+            {
+              "label": "Cordovan Deep Red (Solid Brass Buckle)",
+              "stock": 10
+            }
+          ]
+        }
+      ],
+      "features": [
+        "Cut from single continuous slab of 9oz full-grain steerhide",
+        "Solid forged brass hardware with micro-brushed finish",
+        "Removable Chicago screw construction allows custom buckle swapping",
+        "5 precision teardrop holes spaced 1 inch apart",
+        "Beveled edge profile hand-burnished with natural carnauba wax"
+      ],
+      "specifications": {
+        "Width": "35 mm (1.38 inches) - Standard Formal Dress Width",
+        "Thickness": "3.8 mm (9 oz weight)",
+        "Buckle": "100% Solid Forged Brass (Lead-Free)",
+        "Leather Type": "Full-Grain English Bridle Steerhide"
+      },
+      "careInstructions": "Condition with neatsfoot or mink oil once yearly. Wipe buckle with dry cotton.",
+      "rating": 5,
+      "reviewCount": 0,
+      "isFeatured": true,
+      "isBestSeller": true,
+      "isNewArrival": false,
+      "status": "published",
+      "createdAt": "2026-01-12T09:00:00.000Z",
+      "vendorStoreName": "FAWNIC Atelier",
+      "vendorId": "vdr_fawnic"
+    },
+    {
+      "id": "fwn_blt_02",
+      "name": "The Dual-Tone Reversible Executive Belt",
+      "slug": "dual-tone-reversible-executive-belt",
+      "shortDescription": "Innovative rotating buckle design offering Jet Black on one side and Rich Chestnut on the other.",
+      "description": "Two luxury belts in one. Precision spring-loaded rotation buckle allows instant transformation between midnight black formal dress and rich chestnut business casual.",
+      "categoryId": "cat_belts",
+      "categoryName": "Leather Belts",
+      "subcategoryId": "Reversible Belts",
+      "subcategoryName": "Reversible Belts",
+      "brand": "FAWNIC",
+      "leatherType": "Top-Grain Double-Sided Nappa Leather",
+      "sku": "FWN-REV-02",
+      "regularPrice": 6200,
+      "salePrice": 5250,
+      "costPrice": 2500,
+      "stock": 40,
+      "lowStockThreshold": 8,
+      "stockStatus": "in_stock",
+      "mainImage": "https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=1000&auto=format&fit=crop&q=85",
+      "images": [
+        "https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=1000&auto=format&fit=crop&q=85",
+        "https://images.unsplash.com/photo-1551854838-212c50b4c184?w=1000&auto=format&fit=crop&q=85"
+      ],
+      "tags": [
+        "reversible",
+        "belt",
+        "dual-tone",
+        "black",
+        "brown"
+      ],
+      "variants": [
+        {
+          "id": "var_blt2_size",
+          "name": "Waist Size (Inches)",
+          "options": [
+            {
+              "label": "32 inches",
+              "stock": 10
+            },
+            {
+              "label": "34 inches",
+              "stock": 12
+            },
+            {
+              "label": "36 inches",
+              "stock": 10
+            },
+            {
+              "label": "38 inches",
+              "stock": 8
+            }
+          ]
+        }
+      ],
+      "features": [
+        "Dual-sided: Jet Black and Chestnut Brown",
+        "360-degree swivel mechanical buckle",
+        "Reinforced feather-edge perimeter stitching"
+      ],
+      "specifications": {
+        "Width": "33 mm",
+        "Buckle": "Satin Zinc-Alloy with Gunmetal PVD Coating"
+      },
+      "rating": 5,
+      "reviewCount": 0,
+      "isFeatured": true,
+      "isBestSeller": false,
+      "isNewArrival": true,
+      "status": "published",
+      "createdAt": "2026-01-25T11:00:00.000Z",
+      "vendorStoreName": "FAWNIC Atelier",
+      "vendorId": "vdr_fawnic"
+    },
+    {
+      "id": "fwn_blt_03",
+      "name": "The Raw Edge Casual Harness Leather Belt",
+      "slug": "raw-edge-casual-harness-leather-belt",
+      "shortDescription": "40mm wide heavy-duty denim belt made from unlined vintage pull-up leather.",
+      "description": "Built for denim, chinos, and casual boots. Cut wider at 40mm from uncorrected rough-out pull-up leather that scuffs, heals, and shows character with every wear.",
+      "categoryId": "cat_belts",
+      "categoryName": "Leather Belts",
+      "subcategoryId": "Casual Harness Belts",
+      "subcategoryName": "Casual Harness Belts",
+      "brand": "FAWNIC",
+      "leatherType": "Heavy 10oz Vegetable Tanned Harness Hide",
+      "sku": "FWN-CAS-03",
+      "regularPrice": 4950,
+      "salePrice": 4150,
+      "costPrice": 2000,
+      "stock": 30,
+      "lowStockThreshold": 6,
+      "stockStatus": "in_stock",
+      "mainImage": "https://images.unsplash.com/photo-1551854838-212c50b4c184?w=1000&auto=format&fit=crop&q=85",
+      "images": [
+        "https://images.unsplash.com/photo-1551854838-212c50b4c184?w=1000&auto=format&fit=crop&q=85",
+        "https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=1000&auto=format&fit=crop&q=85"
+      ],
+      "tags": [
+        "casual",
+        "denim",
+        "belt",
+        "vintage",
+        "harness"
+      ],
+      "variants": [
+        {
+          "id": "var_blt3_size",
+          "name": "Waist Size (Inches)",
+          "options": [
+            {
+              "label": "32 inches",
+              "stock": 8
+            },
+            {
+              "label": "34 inches",
+              "stock": 10
+            },
+            {
+              "label": "36 inches",
+              "stock": 8
+            },
+            {
+              "label": "38 inches",
+              "stock": 4
+            }
+          ]
+        }
+      ],
+      "features": [
+        "Heavy 40mm width matches denim loops perfectly",
+        "Raw edge hand-buffed with saddle soap",
+        "Matte antique roller buckle prevents leather crease marks"
+      ],
+      "specifications": {
+        "Width": "40 mm (1.57 inches)",
+        "Thickness": "4.2 mm (10 oz weight)",
+        "Buckle": "Antiqued Steel Roller Buckle"
+      },
+      "rating": 5,
+      "reviewCount": 0,
+      "isFeatured": false,
+      "isBestSeller": false,
+      "isNewArrival": false,
+      "status": "published",
+      "createdAt": "2026-02-05T15:00:00.000Z",
+      "vendorStoreName": "FAWNIC Atelier",
+      "vendorId": "vdr_fawnic"
+    },
+    {
+      "id": "fwn_crd_01",
+      "name": "The Minimalist Hand-Stitched Card Sleeve",
+      "slug": "minimalist-hand-stitched-card-sleeve",
+      "shortDescription": "Hand-waxed linen saddle stitching across 3 precision card pockets and central cash fold.",
+      "description": "An ode to traditional hand-craftsmanship. Every sleeve is cut by hand and saddle-stitched using two needles and braided beeswax linen thread. Holds 4 to 6 credit cards comfortably while practically disappearing inside any suit or trouser pocket.",
+      "categoryId": "cat_cardholders",
+      "categoryName": "Card Holders",
+      "subcategoryId": "Minimalist Sleeves",
+      "subcategoryName": "Minimalist Sleeves",
+      "brand": "FAWNIC",
+      "leatherType": "Full-Grain Italian Pueblo Leather",
+      "sku": "FWN-CRD-01",
+      "regularPrice": 2800,
+      "salePrice": 2250,
+      "costPrice": 900,
+      "stock": 50,
+      "lowStockThreshold": 10,
+      "stockStatus": "in_stock",
+      "mainImage": "https://images.unsplash.com/photo-1559563458-527698bf5295?w=1000&auto=format&fit=crop&q=85",
+      "images": [
+        "https://images.unsplash.com/photo-1559563458-527698bf5295?w=1000&auto=format&fit=crop&q=85"
+      ],
+      "tags": [
+        "card holder",
+        "minimalist",
+        "saddle stitch",
+        "sleeve"
+      ],
+      "variants": [
+        {
+          "id": "var_crd1_color",
+          "name": "Color Tone",
+          "options": [
+            {
+              "label": "Saddle Tan",
+              "stock": 20
+            },
+            {
+              "label": "Dark Chocolate",
+              "stock": 15
+            },
+            {
+              "label": "Navy Indigo",
+              "stock": 15
+            }
+          ]
+        }
+      ],
+      "features": [
+        "100% Traditional hand-stitched with waxed linen thread",
+        "3 Card slots + central cash folded pocket",
+        "Smooth rounded corners prevent pocket wear"
+      ],
+      "specifications": {
+        "Dimensions": "10 cm x 7 cm x 0.4 cm",
+        "Weight": "28 grams"
+      },
+      "rating": 5,
+      "reviewCount": 0,
+      "isFeatured": true,
+      "isBestSeller": true,
+      "isNewArrival": false,
+      "status": "published",
+      "createdAt": "2026-01-18T10:00:00.000Z",
+      "vendorStoreName": "FAWNIC Atelier",
+      "vendorId": "vdr_fawnic"
+    },
+    {
+      "id": "fwn_crd_02",
+      "name": "The Accordion Expandable Leather Card Case",
+      "slug": "accordion-expandable-leather-card-case",
+      "shortDescription": "Gusseted accordion design with solid brass snap button holding up to 15 business or credit cards.",
+      "description": "Ideal for executives and professionals. Opens like an accordion to reveal multiple organized compartments for business cards, credit cards, and folded currency notes.",
+      "categoryId": "cat_cardholders",
+      "categoryName": "Card Holders",
+      "subcategoryId": "Accordion Cases",
+      "subcategoryName": "Accordion Cases",
+      "brand": "FAWNIC",
+      "leatherType": "Top-Grain Waxed Leather",
+      "sku": "FWN-ACC-CRD",
+      "regularPrice": 3600,
+      "salePrice": 2950,
+      "costPrice": 1300,
+      "stock": 35,
+      "lowStockThreshold": 6,
+      "stockStatus": "in_stock",
+      "mainImage": "https://images.unsplash.com/photo-1544816155-12df9643f363?w=1000&auto=format&fit=crop&q=85",
+      "images": [
+        "https://images.unsplash.com/photo-1544816155-12df9643f363?w=1000&auto=format&fit=crop&q=85"
+      ],
+      "tags": [
+        "accordion",
+        "business cards",
+        "case",
+        "leather"
+      ],
+      "variants": [],
+      "features": [
+        "Expandable fan-out gussets hold up to 15 cards",
+        "Reinforced magnetic snap closure",
+        "Divided slots for business cards and credit cards"
+      ],
+      "specifications": {
+        "Dimensions": "10.5 cm x 7.5 cm x 1.8 cm",
+        "Capacity": "15-20 standard cards"
+      },
+      "rating": 5,
+      "reviewCount": 0,
+      "isFeatured": false,
+      "isBestSeller": false,
+      "isNewArrival": true,
+      "status": "published",
+      "createdAt": "2026-02-08T09:00:00.000Z",
+      "vendorStoreName": "FAWNIC Atelier",
+      "vendorId": "vdr_fawnic"
+    },
+    {
+      "id": "fwn_acc_01",
+      "name": "The Fawnic Heirloom Gift Ensemble (Wallet + Belt + Card Sleeve)",
+      "slug": "fawnic-heirloom-gift-ensemble",
+      "shortDescription": "The pinnacle luxury gift set presented in a gold-embossed matte wooden presentation box.",
+      "description": "Curated for milestone celebrations, weddings, and executive appreciation. Includes our flagship Sovereign Bifold Wallet, the Artisan Solid Brass Formal Belt, and a matching Hand-Stitched Card Sleeve, all cut from color-matched full-grain Italian leather hides. Encased in a bespoke gold-stamped velvet-lined rigid presentation box with custom Fawnic authenticity certificate.",
+      "categoryId": "cat_accessories",
+      "categoryName": "Leather Accessories",
+      "subcategoryId": "Heirloom Gift Sets",
+      "subcategoryName": "Heirloom Gift Sets",
+      "brand": "FAWNIC",
+      "leatherType": "Matched Full-Grain Italian Hide",
+      "sku": "FWN-GFT-01",
+      "regularPrice": 14500,
+      "salePrice": 11800,
+      "costPrice": 5500,
+      "stock": 20,
+      "lowStockThreshold": 4,
+      "stockStatus": "in_stock",
+      "mainImage": "https://images.unsplash.com/photo-1544816155-12df9643f363?w=1000&auto=format&fit=crop&q=85",
+      "images": [
+        "https://images.unsplash.com/photo-1544816155-12df9643f363?w=1000&auto=format&fit=crop&q=85",
+        "https://images.unsplash.com/photo-1627123424574-724758594e93?w=1000&auto=format&fit=crop&q=85",
+        "https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=1000&auto=format&fit=crop&q=85"
+      ],
+      "tags": [
+        "gift set",
+        "heirloom",
+        "wallet and belt",
+        "luxury gift",
+        "wedding"
+      ],
+      "variants": [
+        {
+          "id": "var_gft_size",
+          "name": "Belt Size in Set",
+          "options": [
+            {
+              "label": "32 Waist Belt",
+              "stock": 6
+            },
+            {
+              "label": "34 Waist Belt",
+              "stock": 8
+            },
+            {
+              "label": "36 Waist Belt",
+              "stock": 6
+            }
+          ]
+        }
+      ],
+      "features": [
+        "Includes Sovereign Bifold Wallet + Artisan Belt + Minimalist Card Sleeve",
+        "Color-matched from identical full-grain leather hides",
+        "Presented in gold-foiled rigid wooden gift chest with velvet lining",
+        "Includes handwritten calligraphy gift card on request"
+      ],
+      "specifications": {
+        "Box Dimensions": "32 cm x 24 cm x 8 cm",
+        "Total Set Weight": "680 grams",
+        "Guarantee": "Fawnic Lifetime Craftsmanship Guarantee"
+      },
+      "rating": 5,
+      "reviewCount": 0,
+      "isFeatured": true,
+      "isBestSeller": true,
+      "isNewArrival": false,
+      "status": "published",
+      "createdAt": "2026-01-05T12:00:00.000Z",
+      "vendorStoreName": "FAWNIC Atelier",
+      "vendorId": "vdr_fawnic"
+    },
+    {
+      "id": "fwn_acc_02",
+      "name": "The Handcrafted Leather Valet Catchall Tray",
+      "slug": "handcrafted-leather-valet-catchall-tray",
+      "shortDescription": "Solid brass corner snaps fold flat for travel or snap up into a nightstand EDC organizer.",
+      "description": "A bedside and desk staple. Crafted from thick 8oz vegetable-tanned bridle leather with hand-burnished edges and solid brass corner snaps. Perfect for your watch, keys, coins, and everyday carry items.",
+      "categoryId": "cat_accessories",
+      "categoryName": "Leather Accessories",
+      "subcategoryId": "Valet Trays",
+      "subcategoryName": "Valet Trays",
+      "brand": "FAWNIC",
+      "leatherType": "8oz English Bridle Cowhide",
+      "sku": "FWN-VLT-02",
+      "regularPrice": 3400,
+      "salePrice": 2750,
+      "costPrice": 1100,
+      "stock": 40,
+      "lowStockThreshold": 8,
+      "stockStatus": "in_stock",
+      "mainImage": "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=1000&auto=format&fit=crop&q=85",
+      "images": [
+        "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=1000&auto=format&fit=crop&q=85"
+      ],
+      "tags": [
+        "valet tray",
+        "organizer",
+        "edc",
+        "leather"
+      ],
+      "variants": [],
+      "features": [
+        "Heavy 8oz thick hide maintains rigid shape",
+        "Four solid brass snaps for instant assembly or flat travel packing",
+        "Embossed Fawnic crest in center"
+      ],
+      "specifications": {
+        "Flat Dimensions": "22 cm x 22 cm",
+        "Formed Tray Dimensions": "16 cm x 16 cm x 4 cm deep"
+      },
+      "rating": 5,
+      "reviewCount": 0,
+      "isFeatured": false,
+      "isBestSeller": false,
+      "isNewArrival": true,
+      "status": "published",
+      "createdAt": "2026-02-12T16:00:00.000Z",
+      "vendorStoreName": "FAWNIC Atelier",
+      "vendorId": "vdr_fawnic"
+    },
+    {
+      "id": "vng_wtc_01",
+      "name": "The Vanguard Chronomaster 40mm Automatic",
+      "slug": "vanguard-chronomaster-40mm-automatic",
+      "shortDescription": "Swiss-grade high-beat automatic chronograph with dual-register dial and anti-reflective sapphire crystal.",
+      "description": "Engineered by master watchmaker Vanguard Horlogerie. The Chronomaster houses a 28,800 vph automatic chronograph movement with a 48-hour power reserve. Encased in surgical 316L brushed stainless steel with beveled mirror-polished lugs, an exhibition caseback displaying the custom blued rotor, and an Italian vegetable-tanned leather rally strap with deployment clasp.",
+      "categoryId": "cat_watches",
+      "categoryName": "Luxury Watches",
+      "subcategoryId": "Automatic Chronographs",
+      "subcategoryName": "Automatic Chronographs",
+      "brand": "Vanguard Horlogerie",
+      "leatherType": "Horween Shell Cordovan Strap",
+      "sku": "VNG-CHRN-01",
+      "regularPrice": 42000,
+      "salePrice": 38500,
+      "costPrice": 22000,
+      "stock": 14,
+      "lowStockThreshold": 3,
+      "stockStatus": "in_stock",
+      "mainImage": "https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=1000&auto=format&fit=crop&q=85",
+      "images": [
+        "https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=1000&auto=format&fit=crop&q=85",
+        "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=1000&auto=format&fit=crop&q=85",
+        "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1000&auto=format&fit=crop&q=85"
+      ],
+      "tags": [
+        "watch",
+        "chronograph",
+        "automatic",
+        "luxury",
+        "vanguard"
+      ],
+      "variants": [
+        {
+          "id": "var_vng_dial",
+          "name": "Dial Variant",
+          "options": [
+            {
+              "label": "Panda White / Sunburst Black",
+              "stock": 8
+            },
+            {
+              "label": "Deep Sea Midnight Blue",
+              "stock": 6
+            }
+          ]
+        }
+      ],
+      "features": [
+        "Caliber V-88 28,800 BPH Automatic Chronograph",
+        "Scratchproof Double-Domed Sapphire Crystal with AR Coating",
+        "Surgical 316L Stainless Steel Case (40mm Diameter, 12.4mm Depth)",
+        "Exhibition Caseback with Hand-Finished Cote de Geneve Rotor",
+        "50M Water Resistance with Screw-Down Crown"
+      ],
+      "specifications": {
+        "Case Diameter": "40 mm",
+        "Lug to Lug": "47.5 mm",
+        "Crystal": "Synthetic Corundum Sapphire (9 Mohs hardness)",
+        "Strap": "Hand-stitched Full-Grain Italian Calfskin",
+        "Warranty": "3-Year International Horological Guarantee"
+      },
+      "careInstructions": "Wipe with a microfiber cloth after daily wear. Service mechanical caliber once every 4 years.",
+      "rating": 5,
+      "reviewCount": 34,
+      "isFeatured": true,
+      "isBestSeller": true,
+      "isNewArrival": false,
+      "status": "published",
+      "vendorStoreName": "Vanguard Horlogerie",
+      "vendorId": "vdr_vanguard",
+      "createdAt": "2026-01-20T10:00:00.000Z"
+    },
+    {
+      "id": "aeth_wtc_02",
+      "name": "The Aethelgard Heritage Dual-Time Dress Watch",
+      "slug": "aethelgard-heritage-dual-time-dress-watch",
+      "shortDescription": "Ultra-slim 8.6mm mechanical timepiece featuring guilloche dial pattern and blued steel hands.",
+      "description": "An homage to classic mid-century horology. Designed with a hand-wound mechanical movement, Roman hour markers, and an independent GMT dual-time subdial for international travel. Encased in brushed rose gold PVD over stainless steel with an artisan alligator-embossed calfskin strap.",
+      "categoryId": "cat_watches",
+      "categoryName": "Luxury Watches",
+      "subcategoryId": "Dress Watches",
+      "subcategoryName": "Dress Watches",
+      "brand": "Aethelgard Watchmakers",
+      "leatherType": "Alligator-Grain Full-Grain Calfskin",
+      "sku": "AETH-DS-02",
+      "regularPrice": 48000,
+      "salePrice": 44000,
+      "costPrice": 24000,
+      "stock": 9,
+      "lowStockThreshold": 2,
+      "stockStatus": "in_stock",
+      "mainImage": "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=1000&auto=format&fit=crop&q=85",
+      "images": [
+        "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=1000&auto=format&fit=crop&q=85",
+        "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1000&auto=format&fit=crop&q=85"
+      ],
+      "tags": [
+        "watch",
+        "dress watch",
+        "mechanical",
+        "dual time",
+        "luxury"
+      ],
+      "variants": [],
+      "features": [
+        "Ultra-Slim 8.6mm Case Profile slides under shirt cuffs seamlessly",
+        "Hand-finished Guilloché textured dial with heat-blued hands",
+        "Independent 24-hour dual timezone subdial",
+        "Hand-wound 42-hour reserve caliber"
+      ],
+      "specifications": {
+        "Case Diameter": "38 mm",
+        "Case Thickness": "8.6 mm",
+        "Glass": "Curved Box Sapphire Crystal"
+      },
+      "rating": 4.9,
+      "reviewCount": 21,
+      "isFeatured": true,
+      "isBestSeller": false,
+      "isNewArrival": true,
+      "status": "published",
+      "vendorStoreName": "Aethelgard Watchmakers",
+      "vendorId": "vdr_aethelgard",
+      "createdAt": "2026-02-14T09:00:00.000Z"
+    },
+    {
+      "id": "sth_bag_01",
+      "name": "The Saint-Honoré Grand Voyageur Leather Duffle",
+      "slug": "saint-honore-grand-voyageur-leather-duffle",
+      "shortDescription": "55L master weekender handcrafted from 2.2mm pull-up harness leather with solid brass YKK zippers.",
+      "description": "The quintessential travel companion. Cut from rich, oiled 2.2mm pull-up cowhide that softens and reveals rich undertones as you travel. Featuring a dedicated ventilated shoe compartment, reinforced riveted leather carry handles, an adjustable wool-padded shoulder strap, and an interior waterproof pocket.",
+      "categoryId": "cat_bags",
+      "categoryName": "Artisan Bags",
+      "subcategoryId": "Weekender Duffels",
+      "subcategoryName": "Weekender Duffels",
+      "brand": "Atelier Saint-Honoré",
+      "leatherType": "2.2mm Full-Grain Pull-Up Harness Leather",
+      "sku": "STH-VOU-01",
+      "regularPrice": 28000,
+      "salePrice": 24500,
+      "costPrice": 13000,
+      "stock": 12,
+      "lowStockThreshold": 3,
+      "stockStatus": "in_stock",
+      "mainImage": "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=1000&auto=format&fit=crop&q=85",
+      "images": [
+        "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=1000&auto=format&fit=crop&q=85",
+        "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=1000&auto=format&fit=crop&q=85"
+      ],
+      "tags": [
+        "bag",
+        "duffle",
+        "travel",
+        "leather",
+        "weekender"
+      ],
+      "variants": [
+        {
+          "id": "var_duf_col",
+          "name": "Leather Hue",
+          "options": [
+            {
+              "label": "Cognac Amber",
+              "stock": 7
+            },
+            {
+              "label": "Ebony Black",
+              "stock": 5
+            }
+          ]
+        }
+      ],
+      "features": [
+        "Cabin-size approved for international & domestic flights",
+        "Separate zipped footwear chamber",
+        "Heavy-duty solid brass hardware & stud feet",
+        "Cotton twill lining with internal zip compartments"
+      ],
+      "specifications": {
+        "Dimensions": "52 cm x 28 cm x 28 cm (55 Liters)",
+        "Weight": "1.95 kg",
+        "Hardware": "100% Solid Brass Antique Finish"
+      },
+      "rating": 5,
+      "reviewCount": 27,
+      "isFeatured": true,
+      "isBestSeller": true,
+      "isNewArrival": false,
+      "status": "published",
+      "vendorStoreName": "Atelier Saint-Honoré",
+      "vendorId": "vdr_sainthonore",
+      "createdAt": "2026-01-08T10:00:00.000Z"
+    },
+    {
+      "id": "sth_bag_02",
+      "name": "The Diplomat Leather Executive Briefcase",
+      "slug": "diplomat-leather-executive-briefcase",
+      "shortDescription": "Structured full-grain English bridle leather satchel with dual gusset and solid brass lock.",
+      "description": "Command the boardroom with quiet distinction. Engineered to protect laptops up to 16 inches in a suspended quilted neoprene sleeve, with dedicated slots for fountain pens, documents, and business essentials. Finished with hand-dyed edges and an English key-locking brass tuck-lock.",
+      "categoryId": "cat_bags",
+      "categoryName": "Artisan Bags",
+      "subcategoryId": "Executive Briefcases",
+      "subcategoryName": "Executive Briefcases",
+      "brand": "Atelier Saint-Honoré",
+      "leatherType": "Full-Grain English Bridle Hide",
+      "sku": "STH-DIP-02",
+      "regularPrice": 25000,
+      "salePrice": 21800,
+      "costPrice": 11500,
+      "stock": 16,
+      "lowStockThreshold": 4,
+      "stockStatus": "in_stock",
+      "mainImage": "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=1000&auto=format&fit=crop&q=85",
+      "images": [
+        "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=1000&auto=format&fit=crop&q=85"
+      ],
+      "tags": [
+        "briefcase",
+        "bag",
+        "executive",
+        "laptop",
+        "leather"
+      ],
+      "variants": [],
+      "features": [
+        "Reinforced structured silhouette stands upright",
+        "Shock-absorbing sleeve fits up to 16\" MacBook Pro",
+        "Tuck-lock brass clasp with key",
+        "Rear luggage pass-through sleeve for trolley handle"
+      ],
+      "specifications": {
+        "Dimensions": "40 cm x 30 cm x 10 cm",
+        "Weight": "1.4 kg"
+      },
+      "rating": 4.9,
+      "reviewCount": 19,
+      "isFeatured": true,
+      "isBestSeller": false,
+      "isNewArrival": true,
+      "status": "published",
+      "vendorStoreName": "Atelier Saint-Honoré",
+      "vendorId": "vdr_sainthonore",
+      "createdAt": "2026-02-18T11:00:00.000Z"
+    }
+  ],
+  "orders": [
+    {
+      "id": "ord_1790537710088",
+      "orderNumber": "FWN-26814",
+      "customerId": "usr_1789586536928_tqjpi",
+      "customerName": "Taha Saroya",
+      "customerEmail": "tahahussainsaroya329@gmail.com",
+      "customerPhone": "+92 3440017711",
+      "shippingAddress": {
+        "id": "addr_1790577190092",
+        "fullName": "Taha Saroya",
+        "phone": "+92 3440017711",
+        "addressLine1": "79 X Block Housing Colony Sheikhupura",
+        "city": "Karachi",
+        "province": "Sindh",
+        "postalCode": "75500",
+        "isDefault": false
+      },
+      "items": [
+        {
+          "productId": "fwn_wlt_01",
+          "name": "The Sovereign Executive Bifold Wallet",
+          "productName": "The Sovereign Executive Bifold Wallet",
+          "image": "https://images.unsplash.com/photo-1627123424574-724758594e93?w=1000&auto=format&fit=crop&q=85",
+          "productImage": "https://images.unsplash.com/photo-1627123424574-724758594e93?w=1000&auto=format&fit=crop&q=85",
+          "sku": "FWN-SOV-01",
+          "variantInfo": "",
+          "quantity": 1,
+          "price": 4450,
+          "unitPrice": 4450,
+          "total": 4450,
+          "subtotal": 4450
+        }
+      ],
+      "subtotal": 4450,
+      "shippingFee": 0,
+      "discount": 0,
+      "total": 4450,
+      "paymentMethod": "cod",
+      "paymentStatus": "pending",
+      "status": "pending",
+      "timeline": [
+        {
+          "status": "pending",
+          "timestamp": "2026-09-27T19:35:10.088Z",
+          "updatedBy": "Customer",
+          "note": "Order placed by customer via Cash on Delivery.",
+          "location": "Karachi, Pakistan"
+        }
+      ],
+      "trackingHistory": [
+        {
+          "status": "pending",
+          "timestamp": "2026-09-27T19:35:10.088Z",
+          "updatedBy": "Customer",
+          "note": "Order placed by customer via Cash on Delivery.",
+          "location": "Karachi, Pakistan"
+        }
+      ],
+      "createdAt": "2026-09-27T19:35:10.088Z"
+    }
+  ],
+  "addresses": [],
+  "reviews": [
+    {
+      "id": "rev_01",
+      "productId": "fwn_wlt_01",
+      "productName": "The Sovereign Executive Bifold Wallet",
+      "customerName": "Dr. Hamza Raza",
+      "customerCity": "Lahore, Punjab",
+      "customerAvatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80",
+      "rating": 5,
+      "title": "Outstanding full-grain leather craftsmanship",
+      "comment": "I have carried wallets from luxury European houses that cost four times as much, yet the Sovereign from Fawnic surpasses them in edge burnishing and leather density. The patina after four months of everyday carry in Lahore is breathtaking.",
+      "verifiedPurchase": true,
+      "isApproved": true,
+      "createdAt": "2026-02-10T14:20:00.000Z"
+    },
+    {
+      "id": "rev_02",
+      "productId": "vng_wtc_01",
+      "productName": "The Vanguard Chronomaster 40mm Automatic",
+      "customerName": "Tariq Mansoor",
+      "customerCity": "Karachi, Sindh",
+      "customerAvatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80",
+      "rating": 5,
+      "title": "Mechanical perfection and immaculate dial finishing",
+      "comment": "The Chronomaster arrived in a hand-lacquered wooden box. The dual-register dial catching the sunlight is mesmerizing. Timekeeping accuracy is within +3 seconds per day. Truly world-class horology right here in Pakistan.",
+      "verifiedPurchase": true,
+      "isApproved": true,
+      "createdAt": "2026-02-18T09:15:00.000Z"
+    },
+    {
+      "id": "rev_03",
+      "productId": "sth_bag_01",
+      "productName": "The Saint-Honoré Grand Voyageur Leather Duffle",
+      "customerName": "Bilal Siddiqui",
+      "customerCity": "Islamabad, ICT",
+      "customerAvatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&auto=format&fit=crop&q=80",
+      "rating": 5,
+      "title": "The only weekender bag you will ever need",
+      "comment": "Used this on four business trips already. Heavy brass hardware, thick pull-up hide that absorbs scratches and buffs out instantly with a thumb swipe. The separate shoe chamber is genius. Unrivaled luxury.",
+      "verifiedPurchase": true,
+      "isApproved": true,
+      "createdAt": "2026-02-24T18:40:00.000Z"
+    },
+    {
+      "id": "rev_04",
+      "productId": "fwn_blt_01",
+      "productName": "The Artisan Solid Brass Full-Grain Formal Belt",
+      "customerName": "Zara Noor",
+      "customerCity": "Faisalabad, Punjab",
+      "customerAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80",
+      "rating": 5,
+      "title": "Exceptional anniversary gift for my husband",
+      "comment": "Ordered the heirloom gift ensemble and the solid brass belt. The packaging alone felt like an unboxing experience from Savile Row. Genuine 9oz steerhide that will literally last decades. Highly recommend!",
+      "verifiedPurchase": true,
+      "isApproved": true,
+      "createdAt": "2026-03-01T11:05:00.000Z"
+    }
+  ],
+  "coupons": [],
+  "notifications": [
+    {
+      "id": "notif_ord_ord_1790537710088_received_1790537710099",
+      "title": "Order Placed Successfully",
+      "message": "Your bespoke leather order #FWN-26814 for Rs. 4,450 has been received and logged in our atelier.",
+      "type": "Order Update",
+      "link": "/track/FWN-26814",
+      "buttonText": "TRACK CONSIGNMENT",
+      "audience": "specific",
+      "targetUserIds": [
+        "usr_1789586536928_tqjpi"
+      ],
+      "targetUserNames": [
+        "Taha Saroya"
+      ],
+      "status": "published",
+      "publishedAt": "2026-09-27T19:35:10.099Z",
+      "createdAt": "2026-09-27T19:35:10.099Z",
+      "updatedAt": "2026-09-27T19:35:10.099Z",
+      "createdBy": "Atelier Order System",
+      "orderId": "ord_1790537710088",
+      "orderNumber": "FWN-26814",
+      "orderStatus": "received"
+    },
+    {
+      "id": "notif_1789730734551_creply",
+      "title": "Customer Reply: FW-QRY-0003",
+      "message": "Taha Saroya replied: \"dtuyffuf...\"",
+      "type": "Customer Service",
+      "audience": "admin",
+      "status": "published",
+      "buttonText": "View Query",
+      "link": "/aliadmin?tab=queries",
+      "createdAt": "2026-09-18T11:25:34.550Z",
+      "updatedAt": "2026-09-18T11:25:34.550Z"
+    },
+    {
+      "id": "notif_1789586846437_creply",
+      "title": "Customer Reply: FW-QRY-0003",
+      "message": "Taha Saroya replied: \"hi...\"",
+      "type": "Customer Service",
+      "audience": "admin",
+      "status": "published",
+      "buttonText": "View Query",
+      "link": "/aliadmin?tab=queries",
+      "createdAt": "2026-09-16T19:27:26.436Z",
+      "updatedAt": "2026-09-16T19:27:26.436Z"
+    },
+    {
+      "id": "notif_1789586817188_qry",
+      "title": "New Customer Query: FW-QRY-0003",
+      "message": "Taha Saroya submitted inquiry: \"Order Process\"",
+      "type": "Customer Service",
+      "audience": "admin",
+      "status": "published",
+      "buttonText": "View Query",
+      "link": "/aliadmin?tab=queries",
+      "createdAt": "2026-09-16T19:26:57.187Z",
+      "updatedAt": "2026-09-16T19:26:57.187Z"
+    },
+    {
+      "id": "notif_1789581116894_qry",
+      "title": "New Customer Query: FW-QRY-0002",
+      "message": "Ali Chishti submitted inquiry: \"order process\"",
+      "type": "Customer Service",
+      "audience": "admin",
+      "status": "published",
+      "buttonText": "View Query",
+      "link": "/aliadmin?tab=queries",
+      "createdAt": "2026-09-16T17:51:56.893Z",
+      "updatedAt": "2026-09-16T17:51:56.893Z"
+    },
+    {
+      "id": "notif_1789580684752_qry",
+      "title": "New Customer Query: FW-QRY-0001",
+      "message": "Hassan Raza submitted inquiry: \"Delivery timeline to Lahore\"",
+      "type": "Customer Service",
+      "audience": "admin",
+      "status": "published",
+      "buttonText": "View Query",
+      "link": "/aliadmin?tab=queries",
+      "createdAt": "2026-09-16T17:44:44.752Z",
+      "updatedAt": "2026-09-16T17:44:44.752Z"
+    },
+    {
+      "id": "notif_welcome_atelier",
+      "title": "Welcome to FAWNIC Leather Atelier",
+      "message": "Experience bespoke craftsmanship in vegetable-tanned leather. Enjoy complimentary express delivery on orders above Rs. 4,000.",
+      "type": "Announcement",
+      "image": "https://images.unsplash.com/photo-1627123424574-724758594e93?auto=format&fit=crop&q=80&w=600",
+      "link": "/shop",
+      "buttonText": "Explore Collection",
+      "audience": "all",
+      "status": "published",
+      "publishedAt": "2026-09-14T16:19:44.237Z",
+      "createdAt": "2026-09-14T16:19:44.238Z",
+      "updatedAt": "2026-09-14T16:19:44.238Z",
+      "createdBy": "admin@fawnic.pk",
+      "readCount": 12
+    },
+    {
+      "id": "notif_winter_sale_atelier",
+      "title": "Winter Atelier Privilege: 15% Off",
+      "message": "Use code WINTER15 at checkout to receive 15% off all handcrafted bifold wallets and brass-buckle belts.",
+      "type": "Winter Sale",
+      "image": "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=600",
+      "link": "/shop/wallets",
+      "buttonText": "Shop Wallets",
+      "audience": "all",
+      "status": "published",
+      "publishedAt": "2026-09-14T15:19:44.238Z",
+      "createdAt": "2026-09-14T15:19:44.238Z",
+      "updatedAt": "2026-09-14T15:19:44.238Z",
+      "createdBy": "admin@fawnic.pk",
+      "readCount": 34
+    }
+  ],
+  "auditLogs": [
+    {
+      "id": "log_1790788973108",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "PRODUCT_UPDATED",
+      "entityType": "Product",
+      "entityId": "fwn_wlt_01",
+      "details": "Updated \"The Sovereign Executive Bifold Wallet\"",
+      "timestamp": "2026-09-30T17:22:53.108Z"
+    },
+    {
+      "id": "log_1790537710101",
+      "adminEmail": "system",
+      "action": "NEW_ORDER_PLACED",
+      "entityType": "Order",
+      "entityId": "FWN-26814",
+      "details": "Order for Rs. 4,450 placed by Taha Saroya (COD)",
+      "timestamp": "2026-09-27T19:35:10.101Z"
+    },
+    {
+      "id": "log_1789730797191",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "System Administrator authenticated into Atelier Console",
+      "timestamp": "2026-09-18T11:26:37.191Z"
+    },
+    {
+      "id": "log_1789730790549",
+      "adminEmail": "tahahussainsaroya329@gmail.com",
+      "action": "FAILED_ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "Unsuccessful admin authentication attempt (unauthorized email)",
+      "timestamp": "2026-09-18T11:26:30.549Z"
+    },
+    {
+      "id": "log_1789729469057",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "System Administrator authenticated into Atelier Console",
+      "timestamp": "2026-09-18T11:04:29.057Z"
+    },
+    {
+      "id": "log_1789729464262",
+      "adminEmail": "tahahussainsaroya329@gmail.com",
+      "action": "FAILED_ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "Unsuccessful admin authentication attempt (unauthorized email)",
+      "timestamp": "2026-09-18T11:04:24.262Z"
+    },
+    {
+      "id": "log_1789669374251",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "System Administrator authenticated into Atelier Console",
+      "timestamp": "2026-09-17T18:22:54.251Z"
+    },
+    {
+      "id": "log_1789586634230",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "System Administrator authenticated into Atelier Console",
+      "timestamp": "2026-09-16T19:23:54.230Z"
+    },
+    {
+      "id": "log_1789580773378",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "System Administrator authenticated into Atelier Console",
+      "timestamp": "2026-09-16T17:46:13.378Z"
+    },
+    {
+      "id": "log_1789580206099",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "System Administrator authenticated into Atelier Console",
+      "timestamp": "2026-09-16T17:36:46.099Z"
+    },
+    {
+      "id": "log_1789399233998",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "INVOICE_DELETED",
+      "entityType": "Invoice",
+      "entityId": "FW-INV-0001",
+      "details": "Deleted invoice FW-INV-0001",
+      "timestamp": "2026-09-14T15:20:33.998Z"
+    },
+    {
+      "id": "log_1789398999779",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "System Administrator authenticated into Atelier Console",
+      "timestamp": "2026-09-14T15:16:39.779Z"
+    },
+    {
+      "id": "log_1789398375647",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "MANUAL_INVOICE_CREATED",
+      "entityType": "Invoice",
+      "entityId": "FW-INV-0001",
+      "details": "Created manual invoice FW-INV-0001 for Taha Saroya",
+      "timestamp": "2026-09-14T15:06:15.647Z"
+    },
+    {
+      "id": "log_1789398231804",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "System Administrator authenticated into Atelier Console",
+      "timestamp": "2026-09-14T15:03:51.804Z"
+    },
+    {
+      "id": "log_1789397892695",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "System Administrator authenticated into Atelier Console",
+      "timestamp": "2026-09-14T14:58:12.695Z"
+    },
+    {
+      "id": "log_1789242289652",
+      "adminEmail": "tahasaroya369@gmail.com",
+      "action": "STAFF_LOGIN",
+      "entityType": "Staff",
+      "details": "Taha Saroya (manager) signed into Atelier Console",
+      "timestamp": "2026-09-12T19:44:49.652Z"
+    },
+    {
+      "id": "log_1789242178578",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "STAFF_ACCOUNT_CREATED",
+      "entityType": "Team",
+      "entityId": "tahasaroya369@gmail.com",
+      "details": "Created lifetime staff account for Taha Saroya as manager",
+      "timestamp": "2026-09-12T19:42:58.578Z"
+    },
+    {
+      "id": "log_1789242014202",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "System Administrator authenticated into Atelier Console",
+      "timestamp": "2026-09-12T19:40:14.202Z"
+    },
+    {
+      "id": "log_1789242010122",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "FAILED_ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "Unsuccessful admin authentication attempt (invalid credentials)",
+      "timestamp": "2026-09-12T19:40:10.122Z"
+    },
+    {
+      "id": "log_1789241894799",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "System Administrator authenticated into Atelier Console",
+      "timestamp": "2026-09-12T19:38:14.799Z"
+    },
+    {
+      "id": "log_1789241887724",
+      "adminEmail": "random@gmail.com",
+      "action": "FAILED_ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "Unsuccessful admin authentication attempt (unauthorized email)",
+      "timestamp": "2026-09-12T19:38:07.724Z"
+    },
+    {
+      "id": "log_1789241882716",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "FAILED_ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "Unsuccessful admin authentication attempt (invalid credentials)",
+      "timestamp": "2026-09-12T19:38:02.716Z"
+    },
+    {
+      "id": "log_1789241879066",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "System Administrator authenticated into Atelier Console",
+      "timestamp": "2026-09-12T19:37:59.066Z"
+    },
+    {
+      "id": "log_1789241846889",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "FAILED_ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "Unsuccessful admin authentication attempt (invalid credentials)",
+      "timestamp": "2026-09-12T19:37:26.889Z"
+    },
+    {
+      "id": "log_1789241823498",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "FAILED_ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "Unsuccessful admin authentication attempt (invalid credentials)",
+      "timestamp": "2026-09-12T19:37:03.498Z"
+    },
+    {
+      "id": "log_1789241820675",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "FAILED_ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "Unsuccessful admin authentication attempt (invalid credentials)",
+      "timestamp": "2026-09-12T19:37:00.675Z"
+    },
+    {
+      "id": "log_1789241817366",
+      "adminEmail": "wrong@fawnic.pk",
+      "action": "FAILED_ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "Unsuccessful admin authentication attempt (unauthorized email)",
+      "timestamp": "2026-09-12T19:36:57.366Z"
+    },
+    {
+      "id": "log_1789241810983",
+      "adminEmail": "wrong@fawnic.pk",
+      "action": "FAILED_ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "Unsuccessful admin authentication attempt",
+      "timestamp": "2026-09-12T19:36:50.983Z"
+    },
+    {
+      "id": "log_1789241156438",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "Admin logged into Fawnic Console",
+      "timestamp": "2026-09-12T19:25:56.438Z"
+    },
+    {
+      "id": "log_1789241154321",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "Admin logged into Fawnic Console",
+      "timestamp": "2026-09-12T19:25:54.321Z"
+    }
+  ],
+  "faqs": [
+    {
+      "id": "faq_1",
+      "category": "Orders",
+      "question": "How do I place an order with Cash on Delivery (COD)?",
+      "answer": "Simply add your desired leather products to the cart and proceed to checkout. Enter your delivery address anywhere in Pakistan, select Cash on Delivery, and complete the order. You inspect the parcel and pay the courier rider upon delivery at your doorstep.",
+      "order": 1
+    },
+    {
+      "id": "faq_2",
+      "category": "Shipping",
+      "question": "What are the delivery timelines and shipping charges across Pakistan?",
+      "answer": "Orders totaling Rs. 5,000 or more qualify for 100% FREE nationwide shipping. For orders below Rs. 5,000, standard delivery is Rs. 250. Orders of Rs. 5,000 or more paid online receive 7% cashback credited within 24 hours. Deliveries within Karachi are completed in 24 hours. Deliveries to Lahore, Islamabad, and Rawalpindi take 24–48 hours. Other cities nationwide take 2–3 business days via TCS or Leopards Courier.",
+      "order": 2
+    },
+    {
+      "id": "faq_3",
+      "category": "Leather Care",
+      "question": "What type of leather does Fawnic use in its wallets and belts?",
+      "answer": "We exclusively use premium full-grain and top-grain cowhide and steerhide leathers. Unlike bonded or faux leather that peels over time, our full-grain leather naturally absorbs oils, resists tears, and develops a lustrous, distinguished patina that looks richer with every passing year.",
+      "order": 3
+    },
+    {
+      "id": "faq_4",
+      "category": "Returns & Warranty",
+      "question": "What is Fawnic’s 7-Day Hassle-Free Exchange and Return policy?",
+      "answer": "If you are not thoroughly satisfied with the fit, color, or feel of your Fawnic product, you may request an exchange or return within 7 days of delivery. Our logistics team coordinates a doorstep courier pickup from your residence. All items must be unused with original presentation tags.",
+      "order": 4
+    },
+    {
+      "id": "faq_5",
+      "category": "Payments",
+      "question": "Can I pay via Direct Bank Transfer (1Link IBFT)?",
+      "answer": "Yes. In addition to Cash on Delivery, we support direct bank transfers via 1Link IBFT into our Meezan Bank corporate account. Simply provide the transaction reference upon checkout for immediate processing.",
+      "order": 5
+    }
+  ],
+  "policies": [
+    {
+      "id": "pol_shipping",
+      "slug": "shipping-policy",
+      "title": "Nationwide Shipping & Logistics Policy",
+      "content": "### 1. Dedicated Courier Partnerships\nAll Fawnic orders are dispatched via tracked courier consignments handled by TCS Express, Leopards Courier, and Trax Logistics.\n\n### 2. Free Delivery Threshold\n- **Orders Rs. 5,000 and above:** Enjoy 100% complimentary express delivery across all 150+ cities in Pakistan. Plus, get 7% cashback on online orders of Rs. 5,000 or more (credited within 24 hours).\n- **Orders under Rs. 5,000:** A standard delivery fee of Rs. 250 is applied at checkout.\n\n### 3. Estimated Delivery Times\n- **Karachi:** 12 to 24 hours (Same-day dispatch for orders placed before 2:00 PM).\n- **Lahore, Islamabad, Rawalpindi:** 24 to 48 hours.\n- **Peshawar, Faisalabad, Multan, Sialkot, Quetta & Nationwide:** 2 to 3 business days.\n\n### 4. Cash on Delivery (COD) Protocol\nCouriers accept Cash on Delivery payments in Pakistani Rupees (PKR). Riders provide an official SMS dispatch receipt upon delivery.",
+      "lastUpdated": "2026-03-01"
+    },
+    {
+      "id": "pol_returns",
+      "slug": "return-and-refund-policy",
+      "title": "7-Day Return, Exchange & Warranty Policy",
+      "content": "### 1. 7-Day Doorstep Exchange\nYou have 7 calendar days from the date of parcel receipt to request an exchange for size, color, or model. Fawnic coordinates a courier rider to collect the return parcel directly from your doorstep.\n\n### 2. Condition of Returned Items\nItems must be in pristine, unworn condition with original presentation boxes, dust bags, and authentication tags attached.\n\n### 3. Refunds\nApproved refunds for Cash on Delivery purchases are disbursed via JazzCash, EasyPaisa, or direct 1Link Bank Transfer within 48 hours of item inspection.\n\n### 4. Craftsmanship Warranty\nEvery Fawnic wallet and belt carries a 1-Year Craftsmanship Guarantee covering stitching integrity, hardware functionality, and leather grain durability.",
+      "lastUpdated": "2026-03-01"
+    },
+    {
+      "id": "pol_privacy",
+      "slug": "privacy-policy",
+      "title": "Customer Privacy & Data Protection",
+      "content": "### 1. Data Integrity\nFawnic respects your privacy. We collect customer telephone numbers, shipping addresses, and emails strictly for order fulfillment, dispatch SMS notifications, and delivery coordination.\n\n### 2. No Third-Party Reselling\nWe never sell, rent, or monetize your contact or purchase information with external advertisers or telemarketers.\n\n### 3. Pakistani Legal Compliance\nPlease note that these policies represent standard commercial terms and should be reviewed for formal compliance with applicable Pakistani consumer protection and e-commerce laws.",
+      "lastUpdated": "2026-03-01"
+    },
+    {
+      "id": "pol_terms",
+      "slug": "terms-and-conditions",
+      "title": "Terms of Service & Atelier Standards",
+      "content": "### 1. General Agreement\nBy placing an order on Fawnic, you agree to these terms of service, payment arrangements, and courier delivery procedures.\n\n### 2. Natural Leather Variations\nFull-grain leather is an authentic organic material. Natural grain variations, subtle pull-up shading, and gentle character marks are natural signatures of genuine high-grade animal hide and are not considered manufacturing defects.",
+      "lastUpdated": "2026-03-01"
+    }
+  ],
+  "contactMessages": [
+    {
+      "id": "qry_1789586817188_vrife",
+      "name": "Taha Saroya",
+      "email": "tahahussainsaroya329@gmail.com",
+      "phone": "+92 3440017711",
+      "subject": "Order Process",
+      "message": "kjbfkjekb jbfiubiufjkbe jhb uifiwqbb kjbfibiwbefbjn biubnfkjbjebife jbkjebkjwbkjfbkjwe  kbkijb fekjbkjn  jkbkjebfkjfbwknbjk jhb kbfkbkbkfe kj kj  fe kjwbnkj hkjfnkje fj bkjfbkjew nebfkjeb fikj evjhbeuf b wkjbnfjkbekjr fge",
+      "status": "unread",
+      "createdAt": "2026-09-16T19:26:57.187Z"
+    },
+    {
+      "id": "qry_1789581116894_45g87",
+      "name": "Ali Chishti",
+      "email": "aliahaba340@gmail.com",
+      "phone": "03455005396",
+      "subject": "order process",
+      "message": "**How to Order:**\n\n1. Apna naam aur contact number enter karein.\n2. Product ka naam aur quantity mention karein.\n3. Apna complete delivery address enter karein.\n4. Order details submit karein.\n5. Hamari team aap se confirmation ke liye contact karegi.",
+      "status": "unread",
+      "createdAt": "2026-09-16T17:51:56.893Z"
+    },
+    {
+      "id": "qry_1789580684752_7o1va",
+      "name": "Hassan Raza",
+      "email": "hassan.raza@example.com",
+      "phone": "03001234567",
+      "subject": "Delivery timeline to Lahore",
+      "message": "Could you please confirm if express delivery is available for leather briefcases to Lahore?",
+      "status": "unread",
+      "createdAt": "2026-09-16T17:44:44.752Z"
+    }
+  ],
+  "newsletterSubscribers": [],
+  "wishlists": {
+    "usr_cust_1": [
+      "fwn_wlt_01",
+      "fwn_blt_01"
+    ],
+    "usr_1789586536928_tqjpi": [
+      "fwn_blt_03"
+    ]
+  },
+  "homepageCms": {
+    "heroHeading": "Crafted for the Way You Carry.",
+    "heroSubheading": "Master-crafted full-grain leather wallets, solid brass belts, and everyday essentials engineered for effortless distinction.",
+    "heroImage": "https://images.unsplash.com/photo-1627123424574-724758594e93?w=1600&auto=format&fit=crop&q=90",
+    "heroCtaText": "Shop Collection",
+    "heroCtaLink": "#shop",
+    "announcementText": "Complimentary Express Nationwide Delivery on Orders Over Rs. 5,000",
+    "isAnnouncementEnabled": true,
+    "featuredCategoriesEnabled": true,
+    "bestSellersEnabled": true,
+    "brandStoryEnabled": true,
+    "craftsmanshipEnabled": true,
+    "featuredWalletEnabled": true,
+    "beltShowcaseEnabled": true,
+    "whyFawnicEnabled": true,
+    "reviewsEnabled": true,
+    "brandGalleryEnabled": true,
+    "newsletterEnabled": true
+  },
+  "settings": {
+    "storeName": "FAWNIC Luxury Leather Goods",
+    "logoUrl": "https://i.postimg.cc/d391qxwY/Whats-App-Image-2026-09-11-at-11-39-40-AM.jpg",
+    "faviconUrl": "https://i.postimg.cc/d391qxwY/Whats-App-Image-2026-09-11-at-11-39-40-AM.jpg",
+    "currency": "PKR",
+    "supportEmail": "fawnic01@gmail.com",
+    "supportPhone": "03711661611",
+    "supportWhatsApp": "03711661611",
+    "officeAddress": "DHA Phase 5, Lahore, Pakistan",
+    "standardShippingFee": 250,
+    "freeShippingThreshold": 5000,
+    "estimatedDeliveryKarachi": "12 - 24 Hours",
+    "estimatedDeliveryMajorCities": "24 - 48 Hours",
+    "estimatedDeliveryNationwide": "2 - 3 Business Days",
+    "codEnabled": true,
+    "bankTransferEnabled": true,
+    "bankAccountTitle": "ALI AHAB MUKARRAM",
+    "bankAccountNumber": "28020115438839",
+    "bankName": "Meezan Bank",
+    "bankIban": "PK20MEZN0028020115438839",
+    "bankBranch": "DHA Phase 5, Lahore",
+    "bankPaymentProofRequired": true
+  },
+  "inventoryTransactions": [
+    {
+      "id": "txn_1790537710088_113",
+      "productId": "fwn_wlt_01",
+      "productName": "The Sovereign Executive Bifold Wallet",
+      "sku": "FWN-SOV-01",
+      "change": -1,
+      "previousStock": 50,
+      "newStock": 49,
+      "reason": "Order Placed",
+      "referenceId": "FWN-26814",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "timestamp": "2026-09-27T19:35:10.088Z",
+      "notes": "Consignment order FWN-26814"
+    }
+  ],
+  "invoices": [
+    {
+      "id": "inv_1790537710088",
+      "invoiceNumber": "FW-INV-0001",
+      "orderId": "ord_1790537710088",
+      "orderNumber": "FWN-26814",
+      "customerName": "Taha Saroya",
+      "customerEmail": "tahahussainsaroya329@gmail.com",
+      "customerPhone": "+92 3440017711",
+      "customerAddress": "Karachi, Sindh",
+      "items": [
+        {
+          "productId": "fwn_wlt_01",
+          "productName": "The Sovereign Executive Bifold Wallet",
+          "name": "The Sovereign Executive Bifold Wallet",
+          "productImage": "https://images.unsplash.com/photo-1627123424574-724758594e93?w=1000&auto=format&fit=crop&q=85",
+          "image": "https://images.unsplash.com/photo-1627123424574-724758594e93?w=1000&auto=format&fit=crop&q=85",
+          "sku": "FWN-SOV-01",
+          "variantInfo": "",
+          "selectedColor": "",
+          "quantity": 1,
+          "unitPrice": 4450,
+          "price": 4450,
+          "subtotal": 4450
+        }
+      ],
+      "subtotal": 4450,
+      "shippingFee": 0,
+      "discount": 0,
+      "total": 4450,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-09-27T19:35:10.088Z",
+      "createdAt": "2026-09-27T19:35:10.088Z",
+      "status": "issued"
+    }
+  ],
+  "teamMembers": [
+    {
+      "id": "tm_1789242178578",
+      "name": "Taha Saroya",
+      "email": "tahasaroya369@gmail.com",
+      "phone": "+92 3455005396",
+      "role": "manager",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
+      "status": "active",
+      "createdAt": "2026-09-12T19:42:58.578Z",
+      "permissions": {
+        "pages": [
+          "dashboard",
+          "orders",
+          "products",
+          "inventory",
+          "coupons",
+          "invoices",
+          "crm",
+          "categories",
+          "analytics"
+        ],
+        "actions": {
+          "products": {
+            "view": true,
+            "add": true,
+            "edit": true,
+            "publish": true,
+            "unpublish": false,
+            "delete": false
+          },
+          "orders": {
+            "view": true,
+            "edit": true,
+            "cancel": false,
+            "delete": false
+          },
+          "invoices": {
+            "view": true,
+            "create": false,
+            "edit": false,
+            "download": true,
+            "delete": false
+          },
+          "staff": {
+            "view": false,
+            "create": false,
+            "edit": false,
+            "delete": false,
+            "manage_permissions": false
+          }
+        }
+      },
+      "passwordHash": "60aba12abfa14f7d77e62dbfd31b9d703ea39bec988a1ff0d5288cb6c7500f91bbe311fb54b44a2956637dd6ca383135275c5504817b69842431ae30ed7622b3",
+      "salt": "ca56134e41ebc0ea51655b3f03097429",
+      "lastLogin": "2026-09-12T19:44:49.652Z"
+    }
+  ],
+  "customerNotes": {},
+  "invoiceSettings": {
+    "businessName": "FAWNIC ATELIER",
+    "logoUrl": "/fawnic-logo.jpg",
+    "address": "DHA Phase 5, Lahore, Pakistan",
+    "email": "fawnic01@gmail.com",
+    "phone": "03711661611",
+    "website": "https://fawnic.pk",
+    "ntn": "",
+    "invoicePrefix": "FW-INV-",
+    "footerText": "Created By FAWNIC Team",
+    "termsAndConditions": "All bespoke and heirloom leather creations carry a 1-year atelier warranty."
+  },
+  "promotions": [
+    {
+      "id": "promo_autumn_2026",
+      "title": "Atelier Autumn Grand Reveal",
+      "type": "banner",
+      "description": "Experience the dawn of our multi-vendor luxury collective. Enjoy 15% off signature timepieces, leather crafts, and artisan bags with code ATELIER15.",
+      "code": "ATELIER15",
+      "discountPercentage": 15,
+      "startDate": "2026-09-01T00:00:00.000Z",
+      "endDate": "2026-10-31T23:59:59.000Z",
+      "isActive": true,
+      "createdAt": "2026-09-01T00:00:00.000Z"
+    }
+  ],
+  "notificationReads": [
+    {
+      "id": "usr_1789586536928_tqjpi_notif_welcome_atelier",
+      "userId": "usr_1789586536928_tqjpi",
+      "notificationId": "notif_welcome_atelier",
+      "readAt": "2026-09-16T19:24:50.197Z"
+    },
+    {
+      "id": "usr_1789586536928_tqjpi_notif_1789586901446_reply",
+      "userId": "usr_1789586536928_tqjpi",
+      "notificationId": "notif_1789586901446_reply",
+      "readAt": "2026-09-16T19:30:54.313Z"
+    },
+    {
+      "id": "usr_1789586536928_tqjpi_notif_winter_sale_atelier",
+      "userId": "usr_1789586536928_tqjpi",
+      "notificationId": "notif_winter_sale_atelier",
+      "readAt": "2026-09-16T20:04:53.662Z"
+    }
+  ],
+  "queries": [
+    {
+      "id": "qry_1789586817188_vrife",
+      "queryNumber": "FW-QRY-0003",
+      "customerId": "usr_1789586536928_tqjpi",
+      "customerName": "Taha Saroya",
+      "customerEmail": "tahahussainsaroya329@gmail.com",
+      "customerPhone": "+92 3440017711",
+      "subject": "Order Process",
+      "category": "General Question",
+      "message": "kjbfkjekb jbfiubiufjkbe jhb uifiwqbb kjbfibiwbefbjn biubnfkjbjebife jbkjebkjwbkjfbkjwe  kbkijb fekjbkjn  jkbkjebfkjfbwknbjk jhb kbfkbkbkfe kj kj  fe kjwbnkj hkjfnkje fj bkjfbkjew nebfkjeb fikj evjhbeuf b wkjbnfjkbekjr fge",
+      "status": "replied",
+      "priority": "normal",
+      "isReadByAdmin": true,
+      "isReadByCustomer": false,
+      "isArchived": false,
+      "isDeleted": false,
+      "messages": [
+        {
+          "id": "qmsg_1789586817188_1",
+          "queryId": "qry_1789586817188_vrife",
+          "senderId": "usr_1789586536928_tqjpi",
+          "senderName": "Taha Saroya",
+          "senderRole": "customer",
+          "message": "kjbfkjekb jbfiubiufjkbe jhb uifiwqbb kjbfibiwbefbjn biubnfkjbjebife jbkjebkjwbkjfbkjwe  kbkijb fekjbkjn  jkbkjebfkjfbwknbjk jhb kbfkbkbkfe kj kj  fe kjwbnkj hkjfnkje fj bkjfbkjew nebfkjeb fikj evjhbeuf b wkjbnfjkbekjr fge",
+          "createdAt": "2026-09-16T19:26:57.187Z",
+          "isRead": false
+        },
+        {
+          "id": "qmsg_1789586846436_em4i",
+          "queryId": "qry_1789586817188_vrife",
+          "senderId": "usr_1789586536928_tqjpi",
+          "senderName": "Taha Saroya",
+          "senderRole": "customer",
+          "message": "hi",
+          "createdAt": "2026-09-16T19:27:26.436Z",
+          "isRead": false
+        },
+        {
+          "id": "qmsg_1789586901446_2nn1",
+          "queryId": "qry_1789586817188_vrife",
+          "senderId": "usr_admin_1",
+          "senderName": "Ali Chishti",
+          "senderRole": "admin",
+          "message": "yes",
+          "createdAt": "2026-09-16T19:28:21.446Z",
+          "isRead": false
+        },
+        {
+          "id": "qmsg_1789730734550_z4fu",
+          "queryId": "qry_1789586817188_vrife",
+          "senderId": "usr_1789586536928_tqjpi",
+          "senderName": "Taha Saroya",
+          "senderRole": "customer",
+          "message": "dtuyffuf",
+          "createdAt": "2026-09-18T11:25:34.550Z",
+          "isRead": false
+        },
+        {
+          "id": "qmsg_1789731129165_eben",
+          "queryId": "qry_1789586817188_vrife",
+          "senderId": "usr_admin_1",
+          "senderName": "Ali Chishti",
+          "senderRole": "admin",
+          "message": "bhut",
+          "createdAt": "2026-09-18T11:32:09.165Z",
+          "isRead": false
+        }
+      ],
+      "internalNotes": [],
+      "auditTimeline": [
+        {
+          "id": "qaud_1789586817188_1",
+          "queryId": "qry_1789586817188_vrife",
+          "action": "Query submitted via Contact Us",
+          "actorName": "Taha Saroya",
+          "actorRole": "customer",
+          "timestamp": "2026-09-16T19:26:57.187Z",
+          "details": "Category: General Question"
+        },
+        {
+          "id": "qaud_1789586846436",
+          "queryId": "qry_1789586817188_vrife",
+          "action": "Customer replied to conversation",
+          "actorName": "Taha Saroya",
+          "actorRole": "customer",
+          "timestamp": "2026-09-16T19:27:26.436Z"
+        },
+        {
+          "id": "qaud_1789586901446",
+          "queryId": "qry_1789586817188_vrife",
+          "action": "Staff reply sent by Ali Chishti",
+          "actorName": "Ali Chishti",
+          "actorRole": "admin",
+          "timestamp": "2026-09-16T19:28:21.446Z"
+        },
+        {
+          "id": "qaud_1789730734550",
+          "queryId": "qry_1789586817188_vrife",
+          "action": "Customer replied to conversation",
+          "actorName": "Taha Saroya",
+          "actorRole": "customer",
+          "timestamp": "2026-09-18T11:25:34.550Z"
+        },
+        {
+          "id": "qaud_1789731129165",
+          "queryId": "qry_1789586817188_vrife",
+          "action": "Staff reply sent by Ali Chishti",
+          "actorName": "Ali Chishti",
+          "actorRole": "admin",
+          "timestamp": "2026-09-18T11:32:09.165Z"
+        }
+      ],
+      "createdAt": "2026-09-16T19:26:57.187Z",
+      "updatedAt": "2026-09-18T11:32:09.165Z"
+    },
+    {
+      "id": "qry_1789581116894_45g87",
+      "queryNumber": "FW-QRY-0002",
+      "customerName": "Ali Chishti",
+      "customerEmail": "aliahaba340@gmail.com",
+      "customerPhone": "03455005396",
+      "subject": "order process",
+      "category": "General Question",
+      "message": "**How to Order:**\n\n1. Apna naam aur contact number enter karein.\n2. Product ka naam aur quantity mention karein.\n3. Apna complete delivery address enter karein.\n4. Order details submit karein.\n5. Hamari team aap se confirmation ke liye contact karegi.",
+      "status": "replied",
+      "priority": "normal",
+      "isReadByAdmin": true,
+      "isReadByCustomer": false,
+      "isArchived": false,
+      "isDeleted": false,
+      "messages": [
+        {
+          "id": "qmsg_1789581116894_1",
+          "queryId": "qry_1789581116894_45g87",
+          "senderName": "Ali Chishti",
+          "senderRole": "customer",
+          "message": "**How to Order:**\n\n1. Apna naam aur contact number enter karein.\n2. Product ka naam aur quantity mention karein.\n3. Apna complete delivery address enter karein.\n4. Order details submit karein.\n5. Hamari team aap se confirmation ke liye contact karegi.",
+          "createdAt": "2026-09-16T17:51:56.893Z",
+          "isRead": false
+        },
+        {
+          "id": "qmsg_1789581231582_otm6",
+          "queryId": "qry_1789581116894_45g87",
+          "senderId": "usr_admin_1",
+          "senderName": "Ali Chishti",
+          "senderRole": "admin",
+          "message": "We are pleased to offer a hassle-free 7-day exchange and return policy across Pakistan. Please ensure the article remains in original packaging with protective seals intact. Our concierge team can arrange reverse pickup or provide courier return details.",
+          "createdAt": "2026-09-16T17:53:51.582Z",
+          "isRead": false
+        }
+      ],
+      "internalNotes": [],
+      "auditTimeline": [
+        {
+          "id": "qaud_1789581116894_1",
+          "queryId": "qry_1789581116894_45g87",
+          "action": "Query submitted via Contact Us",
+          "actorName": "Ali Chishti",
+          "actorRole": "customer",
+          "timestamp": "2026-09-16T17:51:56.893Z",
+          "details": "Category: General Question"
+        },
+        {
+          "id": "qaud_1789581231582",
+          "queryId": "qry_1789581116894_45g87",
+          "action": "Staff reply sent by Ali Chishti",
+          "actorName": "Ali Chishti",
+          "actorRole": "admin",
+          "timestamp": "2026-09-16T17:53:51.582Z"
+        }
+      ],
+      "createdAt": "2026-09-16T17:51:56.893Z",
+      "updatedAt": "2026-09-16T17:53:51.582Z"
+    },
+    {
+      "id": "qry_1789580684752_7o1va",
+      "queryNumber": "FW-QRY-0001",
+      "customerName": "Hassan Raza",
+      "customerEmail": "hassan.raza@example.com",
+      "customerPhone": "03001234567",
+      "subject": "Delivery timeline to Lahore",
+      "category": "Shipping",
+      "orderNumber": "FW-9821",
+      "message": "Could you please confirm if express delivery is available for leather briefcases to Lahore?",
+      "status": "new",
+      "priority": "normal",
+      "isReadByAdmin": false,
+      "isReadByCustomer": true,
+      "isArchived": false,
+      "isDeleted": true,
+      "messages": [
+        {
+          "id": "qmsg_1789580684752_1",
+          "queryId": "qry_1789580684752_7o1va",
+          "senderName": "Hassan Raza",
+          "senderRole": "customer",
+          "message": "Could you please confirm if express delivery is available for leather briefcases to Lahore?",
+          "createdAt": "2026-09-16T17:44:44.752Z",
+          "isRead": false
+        }
+      ],
+      "internalNotes": [],
+      "auditTimeline": [
+        {
+          "id": "qaud_1789580684752_1",
+          "queryId": "qry_1789580684752_7o1va",
+          "action": "Query submitted via Contact Us",
+          "actorName": "Hassan Raza",
+          "actorRole": "customer",
+          "timestamp": "2026-09-16T17:44:44.752Z",
+          "details": "Category: Shipping"
+        },
+        {
+          "id": "qaud_1789580798559",
+          "queryId": "qry_1789580684752_7o1va",
+          "action": "Query deleted by administrator",
+          "actorName": "Ali Chishti",
+          "actorRole": "admin",
+          "timestamp": "2026-09-16T17:46:38.559Z"
+        }
+      ],
+      "createdAt": "2026-09-16T17:44:44.752Z",
+      "updatedAt": "2026-09-16T17:46:38.559Z"
+    }
+  ]
+}
