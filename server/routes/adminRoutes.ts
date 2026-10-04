@@ -154,6 +154,8 @@ router.post('/products', (req: AuthenticatedRequest, res) => {
     variants,
     hasVariations,
     variations,
+    colorVariations,
+    sizeVariations,
     features,
     specifications,
     careInstructions,
@@ -200,6 +202,8 @@ router.post('/products', (req: AuthenticatedRequest, res) => {
     variants: variants || [],
     hasVariations: Boolean(hasVariations),
     variations: Array.isArray(variations) ? variations : [],
+    colorVariations: Array.isArray(colorVariations) ? colorVariations : undefined,
+    sizeVariations: Array.isArray(sizeVariations) ? sizeVariations : undefined,
     features: features || [],
     specifications: specifications || {},
     careInstructions,
@@ -234,6 +238,12 @@ router.put('/products/:id', (req: AuthenticatedRequest, res) => {
   }
   if (req.body.variations !== undefined) {
     product.variations = Array.isArray(req.body.variations) ? req.body.variations : [];
+  }
+  if (req.body.colorVariations !== undefined) {
+    product.colorVariations = Array.isArray(req.body.colorVariations) ? req.body.colorVariations : [];
+  }
+  if (req.body.sizeVariations !== undefined) {
+    product.sizeVariations = Array.isArray(req.body.sizeVariations) ? req.body.sizeVariations : [];
   }
 
   // Update stock status based on stock value

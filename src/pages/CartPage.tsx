@@ -132,9 +132,15 @@ export const CartPage: React.FC<CartPageProps> = ({ onNavigate }) => {
                     {item.product.name}
                   </h3>
 
-                  {item.selectedVariation && (
+                  {(item.selectedColor || item.selectedVariation?.color || (item.selectedVariation && item.selectedVariation.type !== 'size' && !item.selectedVariation.size && item.selectedVariation.name)) && (
                     <p className="text-xs font-semibold text-amber-800 dark:text-amber-400 mt-0.5">
-                      Color: {item.selectedVariation.name}
+                      Color: {item.selectedColor || item.selectedVariation?.color || item.selectedVariation?.name}
+                    </p>
+                  )}
+
+                  {(item.selectedSize || item.selectedVariation?.size || item.selectedVariants?.['Size'] || (item.selectedVariation && item.selectedVariation.type === 'size' && item.selectedVariation.name)) && (
+                    <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 mt-0.5">
+                      Size: {item.selectedSize || item.selectedVariation?.size || item.selectedVariants?.['Size'] || item.selectedVariation?.name}
                     </p>
                   )}
 
@@ -147,7 +153,7 @@ export const CartPage: React.FC<CartPageProps> = ({ onNavigate }) => {
                   {item.selectedVariants && (
                     <div className="flex flex-wrap gap-1.5 mt-2">
                       {Object.entries(item.selectedVariants)
-                        .filter(([k]) => k !== 'Color')
+                        .filter(([k]) => k !== 'Color' && k !== 'Size' && k !== 'Waist Size')
                         .map(([k, v]) => (
                           <span
                             key={k}

@@ -303,6 +303,17 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
             quantity: i.quantity,
             selectedVariants: i.selectedVariants,
             selectedVariation: i.selectedVariation,
+            selectedColor:
+              i.selectedColor ||
+              i.selectedVariation?.color ||
+              (i.selectedVariation && i.selectedVariation.type !== 'size' && !i.selectedVariation.size ? i.selectedVariation.name : undefined) ||
+              i.selectedVariants?.['Color'],
+            selectedSize:
+              i.selectedSize ||
+              i.selectedVariation?.size ||
+              (i.selectedVariation && i.selectedVariation.type === 'size' ? i.selectedVariation.name : undefined) ||
+              i.selectedVariants?.['Size'] ||
+              i.selectedVariants?.['Waist Size'],
           })),
           paymentMethod,
           paymentProof: paymentProof || undefined,
@@ -916,9 +927,14 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
                           Rs. {(it.unitPrice * it.quantity).toLocaleString()}
                         </span>
                       </div>
-                      {it.selectedVariation && (
+                      {(it.selectedColor || it.selectedVariation?.color || (it.selectedVariation && it.selectedVariation.type !== 'size' && !it.selectedVariation.size && it.selectedVariation.name)) && (
                         <p className="text-[11px] font-semibold text-amber-800 dark:text-amber-400">
-                          Color: {it.selectedVariation.name}
+                          Color: {it.selectedColor || it.selectedVariation?.color || it.selectedVariation?.name}
+                        </p>
+                      )}
+                      {(it.selectedSize || it.selectedVariation?.size || it.selectedVariants?.['Size'] || (it.selectedVariation && it.selectedVariation.type === 'size' && it.selectedVariation.name)) && (
+                        <p className="text-[11px] font-semibold text-zinc-700 dark:text-zinc-300">
+                          Size: {it.selectedSize || it.selectedVariation?.size || it.selectedVariants?.['Size'] || it.selectedVariation?.name}
                         </p>
                       )}
                       <p className="text-[10px] text-zinc-400 font-mono">

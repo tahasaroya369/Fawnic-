@@ -104,26 +104,47 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     selectedVariants?: Record<string, string>,
     selectedVariation?: ProductVariation
   ) => {
-    const finalVariants = {
+    const colorName =
+      selectedVariation?.color ||
+      (selectedVariation?.type !== 'size' && !selectedVariation?.size ? selectedVariation?.name : undefined) ||
+      selectedVariants?.['Color'];
+    const sizeName =
+      selectedVariation?.size ||
+      (selectedVariation?.type === 'size' ? selectedVariation?.name : undefined) ||
+      selectedVariants?.['Size'] ||
+      selectedVariants?.['Waist Size'];
+
+    const finalVariants: Record<string, string> = {
       ...(selectedVariants || {}),
-      ...(selectedVariation ? { Color: selectedVariation.name } : {}),
+      ...(colorName ? { Color: colorName } : {}),
+      ...(sizeName ? { Size: sizeName } : {}),
     };
-    const variantKey = selectedVariation
-      ? `var_${selectedVariation.id}_${selectedVariation.name}`
-      : Object.keys(finalVariants).length > 0
-        ? JSON.stringify(finalVariants)
-        : '';
-    const cartItemId = `${product.id}_${variantKey}`;
+
+    const variantKey = [
+      colorName ? `col_${colorName}` : '',
+      sizeName ? `sz_${sizeName}` : '',
+      selectedVariation?.id ? `id_${selectedVariation.id}` : '',
+      ...Object.entries(finalVariants)
+        .filter(([k]) => k !== 'Color' && k !== 'Size' && k !== 'Waist Size')
+        .map(([k, v]) => `${k}_${v}`),
+    ]
+      .filter(Boolean)
+      .join('__');
+
+    const cartItemId = variantKey ? `${product.id}__${variantKey}` : product.id;
+    const availableStock = selectedVariation?.stock !== undefined ? selectedVariation.stock : product.stock;
 
     setItems((prev) => {
       const existingIdx = prev.findIndex((item) => item.id === cartItemId);
       if (existingIdx > -1) {
         const updated = [...prev];
-        const newQty = Math.min(product.stock, updated[existingIdx].quantity + quantity);
+        const newQty = Math.min(availableStock, updated[existingIdx].quantity + quantity);
         updated[existingIdx] = {
           ...updated[existingIdx],
           quantity: newQty,
           selectedVariation: selectedVariation || updated[existingIdx].selectedVariation,
+          selectedColor: colorName,
+          selectedSize: sizeName,
         };
         return updated;
       } else {
@@ -134,9 +155,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             id: cartItemId,
             productId: product.id,
             product,
-            quantity: Math.min(product.stock, quantity),
+            quantity: Math.min(availableStock, quantity),
             selectedVariants: Object.keys(finalVariants).length > 0 ? finalVariants : undefined,
             selectedVariation,
+            selectedColor: colorName,
+            selectedSize: sizeName,
             unitPrice,
           },
         ];

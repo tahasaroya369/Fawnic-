@@ -59,7 +59,20 @@ router.post('/', (req: AuthenticatedRequest, res) => {
     }
 
     const selectedVar = it.selectedVariation;
-    const variantText = it.variantInfo || (selectedVar ? `Color: ${selectedVar.name}` : (it.selectedVariants ? Object.entries(it.selectedVariants).map(([k, v]) => `${k}: ${v}`).join(', ') : undefined));
+    const colorVal = it.selectedColor || selectedVar?.color || (selectedVar?.type !== 'size' && !selectedVar?.size ? selectedVar?.name : undefined) || it.selectedVariants?.['Color'];
+    const sizeVal = it.selectedSize || selectedVar?.size || (selectedVar?.type === 'size' ? selectedVar?.name : undefined) || it.selectedVariants?.['Size'] || it.selectedVariants?.['Waist Size'];
+
+    const variantParts: string[] = [];
+    if (colorVal) variantParts.push(`Color: ${colorVal}`);
+    if (sizeVal) variantParts.push(`Size: ${sizeVal}`);
+    if (it.selectedVariants) {
+      Object.entries(it.selectedVariants).forEach(([k, v]) => {
+        if (k !== 'Color' && k !== 'Size' && k !== 'Waist Size') {
+          variantParts.push(`${k}: ${v}`);
+        }
+      });
+    }
+    const variantText = it.variantInfo || (variantParts.length > 0 ? variantParts.join(' | ') : undefined);
 
     orderItems.push({
       productId: product.id,
@@ -70,7 +83,8 @@ router.post('/', (req: AuthenticatedRequest, res) => {
       sku: selectedVar?.sku || product.sku,
       variantInfo: variantText,
       selectedVariation: selectedVar,
-      selectedColor: selectedVar?.name || it.selectedVariants?.['Color'],
+      selectedColor: colorVal,
+      selectedSize: sizeVal,
       selectedVariants: it.selectedVariants,
       quantity: it.quantity,
       price: price,

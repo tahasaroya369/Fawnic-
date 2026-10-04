@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import {
   Star,
   ShoppingBag,
@@ -29,7 +29,7 @@ import {
   markImageLoaded,
 } from '../services/productCache.js';
 import { ProductCard } from '../components/common/ProductCard.js';
-import type { Product, Review } from '../types.js';
+import type { Product, Review, ProductVariation } from '../types.js';
 
 interface ProductDetailProps {
   slug: string;
@@ -50,6 +50,24 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ slug, onNavigate, 
 
   const [selectedImage, setSelectedImage] = useState<string>(() => cachedDetail?.product?.mainImage || '');
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
+
+  // Variation States: Color & Size
+  const [selectedColor, setSelectedColor] = useState<string>(() => {
+    if (cachedDetail?.product?.hasVariations && cachedDetail.product.variations && cachedDetail.product.variations.length > 0) {
+      const first = cachedDetail.product.variations[0];
+      return first.color || (first.type !== 'size' && !first.size ? first.name : '') || '';
+    }
+    return '';
+  });
+
+  const [selectedSize, setSelectedSize] = useState<string>(() => {
+    if (cachedDetail?.product?.hasVariations && cachedDetail.product.variations && cachedDetail.product.variations.length > 0) {
+      const first = cachedDetail.product.variations[0];
+      return first.size || (first.type === 'size' ? first.name : '') || '';
+    }
+    return '';
+  });
+
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<'desc' | 'specs' | 'reviews'>('desc');
 
@@ -69,14 +87,181 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ slug, onNavigate, 
   const galleryScrollRef = useRef<HTMLDivElement>(null);
   const thumbnailRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
+  // Unique available colors from product variations
+  const availableColors = useMemo(() => {
+    if (!product?.hasVariations || !product.variations || product.variations.length === 0) return [];
+    const colorMap = new Map<string, { name: string; colorCode?: string; image?: string; id?: string }>();
+    for (const v of product.variations) {
+      const cName = v.color?.trim() || (v.type !== 'size' && !v.size && v.name?.trim() ? v.name.trim() : '');
+      if (cName && !colorMap.has(cName)) {
+        colorMap.set(cName, {
+          name: cName,
+          colorCode: v.colorCode || '#1c1917',
+          image: v.image,
+          id: v.id,
+        });
+      }
+    }
+    return Array.from(colorMap.values());
+  }, [product?.hasVariations, product?.variations]);
+
+  // Unique available sizes from product variations
+  const availableSizes = useMemo(() => {
+    if (!product?.hasVariations || !product.variations || product.variations.length === 0) return [];
+    const sizeMap = new Map<string, { name: string; image?: string; id?: string }>();
+    for (const v of product.variations) {
+      const sName = v.size?.trim() || (v.type === 'size' && v.name?.trim() ? v.name.trim() : '');
+      if (sName && !sizeMap.has(sName)) {
+        sizeMap.set(sName, {
+          name: sName,
+          image: v.image,
+          id: v.id,
+        });
+      }
+    }
+    return Array.from(sizeMap.values());
+  }, [product?.hasVariations, product?.variations]);
+
+  // Dynamic Variation Image Resolution Hierarchy:
+  // 1. Exact combination (color + size) match with an image
+  // 2. Color variation image
+  // 3. Size variation image
+  // 4. Undefined (caller falls back to mainImage)
+  const resolveVariationImage = useCallback(
+    (color: string, size: string): string | undefined => {
+      if (!product?.variations || product.variations.length === 0) return undefined;
+
+      // 1. Check exact combination
+      if (color && size) {
+        const combo = product.variations.find(
+          (v) =>
+            Boolean(v.image) &&
+            ((v.color === color && v.size === size) ||
+              (v.name &&
+                v.name.toLowerCase().includes(color.toLowerCase()) &&
+                v.name.toLowerCase().includes(size.toLowerCase())))
+        );
+        if (combo?.image) return combo.image;
+      }
+
+      // 2. Check color-specific image
+      if (color) {
+        const colorVar = product.variations.find(
+          (v) =>
+            Boolean(v.image) &&
+            (v.color === color || (v.type !== 'size' && !v.size && v.name === color))
+        );
+        if (colorVar?.image) return colorVar.image;
+      }
+
+      // 3. Check size-specific image
+      if (size) {
+        const sizeVar = product.variations.find(
+          (v) =>
+            Boolean(v.image) &&
+            (v.size === size || (v.type === 'size' && v.name === size))
+        );
+        if (sizeVar?.image) return sizeVar.image;
+      }
+
+      return undefined;
+    },
+    [product?.variations]
+  );
+
+  // Sync selected variation, color, and size when product changes
+  useEffect(() => {
+    if (product && product.hasVariations && product.variations && product.variations.length > 0) {
+      if (availableColors.length > 0) {
+        setSelectedColor((prev) => {
+          if (prev && availableColors.some((c) => c.name === prev)) return prev;
+          return availableColors[0].name;
+        });
+      } else {
+        setSelectedColor('');
+      }
+
+      if (availableSizes.length > 0) {
+        setSelectedSize((prev) => {
+          if (prev && availableSizes.some((s) => s.name === prev)) return prev;
+          return availableSizes[0].name;
+        });
+      } else {
+        setSelectedSize('');
+      }
+    } else {
+      setSelectedColor('');
+      setSelectedSize('');
+    }
+  }, [product, availableColors, availableSizes]);
+
+  // Determine current active ProductVariation object for cart, SKU display, and pricing
+  const activeVariation = useMemo(() => {
+    if (!product?.hasVariations || !product.variations || product.variations.length === 0) return null;
+
+    let match: ProductVariation | undefined = undefined;
+
+    // 1. Combination match
+    if (selectedColor && selectedSize) {
+      match = product.variations.find(
+        (v) =>
+          (v.color === selectedColor && v.size === selectedSize) ||
+          (v.name &&
+            v.name.toLowerCase().includes(selectedColor.toLowerCase()) &&
+            v.name.toLowerCase().includes(selectedSize.toLowerCase()))
+      );
+    }
+
+    // 2. Color match
+    if (!match && selectedColor) {
+      match = product.variations.find(
+        (v) => v.color === selectedColor || (v.type !== 'size' && !v.size && v.name === selectedColor)
+      );
+    }
+
+    // 3. Size match
+    if (!match && selectedSize) {
+      match = product.variations.find(
+        (v) => v.size === selectedSize || (v.type === 'size' && v.name === selectedSize)
+      );
+    }
+
+    if (!match && product.variations.length > 0) {
+      match = product.variations[0];
+    }
+
+    if (match) {
+      const resolvedImg = resolveVariationImage(selectedColor, selectedSize) || match.image || product.mainImage;
+      const displayName =
+        selectedColor && selectedSize
+          ? `${selectedColor} / ${selectedSize}`
+          : selectedColor || selectedSize || match.name;
+
+      return {
+        ...match,
+        name: displayName,
+        color: selectedColor || match.color,
+        size: selectedSize || match.size,
+        image: resolvedImg,
+      };
+    }
+
+    return null;
+  }, [product?.hasVariations, product?.variations, selectedColor, selectedSize, resolveVariationImage, product?.mainImage]);
+
+  // Gallery images with active variation image prepended if not already in list
   const galleryImages = useMemo(() => {
     if (!product) return [];
-    const list = product.images && product.images.length > 0 ? [...product.images] : [product.mainImage];
+    let list = product.images && product.images.length > 0 ? [...product.images] : [product.mainImage];
     if (product.mainImage && !list.includes(product.mainImage)) {
       list.unshift(product.mainImage);
     }
+    const currentVarImage = resolveVariationImage(selectedColor, selectedSize);
+    if (currentVarImage && !list.includes(currentVarImage)) {
+      list = [currentVarImage, ...list];
+    }
     return list;
-  }, [product]);
+  }, [product, selectedColor, selectedSize, resolveVariationImage]);
 
   useEffect(() => {
     setActiveImageIndex(0);
@@ -102,6 +287,36 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ slug, onNavigate, 
         inline: 'nearest',
         block: 'nearest',
       });
+    }
+  };
+
+  // Immediate reactive color selection & image update
+  const handleSelectColor = (colorName: string) => {
+    setSelectedColor(colorName);
+    const newImage = resolveVariationImage(colorName, selectedSize) || product?.mainImage;
+    if (newImage) {
+      setSelectedImage(newImage);
+      const imgIdx = galleryImages.findIndex((img) => img === newImage);
+      if (imgIdx !== -1) {
+        scrollToImage(imgIdx);
+      } else {
+        scrollToImage(0);
+      }
+    }
+  };
+
+  // Immediate reactive size selection & image update
+  const handleSelectSize = (sizeName: string) => {
+    setSelectedSize(sizeName);
+    const newImage = resolveVariationImage(selectedColor, sizeName) || product?.mainImage;
+    if (newImage) {
+      setSelectedImage(newImage);
+      const imgIdx = galleryImages.findIndex((img) => img === newImage);
+      if (imgIdx !== -1) {
+        scrollToImage(imgIdx);
+      } else {
+        scrollToImage(0);
+      }
     }
   };
 
@@ -225,31 +440,43 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ slug, onNavigate, 
       : 0;
 
   const handleAddToCart = () => {
+    const finalVariants: Record<string, string> = {
+      ...selectedVariants,
+      ...(selectedColor ? { Color: selectedColor } : {}),
+      ...(selectedSize ? { Size: selectedSize } : {}),
+    };
+
     if (!checkShoppingAuth(isAuthenticated, onNavigate, {
       action: 'add_to_cart',
       product,
       quantity,
-      selectedVariants,
+      selectedVariants: finalVariants,
       returnRoute: 'product',
       returnParam: slug,
     })) {
       return;
     }
-    addToCart(product, quantity, selectedVariants);
+    addToCart(product, quantity, finalVariants, activeVariation || undefined);
   };
 
   const handleBuyNow = () => {
+    const finalVariants: Record<string, string> = {
+      ...selectedVariants,
+      ...(selectedColor ? { Color: selectedColor } : {}),
+      ...(selectedSize ? { Size: selectedSize } : {}),
+    };
+
     if (!checkShoppingAuth(isAuthenticated, onNavigate, {
       action: 'buy_now',
       product,
       quantity,
-      selectedVariants,
+      selectedVariants: finalVariants,
       returnRoute: 'product',
       returnParam: slug,
     })) {
       return;
     }
-    addToCart(product, quantity, selectedVariants);
+    addToCart(product, quantity, finalVariants, activeVariation || undefined);
     onNavigate('checkout');
   };
 
@@ -307,13 +534,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ slug, onNavigate, 
     }
   };
 
-  const getCityDeliveryEstimate = (city: string) => {
-    if (city === 'Karachi') return '5–7 Days';
-    if (city === 'Lahore' || city === 'Islamabad' || city === 'Rawalpindi')
-      return 'Express 24–48 Hours';
-    if (city === 'Peshawar' || city === 'Faisalabad' || city === 'Multan')
-      return '2–3 Working Days';
-    return '3–4 Working Days (TCS / Leopards)';
+  const getCityDeliveryEstimate = (_city?: string) => {
+    return '5–7 Days';
   };
 
   return (
@@ -513,7 +735,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ slug, onNavigate, 
             >
               {reviews.length} Verified Customer Reviews
             </button>
-            <span className="text-xs text-zinc-400">• SKU: {product.sku}</span>
+            <span className="text-xs text-zinc-400">• SKU: <span className="font-mono text-zinc-700 dark:text-zinc-300 font-semibold">{activeVariation?.sku || product.sku}</span></span>
           </div>
 
           {/* Price Box */}
@@ -536,6 +758,101 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ slug, onNavigate, 
           <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
             {product.shortDescription}
           </p>
+
+          {/* Product Variations: Color & Size */}
+          {product.hasVariations && (availableColors.length > 0 || availableSizes.length > 0) && (
+            <div className="space-y-4 pt-2">
+              {/* Color Variation Selector */}
+              {availableColors.length > 0 && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold uppercase tracking-wider text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
+                      <span>Color:</span>
+                      <span className="font-semibold text-amber-700 dark:text-amber-400 normal-case">
+                        {selectedColor || 'Select a color'}
+                      </span>
+                    </span>
+                    {availableColors.length > 1 && (
+                      <span className="text-[11px] text-zinc-400">
+                        {availableColors.length} colors available
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Color Selector Buttons */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    {availableColors.map((c) => {
+                      const isSelected = selectedColor === c.name;
+                      return (
+                        <button
+                          key={c.name}
+                          type="button"
+                          onClick={() => handleSelectColor(c.name)}
+                          aria-pressed={isSelected}
+                          className={`group relative px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all duration-150 cursor-pointer flex items-center gap-2 min-h-[40px] touch-manipulation ${
+                            isSelected
+                              ? 'border-zinc-950 bg-zinc-950 text-white dark:border-white dark:bg-white dark:text-zinc-950 shadow-md ring-1 ring-zinc-950/20 dark:ring-white/20'
+                              : 'border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:border-zinc-400 dark:hover:border-zinc-600 bg-white dark:bg-zinc-900'
+                          }`}
+                        >
+                          <span
+                            className={`w-3.5 h-3.5 rounded-full shrink-0 border transition-transform ${
+                              isSelected
+                                ? 'border-white/50 dark:border-zinc-900/50 scale-110 ring-1 ring-white/40'
+                                : 'border-black/20 dark:border-white/20'
+                            }`}
+                            style={{ backgroundColor: c.colorCode || '#1c1917' }}
+                          />
+                          <span>{c.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Size Variation Selector */}
+              {availableSizes.length > 0 && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold uppercase tracking-wider text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
+                      <span>Size:</span>
+                      <span className="font-semibold text-zinc-900 dark:text-zinc-100 normal-case">
+                        {selectedSize || 'Select a size'}
+                      </span>
+                    </span>
+                    {availableSizes.length > 1 && (
+                      <span className="text-[11px] text-zinc-400">
+                        {availableSizes.length} sizes available
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Size Selector Buttons */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    {availableSizes.map((s) => {
+                      const isSelected = selectedSize === s.name;
+                      return (
+                        <button
+                          key={s.name}
+                          type="button"
+                          onClick={() => handleSelectSize(s.name)}
+                          aria-pressed={isSelected}
+                          className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all duration-150 cursor-pointer min-h-[40px] touch-manipulation min-w-[50px] text-center ${
+                            isSelected
+                              ? 'border-zinc-950 bg-zinc-950 text-white dark:border-white dark:bg-white dark:text-zinc-950 shadow-md ring-1 ring-zinc-950/20 dark:ring-white/20'
+                              : 'border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:border-zinc-400 dark:hover:border-zinc-600 bg-white dark:bg-zinc-900'
+                          }`}
+                        >
+                          {s.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Variants Selectors */}
           {product.variants && product.variants.length > 0 && (
@@ -667,14 +984,14 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ slug, onNavigate, 
                 <option value="Faisalabad">Faisalabad</option>
                 <option value="Multan">Multan</option>
                 <option value="Quetta">Quetta</option>
-                <option value="Other">Other Pakistani Cities</option>
+                <option value="Other Pakistani Cities">Other Pakistani Cities</option>
               </select>
             </div>
 
             <p className="text-zinc-600 dark:text-zinc-400 flex items-center gap-2">
               <Clock className="w-3.5 h-3.5 text-zinc-400" />
               <span>
-                Estimated Delivery to <strong>{selectedCity}</strong>: {getCityDeliveryEstimate(selectedCity)}
+                Estimated Delivery to <strong>{selectedCity === 'Other' ? 'Other Pakistani Cities' : selectedCity}</strong>: {getCityDeliveryEstimate(selectedCity)}
               </span>
             </p>
 

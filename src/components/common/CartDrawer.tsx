@@ -157,9 +157,15 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onNavigate, isOpen, onCl
                       </button>
                     </div>
 
-                    {item.selectedVariation && (
+                    {(item.selectedColor || item.selectedVariation?.color || (item.selectedVariation && item.selectedVariation.type !== 'size' && !item.selectedVariation.size && item.selectedVariation.name)) && (
                       <p className="text-[11px] font-semibold text-amber-800 dark:text-amber-400 mt-0.5">
-                        Color: {item.selectedVariation.name}
+                        Color: {item.selectedColor || item.selectedVariation?.color || item.selectedVariation?.name}
+                      </p>
+                    )}
+
+                    {(item.selectedSize || item.selectedVariation?.size || item.selectedVariants?.['Size'] || (item.selectedVariation && item.selectedVariation.type === 'size' && item.selectedVariation.name)) && (
+                      <p className="text-[11px] font-semibold text-stone-700 dark:text-stone-300 mt-0.5">
+                        Size: {item.selectedSize || item.selectedVariation?.size || item.selectedVariants?.['Size'] || item.selectedVariation?.name}
                       </p>
                     )}
 
@@ -170,7 +176,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onNavigate, isOpen, onCl
                     {item.selectedVariants && (
                       <div className="flex flex-wrap gap-1 mt-1">
                         {Object.entries(item.selectedVariants)
-                          .filter(([key]) => key !== 'Color')
+                          .filter(([key]) => key !== 'Color' && key !== 'Size' && key !== 'Waist Size')
                           .map(([key, val]) => (
                             <span
                               key={key}

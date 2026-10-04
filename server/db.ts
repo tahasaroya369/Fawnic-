@@ -59,11 +59,35 @@ interface DatabaseSchema {
   customerNotes: Record<string, string>;
 }
 
-const DATA_DIR = path.join(process.cwd(), 'data');
-const DB_FILE = path.join(DATA_DIR, 'fawnic_db.json');
+let cachedDbFilePath: string | null = null;
 
-if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
+function getDatabaseFilePath(): string {
+  if (cachedDbFilePath) return cachedDbFilePath;
+
+  const defaultDir = path.join(process.cwd(), 'data');
+  const defaultFile = path.join(defaultDir, 'fawnic_db.json');
+
+  try {
+    if (!fs.existsSync(defaultDir)) {
+      fs.mkdirSync(defaultDir, { recursive: true });
+    }
+    // Quick write probe to verify write permission
+    const testFile = path.join(defaultDir, '.write-test');
+    fs.writeFileSync(testFile, '1');
+    fs.unlinkSync(testFile);
+    cachedDbFilePath = defaultFile;
+    return defaultFile;
+  } catch {
+    // Read-only serverless environment (e.g. Vercel Serverless / AWS Lambda)
+    const tmpDir = path.join('/tmp', 'data');
+    try {
+      if (!fs.existsSync(tmpDir)) {
+        fs.mkdirSync(tmpDir, { recursive: true });
+      }
+    } catch {}
+    cachedDbFilePath = path.join(tmpDir, 'fawnic_db.json');
+    return cachedDbFilePath;
+  }
 }
 
 let db: DatabaseSchema;
@@ -1580,9 +1604,19 @@ Full-grain leather is an authentic organic material. Natural grain variations, s
 }
 
 function loadDatabase(): DatabaseSchema {
-  if (fs.existsSync(DB_FILE)) {
+  const activeFile = getDatabaseFilePath();
+  const seedFile = path.join(process.cwd(), 'data', 'fawnic_db.json');
+
+  let fileToRead = '';
+  if (fs.existsSync(activeFile)) {
+    fileToRead = activeFile;
+  } else if (fs.existsSync(seedFile)) {
+    fileToRead = seedFile;
+  }
+
+  if (fileToRead) {
     try {
-      const data = fs.readFileSync(DB_FILE, 'utf-8');
+      const data = fs.readFileSync(fileToRead, 'utf-8');
       const parsed = JSON.parse(data);
       // Ensure all root arrays and objects are present
       if (parsed.users && parsed.products && parsed.homepageCms) {
@@ -1700,7 +1734,15 @@ export function getNextQueryNumber(): string {
 export function saveDatabase(dataToSave?: DatabaseSchema): void {
   try {
     const current = dataToSave || db;
-    fs.writeFileSync(DB_FILE, JSON.stringify(current, null, 2), 'utf-8');
+    if (!current) return;
+    const targetFile = getDatabaseFilePath();
+    const dir = path.dirname(targetFile);
+    if (!fs.existsSync(dir)) {
+      try {
+        fs.mkdirSync(dir, { recursive: true });
+      } catch {}
+    }
+    fs.writeFileSync(targetFile, JSON.stringify(current, null, 2), 'utf-8');
   } catch (e) {
     console.error('Error saving database:', e);
   }

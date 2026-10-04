@@ -20,6 +20,26 @@
       "createdAt": "2026-09-16T19:22:16.928Z",
       "passwordHash": "9600a52816d018fb5269fe24965402370dd8c004b7884979bf805b86b2f66b6b541206c39bbc78cfca78957e0db53af881dac2b5b34d1c7469b9001c62bab1ab",
       "salt": "22fc2f7f02af41576dacd8c8183d1302"
+    },
+    {
+      "id": "usr_1791024471385_svofi",
+      "email": "testuser_1791024471371@fawnic.pk",
+      "name": "Taha Test",
+      "phone": "03001234567",
+      "role": "customer",
+      "createdAt": "2026-10-03T10:47:51.385Z",
+      "passwordHash": "391640af7e1a967f523c4ae37d5d7308c47d9f34c68aad17ba603c6f84bcec2b7f48295983193fce9ce4cc96f653fbfe56658fc9aacbc1cff971fc5e1b46a823",
+      "salt": "5bdb90217ed01217b088e4bdf54e3809"
+    },
+    {
+      "id": "usr_1791024477303_cuyhc",
+      "email": "login_test_1791024477174@fawnic.pk",
+      "name": "Atelier Patron",
+      "phone": "03111234567",
+      "role": "customer",
+      "createdAt": "2026-10-03T10:47:57.303Z",
+      "passwordHash": "df1fe5567e2f5028522e91fa3a080fdc55e68e875f13790b39371e926b8284776f12a7e8899de9707b455cb20e382a482f698bcba09d67925747c0ad8db44502",
+      "salt": "d47a89e51ee7edbc7072825fc22f0555"
     }
   ],
   "categories": [
@@ -149,7 +169,7 @@
       "regularPrice": 5200,
       "salePrice": 4450,
       "costPrice": 2200,
-      "stock": 49,
+      "stock": 48,
       "lowStockThreshold": 8,
       "stockStatus": "in_stock",
       "mainImage": "https://images.unsplash.com/photo-1627123424574-724758594e93?w=1000&auto=format&fit=crop&q=85",
@@ -228,7 +248,7 @@
       "regularPrice": 4200,
       "salePrice": 3450,
       "costPrice": 1600,
-      "stock": 60,
+      "stock": 59,
       "lowStockThreshold": 10,
       "stockStatus": "in_stock",
       "mainImage": "https://images.unsplash.com/photo-1559563458-527698bf5295?w=1000&auto=format&fit=crop&q=85",
@@ -434,56 +454,68 @@
         "leather",
         "steerhide"
       ],
-      "variants": [
+      "hasVariations": true,
+      "variations": [
         {
-          "id": "var_blt1_size",
-          "name": "Waist Size (Inches)",
-          "options": [
-            {
-              "label": "30 inches",
-              "stock": 8
-            },
-            {
-              "label": "32 inches",
-              "stock": 12
-            },
-            {
-              "label": "34 inches",
-              "stock": 15
-            },
-            {
-              "label": "36 inches",
-              "stock": 10
-            },
-            {
-              "label": "38 inches",
-              "stock": 6
-            },
-            {
-              "label": "40 inches",
-              "stock": 4
-            }
-          ]
+          "id": "var_blt_blk",
+          "name": "Black",
+          "type": "color",
+          "color": "Black",
+          "colorCode": "#1c1917",
+          "image": "https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=1000&auto=format&fit=crop&q=85",
+          "sku": "FWN-BLT-01-BLK",
+          "order": 1
         },
         {
-          "id": "var_blt1_color",
-          "name": "Leather & Hardware",
-          "options": [
-            {
-              "label": "Jet Black (Brushed Nickel Buckle)",
-              "stock": 25
-            },
-            {
-              "label": "Cognac Amber (Antique Brass Buckle)",
-              "stock": 20
-            },
-            {
-              "label": "Cordovan Deep Red (Solid Brass Buckle)",
-              "stock": 10
-            }
-          ]
+          "id": "var_blt_brn",
+          "name": "Brown",
+          "type": "color",
+          "color": "Brown",
+          "colorCode": "#78350f",
+          "image": "https://images.unsplash.com/photo-1551854838-212c50b4c184?w=1000&auto=format&fit=crop&q=85",
+          "sku": "FWN-BLT-01-BRN",
+          "order": 2
+        },
+        {
+          "id": "var_blt_tan",
+          "name": "Tan",
+          "type": "color",
+          "color": "Tan",
+          "colorCode": "#b45309",
+          "image": "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=1000&auto=format&fit=crop&q=85",
+          "sku": "FWN-BLT-01-TAN",
+          "order": 3
+        },
+        {
+          "id": "var_blt_sz32",
+          "name": "32",
+          "type": "size",
+          "size": "32",
+          "order": 4
+        },
+        {
+          "id": "var_blt_sz34",
+          "name": "34",
+          "type": "size",
+          "size": "34",
+          "order": 5
+        },
+        {
+          "id": "var_blt_sz36",
+          "name": "36",
+          "type": "size",
+          "size": "36",
+          "order": 6
+        },
+        {
+          "id": "var_blt_sz38",
+          "name": "38",
+          "type": "size",
+          "size": "38",
+          "order": 7
         }
       ],
+      "variants": [],
       "features": [
         "Cut from single continuous slab of 9oz full-grain steerhide",
         "Solid forged brass hardware with micro-brushed finish",
@@ -1144,6 +1176,129 @@
   ],
   "orders": [
     {
+      "id": "ord_1791024519138",
+      "orderNumber": "FWN-81513",
+      "customerName": "Standard Customer",
+      "customerEmail": "standard@fawnic.pk",
+      "customerPhone": "03009876543",
+      "shippingAddress": {
+        "fullName": "Standard Customer",
+        "addressLine1": "Defence Phase 5",
+        "city": "Lahore",
+        "province": "Punjab",
+        "postalCode": "54000",
+        "phone": "03009876543"
+      },
+      "items": [
+        {
+          "productId": "fwn_wlt_02",
+          "name": "The Apex Slim Front-Pocket Wallet",
+          "productName": "The Apex Slim Front-Pocket Wallet",
+          "image": "https://images.unsplash.com/photo-1559563458-527698bf5295?w=1000&auto=format&fit=crop&q=85",
+          "productImage": "https://images.unsplash.com/photo-1559563458-527698bf5295?w=1000&auto=format&fit=crop&q=85",
+          "sku": "FWN-APX-02",
+          "quantity": 1,
+          "price": 3450,
+          "unitPrice": 3450,
+          "total": 3450,
+          "subtotal": 3450
+        }
+      ],
+      "subtotal": 3450,
+      "shippingFee": 250,
+      "discount": 0,
+      "total": 3700,
+      "paymentMethod": "cod",
+      "paymentStatus": "pending",
+      "status": "pending",
+      "timeline": [
+        {
+          "status": "pending",
+          "timestamp": "2026-10-03T10:48:39.138Z",
+          "updatedBy": "Customer",
+          "note": "Order placed by customer via Cash on Delivery.",
+          "location": "Lahore, Pakistan"
+        }
+      ],
+      "trackingHistory": [
+        {
+          "status": "pending",
+          "timestamp": "2026-10-03T10:48:39.138Z",
+          "updatedBy": "Customer",
+          "note": "Order placed by customer via Cash on Delivery.",
+          "location": "Lahore, Pakistan"
+        }
+      ],
+      "createdAt": "2026-10-03T10:48:39.138Z"
+    },
+    {
+      "id": "ord_1791024513065",
+      "orderNumber": "FWN-20353",
+      "customerName": "Ali Customer",
+      "customerEmail": "patron@fawnic.pk",
+      "customerPhone": "03001234567",
+      "shippingAddress": {
+        "fullName": "Ali Customer",
+        "addressLine1": "House 12, Street 4, Clifton",
+        "city": "Karachi",
+        "province": "Sindh",
+        "postalCode": "75600",
+        "phone": "03001234567"
+      },
+      "items": [
+        {
+          "productId": "fwn_wlt_01",
+          "name": "The Sovereign Executive Bifold Wallet",
+          "productName": "The Sovereign Executive Bifold Wallet",
+          "image": "https://images.unsplash.com/photo-1559563458-527698bf5295?w=1000&auto=format&fit=crop&q=85",
+          "productImage": "https://images.unsplash.com/photo-1559563458-527698bf5295?w=1000&auto=format&fit=crop&q=85",
+          "sku": "FWN-WLT-01-BRN",
+          "variantInfo": "Color: Brown",
+          "selectedVariation": {
+            "id": "var_brn_02",
+            "name": "Brown",
+            "image": "https://images.unsplash.com/photo-1559563458-527698bf5295?w=1000&auto=format&fit=crop&q=85",
+            "sku": "FWN-WLT-01-BRN"
+          },
+          "selectedColor": "Brown",
+          "selectedVariants": {
+            "Color": "Brown"
+          },
+          "quantity": 1,
+          "price": 4450,
+          "unitPrice": 4450,
+          "total": 4450,
+          "subtotal": 4450
+        }
+      ],
+      "subtotal": 4450,
+      "shippingFee": 250,
+      "discount": 0,
+      "total": 4700,
+      "paymentMethod": "cod",
+      "paymentStatus": "pending",
+      "status": "pending",
+      "timeline": [
+        {
+          "status": "pending",
+          "timestamp": "2026-10-03T10:48:33.065Z",
+          "updatedBy": "Customer",
+          "note": "Order placed by customer via Cash on Delivery.",
+          "location": "Karachi, Pakistan"
+        }
+      ],
+      "trackingHistory": [
+        {
+          "status": "pending",
+          "timestamp": "2026-10-03T10:48:33.065Z",
+          "updatedBy": "Customer",
+          "note": "Order placed by customer via Cash on Delivery.",
+          "location": "Karachi, Pakistan"
+        }
+      ],
+      "createdAt": "2026-10-03T10:48:33.065Z"
+    },
+    {
       "id": "ord_1790537710088",
       "orderNumber": "FWN-26814",
       "customerId": "usr_1789586536928_tqjpi",
@@ -1266,6 +1421,48 @@
   "coupons": [],
   "notifications": [
     {
+      "id": "notif_ord_ord_1791024519138_received_1791024519139",
+      "title": "Order Placed Successfully",
+      "message": "Your bespoke leather order #FWN-81513 for Rs. 3,700 has been received and logged in our atelier.",
+      "type": "Order Update",
+      "link": "/track/FWN-81513",
+      "buttonText": "TRACK CONSIGNMENT",
+      "audience": "specific",
+      "targetUserIds": [],
+      "targetUserNames": [
+        "Standard Customer"
+      ],
+      "status": "published",
+      "publishedAt": "2026-10-03T10:48:39.139Z",
+      "createdAt": "2026-10-03T10:48:39.139Z",
+      "updatedAt": "2026-10-03T10:48:39.139Z",
+      "createdBy": "Atelier Order System",
+      "orderId": "ord_1791024519138",
+      "orderNumber": "FWN-81513",
+      "orderStatus": "received"
+    },
+    {
+      "id": "notif_ord_ord_1791024513065_received_1791024513082",
+      "title": "Order Placed Successfully",
+      "message": "Your bespoke leather order #FWN-20353 for Rs. 4,700 has been received and logged in our atelier.",
+      "type": "Order Update",
+      "link": "/track/FWN-20353",
+      "buttonText": "TRACK CONSIGNMENT",
+      "audience": "specific",
+      "targetUserIds": [],
+      "targetUserNames": [
+        "Ali Customer"
+      ],
+      "status": "published",
+      "publishedAt": "2026-10-03T10:48:33.082Z",
+      "createdAt": "2026-10-03T10:48:33.082Z",
+      "updatedAt": "2026-10-03T10:48:33.082Z",
+      "createdBy": "Atelier Order System",
+      "orderId": "ord_1791024513065",
+      "orderNumber": "FWN-20353",
+      "orderStatus": "received"
+    },
+    {
       "id": "notif_ord_ord_1790537710088_received_1790537710099",
       "title": "Order Placed Successfully",
       "message": "Your bespoke leather order #FWN-26814 for Rs. 4,450 has been received and logged in our atelier.",
@@ -1382,6 +1579,64 @@
     }
   ],
   "auditLogs": [
+    {
+      "id": "log_1791132713109",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "System Administrator authenticated into Atelier Console",
+      "timestamp": "2026-10-04T16:51:53.109Z"
+    },
+    {
+      "id": "log_1791132693116",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "FAILED_ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "Unsuccessful admin authentication attempt (invalid credentials)",
+      "timestamp": "2026-10-04T16:51:33.116Z"
+    },
+    {
+      "id": "log_1791132693103",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "System Administrator authenticated into Atelier Console",
+      "timestamp": "2026-10-04T16:51:33.103Z"
+    },
+    {
+      "id": "log_1791024853244",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "System Administrator authenticated into Atelier Console",
+      "timestamp": "2026-10-03T10:54:13.245Z"
+    },
+    {
+      "id": "log_1791024519140",
+      "adminEmail": "system",
+      "action": "NEW_ORDER_PLACED",
+      "entityType": "Order",
+      "entityId": "FWN-81513",
+      "details": "Order for Rs. 3,700 placed by Standard Customer (COD)",
+      "timestamp": "2026-10-03T10:48:39.140Z"
+    },
+    {
+      "id": "log_1791024513084",
+      "adminEmail": "system",
+      "action": "NEW_ORDER_PLACED",
+      "entityType": "Order",
+      "entityId": "FWN-20353",
+      "details": "Order for Rs. 4,700 placed by Ali Customer (COD)",
+      "timestamp": "2026-10-03T10:48:33.084Z"
+    },
+    {
+      "id": "log_1791024471356",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "FAILED_ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "Unsuccessful admin authentication attempt (invalid credentials)",
+      "timestamp": "2026-10-03T10:47:51.356Z"
+    },
     {
       "id": "log_1790788973108",
       "adminEmail": "alichishtia111@gmail.com",
@@ -1781,6 +2036,34 @@
   },
   "inventoryTransactions": [
     {
+      "id": "txn_1791024519138_716",
+      "productId": "fwn_wlt_02",
+      "productName": "The Apex Slim Front-Pocket Wallet",
+      "sku": "FWN-APX-02",
+      "change": -1,
+      "previousStock": 60,
+      "newStock": 59,
+      "reason": "Order Placed",
+      "referenceId": "FWN-81513",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "timestamp": "2026-10-03T10:48:39.138Z",
+      "notes": "Consignment order FWN-81513"
+    },
+    {
+      "id": "txn_1791024513066_883",
+      "productId": "fwn_wlt_01",
+      "productName": "The Sovereign Executive Bifold Wallet",
+      "sku": "FWN-WLT-01-BRN",
+      "change": -1,
+      "previousStock": 49,
+      "newStock": 48,
+      "reason": "Order Placed",
+      "referenceId": "FWN-20353",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "timestamp": "2026-10-03T10:48:33.066Z",
+      "notes": "Consignment order FWN-20353"
+    },
+    {
       "id": "txn_1790537710088_113",
       "productId": "fwn_wlt_01",
       "productName": "The Sovereign Executive Bifold Wallet",
@@ -1796,6 +2079,74 @@
     }
   ],
   "invoices": [
+    {
+      "id": "inv_1791024519138",
+      "invoiceNumber": "FW-INV-0003",
+      "orderId": "ord_1791024519138",
+      "orderNumber": "FWN-81513",
+      "customerName": "Standard Customer",
+      "customerEmail": "standard@fawnic.pk",
+      "customerPhone": "03009876543",
+      "customerAddress": "Lahore, Punjab",
+      "items": [
+        {
+          "productId": "fwn_wlt_02",
+          "productName": "The Apex Slim Front-Pocket Wallet",
+          "name": "The Apex Slim Front-Pocket Wallet",
+          "productImage": "https://images.unsplash.com/photo-1559563458-527698bf5295?w=1000&auto=format&fit=crop&q=85",
+          "image": "https://images.unsplash.com/photo-1559563458-527698bf5295?w=1000&auto=format&fit=crop&q=85",
+          "sku": "FWN-APX-02",
+          "quantity": 1,
+          "unitPrice": 3450,
+          "price": 3450,
+          "subtotal": 3450
+        }
+      ],
+      "subtotal": 3450,
+      "shippingFee": 250,
+      "discount": 0,
+      "total": 3700,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-03T10:48:39.138Z",
+      "createdAt": "2026-10-03T10:48:39.138Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791024513065",
+      "invoiceNumber": "FW-INV-0002",
+      "orderId": "ord_1791024513065",
+      "orderNumber": "FWN-20353",
+      "customerName": "Ali Customer",
+      "customerEmail": "patron@fawnic.pk",
+      "customerPhone": "03001234567",
+      "customerAddress": "Karachi, Sindh",
+      "items": [
+        {
+          "productId": "fwn_wlt_01",
+          "productName": "The Sovereign Executive Bifold Wallet",
+          "name": "The Sovereign Executive Bifold Wallet",
+          "productImage": "https://images.unsplash.com/photo-1559563458-527698bf5295?w=1000&auto=format&fit=crop&q=85",
+          "image": "https://images.unsplash.com/photo-1559563458-527698bf5295?w=1000&auto=format&fit=crop&q=85",
+          "sku": "FWN-WLT-01-BRN",
+          "variantInfo": "Color: Brown",
+          "selectedColor": "Color: Brown",
+          "quantity": 1,
+          "unitPrice": 4450,
+          "price": 4450,
+          "subtotal": 4450
+        }
+      ],
+      "subtotal": 4450,
+      "shippingFee": 250,
+      "discount": 0,
+      "total": 4700,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-03T10:48:33.065Z",
+      "createdAt": "2026-10-03T10:48:33.066Z",
+      "status": "issued"
+    },
     {
       "id": "inv_1790537710088",
       "invoiceNumber": "FW-INV-0001",

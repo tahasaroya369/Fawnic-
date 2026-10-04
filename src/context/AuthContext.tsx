@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import type { User } from '../types.js';
+import { safeFetch } from '../utils/apiClient.js';
 
 interface AuthContextType {
   user: User | null;
@@ -51,15 +52,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      const res = await fetch('/api/auth/me', {
+      const res = await safeFetch<{ user: User }>('/api/auth/me', {
         headers: {
           Authorization: `Bearer ${savedToken}`,
         },
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        setUser(data.user);
+      if (res.ok && res.data?.user) {
+        setUser(res.data.user);
         setToken(savedToken);
       } else {
         try {
@@ -81,21 +81,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await safeFetch<{ token: string; user: User }>('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: email.trim(), password }),
       });
 
-      const data = await res.json();
-      if (!res.ok) {
-        return { success: false, error: data.error || 'Login failed' };
+      if (!res.ok || !res.data) {
+        return { success: false, error: res.error || 'Login failed' };
       }
 
-      localStorage.setItem('fawnic_token', data.token);
-      setToken(data.token);
-      setUser(data.user);
-      return { success: true, user: data.user };
+      localStorage.setItem('fawnic_token', res.data.token);
+      setToken(res.data.token);
+      setUser(res.data.user);
+      return { success: true, user: res.data.user };
     } catch (err: any) {
       return { success: false, error: err.message || 'Network connection failed' };
     }
@@ -103,21 +102,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const adminLogin = async (email: string, password: string) => {
     try {
-      const res = await fetch('/api/auth/admin-login', {
+      const res = await safeFetch<{ token: string; user: User }>('/api/auth/admin-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim(), password }),
       });
 
-      const data = await res.json();
-      if (!res.ok) {
-        return { success: false, error: data.error || 'Invalid administrator email or password.' };
+      if (!res.ok || !res.data) {
+        return { success: false, error: res.error || 'Invalid administrator email or password.' };
       }
 
-      localStorage.setItem('fawnic_token', data.token);
-      setToken(data.token);
-      setUser(data.user);
-      return { success: true, user: data.user };
+      localStorage.setItem('fawnic_token', res.data.token);
+      setToken(res.data.token);
+      setUser(res.data.user);
+      return { success: true, user: res.data.user };
     } catch (err: any) {
       return { success: false, error: err.message || 'Invalid administrator email or password.' };
     }
@@ -131,21 +129,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (formData: { name: string; email: string; phone: string; password: string }) => {
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await safeFetch<{ token: string; user: User }>('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
 
-      const data = await res.json();
-      if (!res.ok) {
-        return { success: false, error: data.error || 'Registration failed' };
+      if (!res.ok || !res.data) {
+        return { success: false, error: res.error || 'Registration failed' };
       }
 
-      localStorage.setItem('fawnic_token', data.token);
-      setToken(data.token);
-      setUser(data.user);
-      return { success: true, user: data.user };
+      localStorage.setItem('fawnic_token', res.data.token);
+      setToken(res.data.token);
+      setUser(res.data.user);
+      return { success: true, user: res.data.user };
     } catch (err: any) {
       return { success: false, error: err.message || 'Registration network error' };
     }
@@ -170,7 +167,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateProfile = async (data: { name?: string; phone?: string; avatar?: string }) => {
     if (!token) return { success: false, error: 'Not authenticated' };
     try {
-      const res = await fetch('/api/auth/profile', {
+      const res = await safeFetch<{ user: User }>('/api/auth/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -178,12 +175,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         },
         body: JSON.stringify(data),
       });
-      const result = await res.json();
-      if (!res.ok) return { success: false, error: result.error };
-      setUser(result.user);
-      return { success: true, user: result.user };
+      if (!res.ok || !res.data?.user) return { success: false, error: res.error || 'Failed to update profile' };
+      setUser(res.data.user);
+      return { success: true, user: res.data.user };
     } catch (err: any) {
-      return { success: false, error: err.message };
+      return { success: false, error: err.message || 'Profile update failed' };
     }
   };
 
@@ -233,7 +229,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         reader.readAsDataURL(file);
       });
 
-      const res = await fetch('/api/auth/profile', {
+      const res = await safeFetch<{ user: User }>('/api/auth/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -242,13 +238,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         body: JSON.stringify({ avatar: dataUrl }),
       });
 
-      const result = await res.json();
-      if (!res.ok) {
-        return { success: false, error: result.error || 'Failed to save profile avatar.' };
+      if (!res.ok || !res.data?.user) {
+        return { success: false, error: res.error || 'Failed to save profile avatar.' };
       }
 
-      setUser(result.user);
-      return { success: true, avatar: result.user.avatar };
+      setUser(res.data.user);
+      return { success: true, avatar: res.data.user.avatar };
     } catch (err: any) {
       return { success: false, error: err.message || 'Image upload error' };
     } finally {
@@ -260,7 +255,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!token) return { success: false, error: 'Not authenticated' };
     setAvatarUploading(true);
     try {
-      const res = await fetch('/api/auth/profile', {
+      const res = await safeFetch<{ user: User }>('/api/auth/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -268,11 +263,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         },
         body: JSON.stringify({ avatar: '' }),
       });
-      const result = await res.json();
-      if (!res.ok) {
-        return { success: false, error: result.error || 'Failed to remove avatar.' };
+      if (!res.ok || !res.data?.user) {
+        return { success: false, error: res.error || 'Failed to remove avatar.' };
       }
-      setUser(result.user);
+      setUser(res.data.user);
       return { success: true };
     } catch (err: any) {
       return { success: false, error: err.message || 'Network error removing avatar' };

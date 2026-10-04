@@ -504,9 +504,19 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                     <p className="font-bold text-stone-900 dark:text-stone-100 truncate">
                       {item.name || item.productName}
                     </p>
-                    {(item.selectedVariation?.name || item.variantInfo) && (
+                    {(item.selectedColor || item.selectedVariation?.color || (item.selectedVariation && item.selectedVariation.type !== 'size' && !item.selectedVariation.size && item.selectedVariation.name)) && (
                       <p className="text-[11px] font-semibold text-amber-800 dark:text-amber-400">
-                        {item.selectedVariation ? `Color: ${item.selectedVariation.name}` : item.variantInfo}
+                        Color: {item.selectedColor || item.selectedVariation?.color || item.selectedVariation?.name}
+                      </p>
+                    )}
+                    {(item.selectedSize || item.selectedVariation?.size || (item.selectedVariation && item.selectedVariation.type === 'size' && item.selectedVariation.name)) && (
+                      <p className="text-[11px] font-semibold text-stone-700 dark:text-stone-300">
+                        Size: {item.selectedSize || item.selectedVariation?.size || item.selectedVariation?.name}
+                      </p>
+                    )}
+                    {!item.selectedColor && !item.selectedSize && !item.selectedVariation && item.variantInfo && (
+                      <p className="text-[11px] font-semibold text-amber-800 dark:text-amber-400">
+                        {item.variantInfo}
                       </p>
                     )}
                     <p className="text-[10px] text-stone-400 font-mono">

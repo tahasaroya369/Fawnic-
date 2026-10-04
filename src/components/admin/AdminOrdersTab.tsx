@@ -496,6 +496,11 @@ export const AdminOrdersTab: React.FC<AdminOrdersTabProps> = ({
                                   <p className="font-serif font-semibold text-stone-900 dark:text-stone-100 text-xs truncate" title={title}>
                                     {title}
                                   </p>
+                                  {(it.selectedVariation?.name || it.selectedColor || it.variantInfo) && (
+                                    <span className="text-[10px] text-amber-800 dark:text-amber-400 font-semibold block truncate">
+                                      {it.selectedVariation ? `Color: ${it.selectedVariation.name}` : (it.selectedColor ? `Color: ${it.selectedColor}` : it.variantInfo)}
+                                    </span>
+                                  )}
                                   <div className="flex items-center gap-2 text-[10px] text-stone-500 font-mono">
                                     <span className="truncate">SKU: {sku}</span>
                                     <span>•</span>

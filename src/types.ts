@@ -112,10 +112,16 @@ export interface ProductVariantOption {
 
 export interface ProductVariation {
   id: string;
-  name: string; // e.g. "Black", "Brown", "Dark Brown", "Tan"
-  image: string; // separate image URL or uploaded file
+  name: string; // e.g. "Black", "Brown", "34", "Black / 34"
+  type?: 'color' | 'size' | 'combination';
+  color?: string; // e.g. "Black"
+  size?: string; // e.g. "34", "Large"
+  image?: string; // separate image URL or uploaded file
   colorCode?: string; // optional color swatch hex/css (e.g. "#1c1917")
   sku?: string; // optional variation-specific SKU or suffix
+  price?: number; // variation-specific selling price (Rs.)
+  regularPrice?: number; // optional variation regular price
+  stock?: number; // optional variation-specific stock count
   order?: number;
 }
 
@@ -150,6 +156,8 @@ export interface Product {
   variants: ProductVariant[];
   hasVariations?: boolean;
   variations?: ProductVariation[];
+  colorVariations?: ProductVariation[];
+  sizeVariations?: ProductVariation[];
   features: string[];
   specifications: Record<string, string>;
   careInstructions?: string;
@@ -173,8 +181,10 @@ export interface CartItem {
   productId: string;
   product: Product;
   quantity: number;
-  selectedVariants?: Record<string, string>; // e.g. { "Color": "Cognac Brown", "Waist Size": "34" }
+  selectedVariants?: Record<string, string>; // e.g. { "Color": "Cognac Brown", "Size": "34" }
   selectedVariation?: ProductVariation;
+  selectedColor?: string;
+  selectedSize?: string;
   unitPrice: number;
 }
 
@@ -193,6 +203,7 @@ export interface OrderItem {
   total?: number;
   id?: string;
   selectedColor?: string;
+  selectedSize?: string;
   selectedVariants?: Record<string, string>;
   discount?: number;
   subtotal: number;

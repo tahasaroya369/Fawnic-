@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ShieldCheck, Lock, Mail, ArrowRight, AlertCircle, Eye, EyeOff, UserCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.js';
+import { safeFetch } from '../../utils/apiClient.js';
 
 interface PrivateAdminLoginProps {
   onSuccess: () => void;
@@ -33,17 +34,17 @@ export const PrivateAdminLogin: React.FC<PrivateAdminLoginProps> = ({
 
     try {
       const endpoint = activeTab === 'admin' ? '/api/auth/admin-login' : '/api/auth/staff-login';
-      const res = await fetch(endpoint, {
+      const res = await safeFetch<{ token: string; user: any }>(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim(), password }),
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || (activeTab === 'admin' ? 'Invalid administrator email or password.' : 'Authentication failed. Please check your credentials.'));
+      if (!res.ok || !res.data) {
+        throw new Error(res.error || (activeTab === 'admin' ? 'Invalid administrator email or password.' : 'Authentication failed. Please check your credentials.'));
       }
+
+      const data = res.data;
 
       if (activeTab === 'admin' && data.user?.role !== 'admin') {
         throw new Error('Invalid administrator email or password.');

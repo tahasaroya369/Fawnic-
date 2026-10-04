@@ -41,7 +41,7 @@ router.post('/login', (req, res) => {
     updatedAt: user.updatedAt,
   };
 
-  res.json({ token, user: safeUser });
+  res.json({ success: true, message: 'Login successful', token, user: safeUser });
 });
 
 // Admin Dedicated Login (for /aliadmin)
@@ -111,7 +111,7 @@ router.post('/admin-login', (req, res) => {
     createdAt: user.createdAt,
   };
 
-  res.json({ token, user: safeUser });
+  res.json({ success: true, message: 'Admin login successful', token, user: safeUser });
 });
 
 // Staff Dedicated Login (for /aliadmin Staff Login tab)
@@ -176,7 +176,7 @@ router.post('/staff-login', (req, res) => {
     createdAt: member.createdAt,
   };
 
-  res.json({ token, user: safeUser });
+  res.json({ success: true, message: 'Staff login successful', token, user: safeUser });
 });
 
 // Customer Registration
@@ -221,7 +221,7 @@ router.post('/register', (req, res) => {
     createdAt: newUser.createdAt,
   };
 
-  res.status(201).json({ token, user: safeUser });
+  res.status(201).json({ success: true, message: 'Account created successfully', token, user: safeUser });
 });
 
 // Get Current Logged-in User

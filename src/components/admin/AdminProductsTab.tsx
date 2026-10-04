@@ -27,6 +27,8 @@ import {
   Table,
   Link2,
   Palette,
+  Ruler,
+  Wand2,
   ArrowUp,
   ArrowDown,
   Upload,
@@ -99,16 +101,109 @@ export const AdminProductsTab: React.FC<AdminProductsTabProps> = ({
   const [uploadingVariationIndex, setUploadingVariationIndex] = useState<number | null>(null);
   const [showGalleryPickerIndex, setShowGalleryPickerIndex] = useState<number | null>(null);
 
-  const handleAddVariation = () => {
+  // Quick Generator state
+  const [showQuickGenerator, setShowQuickGenerator] = useState(false);
+  const [genColors, setGenColors] = useState('Black, Brown, Tan');
+  const [genSizes, setGenSizes] = useState('32, 34, 36');
+  const [genMode, setGenMode] = useState<'combinations' | 'separate'>('combinations');
+
+  const handleAddVariation = (type: 'color' | 'size' | 'combination' = 'color', defaultData?: Partial<ProductVariation>) => {
+    const isColor = type === 'color' || type === 'combination';
+    const isSize = type === 'size' || type === 'combination';
+    const initialColor = defaultData?.color !== undefined ? defaultData.color : (isColor ? 'Black' : undefined);
+    const initialSize = defaultData?.size !== undefined ? defaultData.size : (isSize ? '32' : undefined);
+    let defName = defaultData?.name || '';
+    if (!defName) {
+      if (initialColor && initialSize) defName = `${initialColor} / ${initialSize}`;
+      else if (initialColor) defName = initialColor;
+      else if (initialSize) defName = initialSize;
+      else defName = `Variation ${variations.length + 1}`;
+    }
+
     const newVar: ProductVariation = {
       id: `var_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-      name: '',
-      image: mainImage || '',
-      colorCode: '#1c1917',
-      sku: sku ? `${sku}-${variations.length + 1}` : '',
+      name: defName,
+      type,
+      color: initialColor,
+      size: initialSize,
+      image: defaultData?.image !== undefined ? defaultData.image : (mainImage || ''),
+      colorCode: defaultData?.colorCode !== undefined ? defaultData.colorCode : (isColor ? '#1c1917' : undefined),
+      sku: defaultData?.sku !== undefined ? defaultData.sku : (sku ? `${sku}-${variations.length + 1}` : ''),
       order: variations.length + 1,
     };
     setVariations((prev) => [...prev, newVar]);
+  };
+
+  const handleGenerateMatrix = () => {
+    const colorList = genColors
+      .split(',')
+      .map((c) => c.trim())
+      .filter(Boolean);
+    const sizeList = genSizes
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    const colorPillMap: Record<string, string> = {
+      Black: '#1c1917',
+      Brown: '#78350f',
+      'Dark Brown': '#451a03',
+      Tan: '#b45309',
+      Cognac: '#92400e',
+      Oxblood: '#581c87',
+      Navy: '#1e3a8a',
+      Silver: '#94a3b8',
+      Gold: '#eab308',
+    };
+
+    const newVars: ProductVariation[] = [];
+
+    if (genMode === 'combinations' && colorList.length > 0 && sizeList.length > 0) {
+      colorList.forEach((c) => {
+        sizeList.forEach((s) => {
+          newVars.push({
+            id: `var_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+            name: `${c} / ${s}`,
+            type: 'combination',
+            color: c,
+            size: s,
+            colorCode: colorPillMap[c] || '#1c1917',
+            image: mainImage || '',
+            sku: sku ? `${sku}-${c.slice(0, 3).toUpperCase()}-${s}` : '',
+            order: variations.length + newVars.length + 1,
+          });
+        });
+      });
+    } else {
+      colorList.forEach((c) => {
+        newVars.push({
+          id: `var_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+          name: c,
+          type: 'color',
+          color: c,
+          colorCode: colorPillMap[c] || '#1c1917',
+          image: mainImage || '',
+          sku: sku ? `${sku}-${c.slice(0, 3).toUpperCase()}` : '',
+          order: variations.length + newVars.length + 1,
+        });
+      });
+      sizeList.forEach((s) => {
+        newVars.push({
+          id: `var_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+          name: s,
+          type: 'size',
+          size: s,
+          image: '',
+          sku: sku ? `${sku}-${s}` : '',
+          order: variations.length + newVars.length + 1,
+        });
+      });
+    }
+
+    if (newVars.length > 0) {
+      setVariations((prev) => [...prev, ...newVars]);
+      setShowQuickGenerator(false);
+    }
   };
 
   const handleRemoveVariation = (index: number) => {
@@ -117,7 +212,23 @@ export const AdminProductsTab: React.FC<AdminProductsTabProps> = ({
 
   const handleUpdateVariation = (index: number, field: keyof ProductVariation, value: any) => {
     setVariations((prev) =>
-      prev.map((v, i) => (i === index ? { ...v, [field]: value } : v))
+      prev.map((v, i) => {
+        if (i !== index) return v;
+        const updated = { ...v, [field]: value };
+        if (field === 'color' || field === 'size' || field === 'type') {
+          const col = field === 'color' ? value : updated.color;
+          const sz = field === 'size' ? value : updated.size;
+          const typ = field === 'type' ? value : updated.type;
+          if (typ === 'combination' && col && sz) {
+            updated.name = `${col} / ${sz}`;
+          } else if (typ === 'color' && col) {
+            updated.name = col;
+          } else if (typ === 'size' && sz) {
+            updated.name = sz;
+          }
+        }
+        return updated;
+      })
     );
   };
 
@@ -312,7 +423,35 @@ export const AdminProductsTab: React.FC<AdminProductsTabProps> = ({
         isNewArrival,
         status: productStatus,
         hasVariations: Boolean(hasVariations),
-        variations: hasVariations ? variations.filter((v) => v.name.trim() !== '') : [],
+        variations: hasVariations
+          ? variations
+              .filter((v) => {
+                const hasCol = Boolean(v.color && v.color.trim());
+                const hasSz = Boolean(v.size && v.size.trim());
+                const hasNm = Boolean(v.name && v.name.trim());
+                return hasCol || hasSz || hasNm;
+              })
+              .map((v, i) => {
+                const color = v.color?.trim() || (v.type !== 'size' && !v.size ? v.name?.trim() : undefined);
+                const size = v.size?.trim() || (v.type === 'size' ? v.name?.trim() : undefined);
+                let name = v.name?.trim() || '';
+                if (!name || name === 'Variation' || name.startsWith('Variation ')) {
+                  if (color && size) name = `${color} / ${size}`;
+                  else if (color) name = color;
+                  else if (size) name = size;
+                  else name = `Variant ${i + 1}`;
+                }
+                const varType = v.type || (color && size ? 'combination' : color ? 'color' : size ? 'size' : 'color');
+                return {
+                  ...v,
+                  name,
+                  type: varType,
+                  color,
+                  size,
+                  order: i + 1,
+                };
+              })
+          : [],
       };
 
       const url = editingProduct ? `/api/admin/products/${editingProduct.id}` : '/api/admin/products';
@@ -916,6 +1055,39 @@ export const AdminProductsTab: React.FC<AdminProductsTabProps> = ({
               </button>
             </div>
 
+            {/* Modal Navigation Tabs */}
+            <div className="flex border-b border-stone-200 dark:border-zinc-800 bg-stone-100/70 dark:bg-zinc-900/60 px-6 gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setFormTab('general')}
+                className={`px-4 py-2.5 text-xs font-semibold rounded-t-lg transition-all border-b-2 cursor-pointer flex items-center gap-2 ${
+                  formTab === 'general'
+                    ? 'border-amber-600 text-stone-900 dark:text-stone-100 bg-white dark:bg-zinc-950 shadow-xs'
+                    : 'border-transparent text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
+                }`}
+              >
+                <Package className="w-4 h-4 text-stone-400" />
+                <span>General Information</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setFormTab('variations')}
+                className={`px-4 py-2.5 text-xs font-semibold rounded-t-lg transition-all border-b-2 cursor-pointer flex items-center gap-2 ${
+                  formTab === 'variations'
+                    ? 'border-amber-600 text-stone-900 dark:text-stone-100 bg-white dark:bg-zinc-950 shadow-xs'
+                    : 'border-transparent text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
+                }`}
+              >
+                <Palette className="w-4 h-4 text-amber-500" />
+                <span>Variations</span>
+                {hasVariations && variations.length > 0 && (
+                  <span className="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-400">
+                    {variations.length}
+                  </span>
+                )}
+              </button>
+            </div>
+
             {error && (
               <div className="mx-6 mt-4 p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 text-xs rounded-xl flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
@@ -924,16 +1096,18 @@ export const AdminProductsTab: React.FC<AdminProductsTabProps> = ({
             )}
 
             <form onSubmit={handleSave} className="p-6 space-y-6 max-h-[75vh] overflow-y-auto text-xs">
-              {/* Image Uploader with Drag, Replace, Slot Indicators */}
-              <div className="p-4 bg-stone-50 dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 rounded-xl">
-                <ProductImageUploader
-                  token={token}
-                  mainImage={mainImage}
-                  images={images}
-                  onMainImageChange={setMainImage}
-                  onImagesChange={setImages}
-                />
-              </div>
+              {formTab === 'general' ? (
+                <>
+                  {/* Image Uploader with Drag, Replace, Slot Indicators */}
+                  <div className="p-4 bg-stone-50 dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 rounded-xl">
+                    <ProductImageUploader
+                      token={token}
+                      mainImage={mainImage}
+                      images={images}
+                      onMainImageChange={setMainImage}
+                      onImagesChange={setImages}
+                    />
+                  </div>
 
               {/* Title & SKU */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -1280,6 +1454,675 @@ export const AdminProductsTab: React.FC<AdminProductsTabProps> = ({
                   <span className="text-stone-800 dark:text-stone-200 font-medium">New Arrival Badge</span>
                 </label>
               </div>
+                </>
+              ) : (
+                /* Variations Tab */
+                <div className="space-y-6">
+                  {/* Enable/Disable Variations Toggle */}
+                  <div className="p-5 bg-stone-50 dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <Palette className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                        <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100">
+                          Enable Product Variations (Color & Size Variants)
+                        </h4>
+                      </div>
+                      <p className="text-stone-500 text-xs mt-1 leading-relaxed">
+                        Configure handcrafted leather colors (e.g. Black, Brown, Tan), size options (e.g. 32, 34, 36, Small, Medium, Large), or color + size combinations with dedicated variation imagery.
+                      </p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                      <input
+                        type="checkbox"
+                        checked={hasVariations}
+                        onChange={(e) => {
+                          const enabled = e.target.checked;
+                          setHasVariations(enabled);
+                          if (enabled && variations.length === 0) {
+                            handleAddVariation('color');
+                          }
+                        }}
+                        className="sr-only peer"
+                      />
+                      <div className="w-12 h-6.5 bg-stone-300 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600" />
+                    </label>
+                  </div>
+
+                  {!hasVariations ? (
+                    <div className="p-8 text-center border-2 border-dashed border-stone-200 dark:border-zinc-800 rounded-2xl space-y-3">
+                      <div className="w-12 h-12 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto">
+                        <Layers className="w-6 h-6" />
+                      </div>
+                      <h4 className="font-bold text-stone-800 dark:text-stone-200 text-sm">
+                        Standard Single Article
+                      </h4>
+                      <p className="text-stone-500 text-xs max-w-md mx-auto">
+                        This product currently uses standard single-article photos and pricing. Turn on the toggle switch above to add color or size variations.
+                      </p>
+                      <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setHasVariations(true);
+                            handleAddVariation('color');
+                          }}
+                          className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-semibold inline-flex items-center gap-2 cursor-pointer transition shadow-xs"
+                        >
+                          <Palette className="w-4 h-4" />
+                          <span>+ Add Color Variation</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setHasVariations(true);
+                            handleAddVariation('size');
+                          }}
+                          className="px-4 py-2 bg-stone-900 dark:bg-stone-100 hover:bg-stone-800 dark:hover:bg-white text-white dark:text-stone-900 rounded-xl text-xs font-semibold inline-flex items-center gap-2 cursor-pointer transition shadow-xs"
+                        >
+                          <Ruler className="w-4 h-4" />
+                          <span>+ Add Size Variation</span>
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {/* Variations Header & Controls Toolbar */}
+                      <div className="p-4 bg-stone-100/70 dark:bg-zinc-900/50 rounded-2xl border border-stone-200/80 dark:border-zinc-800 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-xs uppercase tracking-wider text-stone-800 dark:text-stone-200">
+                              Configured Variations ({variations.length})
+                            </span>
+                            {/* Summary Badge */}
+                            {(() => {
+                              const colSet = new Set(
+                                variations
+                                  .map((v) => v.color?.trim() || (v.type !== 'size' && !v.size ? v.name?.trim() : ''))
+                                  .filter(Boolean)
+                              );
+                              const szSet = new Set(
+                                variations
+                                  .map((v) => v.size?.trim() || (v.type === 'size' ? v.name?.trim() : ''))
+                                  .filter(Boolean)
+                              );
+                              return (
+                                <span className="text-[11px] px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 font-medium">
+                                  {colSet.size} color{colSet.size === 1 ? '' : 's'} • {szSet.size} size{szSet.size === 1 ? '' : 's'}
+                                </span>
+                              );
+                            })()}
+                          </div>
+                          <p className="text-[11px] text-stone-500 mt-0.5">
+                            Customers will see interactive Color and Size selectors. Dedicated images update dynamically.
+                          </p>
+                        </div>
+
+                        {/* Add Buttons & Quick Matrix */}
+                        <div className="flex flex-wrap items-center gap-1.5 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => handleAddVariation('color')}
+                            className="px-2.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1 cursor-pointer transition shadow-xs"
+                            title="Add a color variant (e.g. Black, Brown, Tan)"
+                          >
+                            <Palette className="w-3.5 h-3.5" />
+                            <span>+ Color</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleAddVariation('size')}
+                            className="px-2.5 py-1.5 bg-stone-800 hover:bg-stone-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1 cursor-pointer transition shadow-xs"
+                            title="Add a size variant (e.g. 32, 34, 36, Small, Large)"
+                          >
+                            <Ruler className="w-3.5 h-3.5" />
+                            <span>+ Size</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleAddVariation('combination')}
+                            className="px-2.5 py-1.5 border border-amber-600 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 rounded-lg text-xs font-semibold flex items-center gap-1 cursor-pointer transition"
+                            title="Add combined Color + Size variant (e.g. Black / 34)"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                            <span>+ Color & Size</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setShowQuickGenerator(!showQuickGenerator)}
+                            className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 cursor-pointer transition border ${
+                              showQuickGenerator
+                                ? 'bg-amber-100 border-amber-400 text-amber-900 dark:bg-amber-950 dark:border-amber-700 dark:text-amber-200'
+                                : 'border-stone-300 dark:border-zinc-700 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-zinc-800'
+                            }`}
+                            title="Quick bulk generator for colors and sizes"
+                          >
+                            <Wand2 className="w-3.5 h-3.5 text-amber-600" />
+                            <span>Quick Generator</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Quick Generator Panel */}
+                      {showQuickGenerator && (
+                        <div className="p-4 bg-amber-500/5 dark:bg-amber-950/20 border border-amber-500/30 rounded-2xl space-y-4 animate-in fade-in duration-150">
+                          <div className="flex items-center justify-between pb-2 border-b border-amber-500/20">
+                            <div className="flex items-center gap-2">
+                              <Wand2 className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                              <h5 className="font-bold text-xs text-stone-900 dark:text-stone-100">
+                                Quick Variations & Combinations Matrix Generator
+                              </h5>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setShowQuickGenerator(false)}
+                              className="text-stone-400 hover:text-stone-600 text-xs"
+                            >
+                              ✕ Close
+                            </button>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {/* Colors Input */}
+                            <div className="space-y-1.5">
+                              <label className="block text-[11px] uppercase tracking-wider font-semibold text-stone-700 dark:text-stone-300">
+                                Colors (comma-separated)
+                              </label>
+                              <input
+                                type="text"
+                                value={genColors}
+                                onChange={(e) => setGenColors(e.target.value)}
+                                placeholder="e.g. Black, Brown, Dark Brown, Tan"
+                                className="w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-stone-300 dark:border-zinc-700 rounded-lg text-xs"
+                              />
+                              <div className="flex flex-wrap gap-1 text-[10px]">
+                                <span className="text-stone-400 mr-1">Presets:</span>
+                                <button
+                                  type="button"
+                                  onClick={() => setGenColors('Black, Brown, Tan')}
+                                  className="px-1.5 py-0.5 bg-stone-200 dark:bg-zinc-800 rounded hover:bg-amber-100 text-stone-600 dark:text-stone-300 cursor-pointer"
+                                >
+                                  Classic (Black, Brown, Tan)
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setGenColors('Black, Dark Brown, Cognac')}
+                                  className="px-1.5 py-0.5 bg-stone-200 dark:bg-zinc-800 rounded hover:bg-amber-100 text-stone-600 dark:text-stone-300 cursor-pointer"
+                                >
+                                  Executive (Dark Tones)
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Sizes Input */}
+                            <div className="space-y-1.5">
+                              <label className="block text-[11px] uppercase tracking-wider font-semibold text-stone-700 dark:text-stone-300">
+                                Sizes (comma-separated, any format)
+                              </label>
+                              <input
+                                type="text"
+                                value={genSizes}
+                                onChange={(e) => setGenSizes(e.target.value)}
+                                placeholder="e.g. 32, 34, 36, 38 or Small, Medium, Large"
+                                className="w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-stone-300 dark:border-zinc-700 rounded-lg text-xs"
+                              />
+                              <div className="flex flex-wrap gap-1 text-[10px]">
+                                <span className="text-stone-400 mr-1">Presets:</span>
+                                <button
+                                  type="button"
+                                  onClick={() => setGenSizes('32, 34, 36, 38, 40')}
+                                  className="px-1.5 py-0.5 bg-stone-200 dark:bg-zinc-800 rounded hover:bg-amber-100 text-stone-600 dark:text-stone-300 cursor-pointer"
+                                >
+                                  Belts (32–40)
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setGenSizes('Small, Medium, Large, XL')}
+                                  className="px-1.5 py-0.5 bg-stone-200 dark:bg-zinc-800 rounded hover:bg-amber-100 text-stone-600 dark:text-stone-300 cursor-pointer"
+                                >
+                                  Apparel (S–XL)
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+                            {/* Generator Mode */}
+                            <div className="flex items-center gap-4 text-xs">
+                              <label className="inline-flex items-center gap-1.5 cursor-pointer">
+                                <input
+                                  type="radio"
+                                  name="genMode"
+                                  checked={genMode === 'combinations'}
+                                  onChange={() => setGenMode('combinations')}
+                                  className="text-amber-600"
+                                />
+                                <span className="text-stone-700 dark:text-stone-300 font-medium">
+                                  Full Matrix Combinations (e.g. Black-32, Black-34...)
+                                </span>
+                              </label>
+                              <label className="inline-flex items-center gap-1.5 cursor-pointer">
+                                <input
+                                  type="radio"
+                                  name="genMode"
+                                  checked={genMode === 'separate'}
+                                  onChange={() => setGenMode('separate')}
+                                  className="text-amber-600"
+                                />
+                                <span className="text-stone-700 dark:text-stone-300 font-medium">
+                                  Separate Colors & Sizes (reuses color images)
+                                </span>
+                              </label>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={handleGenerateMatrix}
+                              className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-semibold cursor-pointer transition shadow-xs"
+                            >
+                              Generate Variations
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {variations.length === 0 ? (
+                        <div className="p-8 text-center border border-dashed border-stone-200 dark:border-zinc-800 rounded-xl space-y-3">
+                          <p className="text-stone-500 text-xs">No variations added yet.</p>
+                          <div className="flex flex-wrap items-center justify-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleAddVariation('color')}
+                              className="px-3 py-1.5 text-xs text-amber-600 dark:text-amber-400 font-semibold hover:underline cursor-pointer"
+                            >
+                              + Add Color Variation
+                            </button>
+                            <span className="text-stone-300">•</span>
+                            <button
+                              type="button"
+                              onClick={() => handleAddVariation('size')}
+                              className="px-3 py-1.5 text-xs text-stone-600 dark:text-stone-400 font-semibold hover:underline cursor-pointer"
+                            >
+                              + Add Size Variation
+                            </button>
+                            <span className="text-stone-300">•</span>
+                            <button
+                              type="button"
+                              onClick={() => handleAddVariation('combination')}
+                              className="px-3 py-1.5 text-xs text-stone-600 dark:text-stone-400 font-semibold hover:underline cursor-pointer"
+                            >
+                              + Add Color & Size
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {variations.map((v, idx) => {
+                            const isColor = v.type === 'color' || v.type === 'combination' || (!v.type && !v.size);
+                            const isSize = v.type === 'size' || v.type === 'combination' || (!v.type && Boolean(v.size));
+
+                            return (
+                              <div
+                                key={v.id || idx}
+                                className="p-4 sm:p-5 bg-stone-50/70 dark:bg-zinc-900/60 border border-stone-200 dark:border-zinc-800 rounded-2xl space-y-4 transition-all shadow-xs"
+                              >
+                                {/* Top Bar: Order, Type Selector, Move buttons, Delete */}
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-200/60 dark:border-zinc-800/60 pb-3">
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="w-6 h-6 rounded-full bg-stone-200 dark:bg-zinc-800 text-stone-700 dark:text-stone-300 text-xs font-bold flex items-center justify-center font-mono shrink-0">
+                                      {idx + 1}
+                                    </span>
+
+                                    {/* Type Toggle Pills */}
+                                    <div className="inline-flex rounded-lg border border-stone-300 dark:border-zinc-700 p-0.5 bg-white dark:bg-zinc-950 text-[10px]">
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          handleUpdateVariation(idx, 'type', 'color');
+                                          if (!v.color && v.size) handleUpdateVariation(idx, 'color', v.size);
+                                          handleUpdateVariation(idx, 'size', undefined);
+                                        }}
+                                        className={`px-2 py-1 rounded font-semibold cursor-pointer transition ${
+                                          v.type === 'color' || (!v.type && !v.size)
+                                            ? 'bg-amber-600 text-white'
+                                            : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
+                                        }`}
+                                      >
+                                        Color Only
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          handleUpdateVariation(idx, 'type', 'size');
+                                          if (!v.size && v.color) handleUpdateVariation(idx, 'size', v.color);
+                                          handleUpdateVariation(idx, 'color', undefined);
+                                        }}
+                                        className={`px-2 py-1 rounded font-semibold cursor-pointer transition ${
+                                          v.type === 'size'
+                                            ? 'bg-stone-800 dark:bg-stone-200 text-white dark:text-stone-900'
+                                            : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
+                                        }`}
+                                      >
+                                        Size Only
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          handleUpdateVariation(idx, 'type', 'combination');
+                                          if (!v.color) handleUpdateVariation(idx, 'color', 'Black');
+                                          if (!v.size) handleUpdateVariation(idx, 'size', '32');
+                                        }}
+                                        className={`px-2 py-1 rounded font-semibold cursor-pointer transition ${
+                                          v.type === 'combination'
+                                            ? 'bg-amber-700 text-white'
+                                            : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
+                                        }`}
+                                      >
+                                        Color + Size
+                                      </button>
+                                    </div>
+
+                                    {/* Color Swatch Preview Dot */}
+                                    {isColor && (
+                                      <div
+                                        className="w-5 h-5 rounded-full border border-stone-300 dark:border-zinc-700 shadow-xs shrink-0"
+                                        style={{ backgroundColor: v.colorCode || '#1c1917' }}
+                                        title={v.colorCode || '#1c1917'}
+                                      />
+                                    )}
+
+                                    {/* Label Preview */}
+                                    <span className="font-semibold text-xs text-stone-900 dark:text-stone-100">
+                                      {v.name || `Variation #${idx + 1}`}
+                                    </span>
+                                  </div>
+
+                                  <div className="flex items-center gap-1 self-end sm:self-auto">
+                                    {/* Move Up */}
+                                    <button
+                                      type="button"
+                                      onClick={() => handleMoveVariation(idx, 'up')}
+                                      disabled={idx === 0}
+                                      title="Move up"
+                                      className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-200 dark:hover:bg-zinc-800 disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition"
+                                    >
+                                      <ArrowUp className="w-3.5 h-3.5" />
+                                    </button>
+                                    {/* Move Down */}
+                                    <button
+                                      type="button"
+                                      onClick={() => handleMoveVariation(idx, 'down')}
+                                      disabled={idx === variations.length - 1}
+                                      title="Move down"
+                                      className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-200 dark:hover:bg-zinc-800 disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition"
+                                    >
+                                      <ArrowDown className="w-3.5 h-3.5" />
+                                    </button>
+                                    {/* Delete */}
+                                    <button
+                                      type="button"
+                                      onClick={() => handleRemoveVariation(idx)}
+                                      title="Remove this variation"
+                                      className="p-1.5 rounded-lg text-stone-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer transition ml-1"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                </div>
+
+                                {/* Form Fields Grid */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                  {/* Color Input & Swatch (if isColor) */}
+                                  {isColor && (
+                                    <div className="space-y-1.5">
+                                      <div className="flex items-center justify-between">
+                                        <label className="block text-[11px] uppercase tracking-wider font-semibold text-stone-700 dark:text-stone-300">
+                                          Color Name <span className="text-rose-500">*</span>
+                                        </label>
+                                        <span className="text-[10px] text-stone-400">e.g. Brown</span>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <input
+                                          type="text"
+                                          required={isColor}
+                                          value={v.color !== undefined ? v.color : (v.type !== 'size' && !v.size ? v.name : '')}
+                                          onChange={(e) => {
+                                            handleUpdateVariation(idx, 'color', e.target.value);
+                                          }}
+                                          placeholder="e.g. Black, Brown, Tan"
+                                          className="w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-stone-300 dark:border-zinc-700 rounded-lg text-xs font-medium focus:ring-1 focus:ring-amber-500"
+                                        />
+                                        <input
+                                          type="color"
+                                          value={v.colorCode || '#1c1917'}
+                                          onChange={(e) => handleUpdateVariation(idx, 'colorCode', e.target.value)}
+                                          className="w-9 h-9 p-0.5 rounded-lg border border-stone-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 cursor-pointer shrink-0"
+                                          title="Choose color swatch"
+                                        />
+                                      </div>
+                                      {/* Quick color suggestion pills */}
+                                      <div className="flex flex-wrap gap-1 pt-1">
+                                        {[
+                                          { name: 'Black', code: '#1c1917' },
+                                          { name: 'Brown', code: '#78350f' },
+                                          { name: 'Dark Brown', code: '#451a03' },
+                                          { name: 'Tan', code: '#b45309' },
+                                          { name: 'Cognac', code: '#92400e' },
+                                          { name: 'Silver', code: '#94a3b8' },
+                                          { name: 'Gold', code: '#eab308' },
+                                        ].map((sug) => (
+                                          <button
+                                            key={sug.name}
+                                            type="button"
+                                            onClick={() => {
+                                              handleUpdateVariation(idx, 'color', sug.name);
+                                              handleUpdateVariation(idx, 'colorCode', sug.code);
+                                            }}
+                                            className="px-1.5 py-0.5 text-[10px] rounded bg-stone-100 dark:bg-zinc-800 text-stone-600 dark:text-stone-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 hover:text-amber-800 cursor-pointer"
+                                          >
+                                            {sug.name}
+                                          </button>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* Size Input (if isSize) */}
+                                  {isSize && (
+                                    <div className="space-y-1.5">
+                                      <div className="flex items-center justify-between">
+                                        <label className="block text-[11px] uppercase tracking-wider font-semibold text-stone-700 dark:text-stone-300">
+                                          Size Value <span className="text-rose-500">*</span>
+                                        </label>
+                                        <span className="text-[10px] text-stone-400">Custom / Any Format</span>
+                                      </div>
+                                      <input
+                                        type="text"
+                                        required={isSize}
+                                        value={v.size !== undefined ? v.size : (v.type === 'size' ? v.name : '')}
+                                        onChange={(e) => {
+                                          handleUpdateVariation(idx, 'size', e.target.value);
+                                        }}
+                                        placeholder="e.g. 32, 34, 36, Small, Medium, Large"
+                                        className="w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-stone-300 dark:border-zinc-700 rounded-lg text-xs font-medium focus:ring-1 focus:ring-amber-500"
+                                      />
+                                      {/* Quick size suggestion pills */}
+                                      <div className="flex flex-wrap gap-1 pt-1">
+                                        {['30', '32', '34', '36', '38', '40', 'Small', 'Medium', 'Large', 'XL'].map((sVal) => (
+                                          <button
+                                            key={sVal}
+                                            type="button"
+                                            onClick={() => handleUpdateVariation(idx, 'size', sVal)}
+                                            className="px-1.5 py-0.5 text-[10px] rounded bg-stone-100 dark:bg-zinc-800 text-stone-600 dark:text-stone-400 hover:bg-stone-300 dark:hover:bg-zinc-700 cursor-pointer"
+                                          >
+                                            {sVal}
+                                          </button>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* Variation SKU */}
+                                  <div className="space-y-1.5">
+                                    <label className="block text-[11px] uppercase tracking-wider font-semibold text-stone-700 dark:text-stone-300">
+                                      Variation SKU (Optional)
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={v.sku || ''}
+                                      onChange={(e) => handleUpdateVariation(idx, 'sku', e.target.value.toUpperCase())}
+                                      placeholder={
+                                        sku
+                                          ? `${sku}-${(v.color || v.name || 'VAR').slice(0, 3).toUpperCase()}${v.size ? `-${v.size}` : ''}`
+                                          : 'SKU-VAR'
+                                      }
+                                      className="w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-stone-300 dark:border-zinc-700 rounded-lg text-xs font-mono focus:ring-1 focus:ring-amber-500"
+                                    />
+                                    <p className="text-[10px] text-stone-400">
+                                      Will display in cart, checkout, and invoice.
+                                    </p>
+                                  </div>
+                                </div>
+
+                                {/* Variation Image Selector */}
+                                <div className="pt-3 border-t border-stone-200/50 dark:border-zinc-800/50 space-y-2">
+                                  <div className="flex items-center justify-between">
+                                    <label className="block text-[11px] uppercase tracking-wider font-semibold text-stone-700 dark:text-stone-300">
+                                      Variation-Specific Image
+                                    </label>
+                                    <span className="text-[10px] text-stone-400">
+                                      {v.type === 'combination'
+                                        ? 'Dedicated image for this combination (falls back to color image if empty)'
+                                        : 'Dedicated image shown when this option is selected'}
+                                    </span>
+                                  </div>
+
+                                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                                    {/* Thumbnail Preview */}
+                                    <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-stone-200 dark:bg-zinc-800 border border-stone-300 dark:border-zinc-700 shrink-0 shadow-xs">
+                                      {v.image ? (
+                                        <img
+                                          src={v.image}
+                                          alt={v.name || 'Variation'}
+                                          className="w-full h-full object-cover"
+                                          onError={(e) => {
+                                            (e.target as HTMLImageElement).src = mainImage || '/fawnic-logo.jpg';
+                                          }}
+                                        />
+                                      ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-stone-400">
+                                          <ImageIcon className="w-6 h-6" />
+                                        </div>
+                                      )}
+                                    </div>
+
+                                    <div className="flex-1 min-w-0 space-y-2 w-full">
+                                      <div className="flex flex-wrap items-center gap-2">
+                                        {/* Upload Button */}
+                                        <label className="px-3 py-1.5 bg-stone-900 dark:bg-stone-100 hover:bg-stone-800 dark:hover:bg-white text-white dark:text-stone-900 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition shadow-xs">
+                                          <Upload className="w-3.5 h-3.5" />
+                                          <span>{uploadingVariationIndex === idx ? 'Uploading...' : 'Upload Image'}</span>
+                                          <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            disabled={uploadingVariationIndex === idx}
+                                            onChange={(e) => {
+                                              const file = e.target.files?.[0];
+                                              if (file) handleVariationFileUpload(idx, file);
+                                              e.target.value = '';
+                                            }}
+                                          />
+                                        </label>
+
+                                        {/* Gallery Picker Toggle */}
+                                        {([mainImage, ...images].filter(Boolean).length > 0) && (
+                                          <button
+                                            type="button"
+                                            onClick={() =>
+                                              setShowGalleryPickerIndex(
+                                                showGalleryPickerIndex === idx ? null : idx
+                                              )
+                                            }
+                                            className="px-3 py-1.5 border border-stone-300 dark:border-zinc-700 hover:bg-stone-100 dark:hover:bg-zinc-800 rounded-lg text-xs text-stone-700 dark:text-stone-300 font-medium cursor-pointer transition flex items-center gap-1.5"
+                                          >
+                                            <ImageIcon className="w-3.5 h-3.5" />
+                                            <span>Choose from Article Photos</span>
+                                          </button>
+                                        )}
+
+                                        {/* Clear Image */}
+                                        {v.image && (
+                                          <button
+                                            type="button"
+                                            onClick={() => handleUpdateVariation(idx, 'image', '')}
+                                            className="px-2 py-1.5 text-xs text-stone-500 hover:text-rose-600 transition cursor-pointer"
+                                          >
+                                            Clear
+                                          </button>
+                                        )}
+                                      </div>
+
+                                      {/* Direct Image URL input */}
+                                      <input
+                                        type="text"
+                                        value={v.image || ''}
+                                        onChange={(e) => handleUpdateVariation(idx, 'image', e.target.value)}
+                                        placeholder="Or paste image URL (e.g. https://... or /uploads/...)"
+                                        className="w-full px-3 py-1.5 bg-white dark:bg-zinc-950 border border-stone-300 dark:border-zinc-700 rounded-lg text-xs font-mono focus:ring-1 focus:ring-amber-500"
+                                      />
+
+                                      {/* Quick Image Picker Dropdown from existing photos */}
+                                      {showGalleryPickerIndex === idx && (
+                                        <div className="p-3 bg-white dark:bg-zinc-950 border border-stone-300 dark:border-zinc-700 rounded-xl space-y-2 animate-in fade-in duration-150">
+                                          <div className="flex items-center justify-between">
+                                            <span className="text-[11px] font-semibold text-stone-600 dark:text-stone-400">
+                                              Select from product's existing images:
+                                            </span>
+                                            <button
+                                              type="button"
+                                              onClick={() => setShowGalleryPickerIndex(null)}
+                                              className="text-stone-400 hover:text-stone-600 text-[10px]"
+                                            >
+                                              Close
+                                            </button>
+                                          </div>
+                                          <div className="flex flex-wrap gap-2">
+                                            {Array.from(new Set([mainImage, ...images].filter(Boolean))).map((imgUrl, i) => (
+                                              <button
+                                                key={i}
+                                                type="button"
+                                                onClick={() => {
+                                                  handleUpdateVariation(idx, 'image', imgUrl);
+                                                  setShowGalleryPickerIndex(null);
+                                                }}
+                                                className={`relative w-12 h-12 rounded-lg overflow-hidden border-2 cursor-pointer transition-all ${
+                                                  v.image === imgUrl
+                                                    ? 'border-amber-600 ring-2 ring-amber-500/30'
+                                                    : 'border-stone-200 dark:border-zinc-700 hover:border-stone-400'
+                                                }`}
+                                              >
+                                                <img
+                                                  src={imgUrl}
+                                                  alt={`Slot ${i}`}
+                                                  className="w-full h-full object-cover"
+                                                />
+                                              </button>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Action Buttons */}
               <div className="flex items-center justify-end gap-3 pt-6 border-t border-stone-200 dark:border-zinc-800">
