@@ -1121,57 +1121,6 @@
       "vendorStoreName": "Atelier Saint-Honoré",
       "vendorId": "vdr_sainthonore",
       "createdAt": "2026-01-08T10:00:00.000Z"
-    },
-    {
-      "id": "sth_bag_02",
-      "name": "The Diplomat Leather Executive Briefcase",
-      "slug": "diplomat-leather-executive-briefcase",
-      "shortDescription": "Structured full-grain English bridle leather satchel with dual gusset and solid brass lock.",
-      "description": "Command the boardroom with quiet distinction. Engineered to protect laptops up to 16 inches in a suspended quilted neoprene sleeve, with dedicated slots for fountain pens, documents, and business essentials. Finished with hand-dyed edges and an English key-locking brass tuck-lock.",
-      "categoryId": "cat_bags",
-      "categoryName": "Artisan Bags",
-      "subcategoryId": "Executive Briefcases",
-      "subcategoryName": "Executive Briefcases",
-      "brand": "Atelier Saint-Honoré",
-      "leatherType": "Full-Grain English Bridle Hide",
-      "sku": "STH-DIP-02",
-      "regularPrice": 25000,
-      "salePrice": 21800,
-      "costPrice": 11500,
-      "stock": 16,
-      "lowStockThreshold": 4,
-      "stockStatus": "in_stock",
-      "mainImage": "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=1000&auto=format&fit=crop&q=85",
-      "images": [
-        "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=1000&auto=format&fit=crop&q=85"
-      ],
-      "tags": [
-        "briefcase",
-        "bag",
-        "executive",
-        "laptop",
-        "leather"
-      ],
-      "variants": [],
-      "features": [
-        "Reinforced structured silhouette stands upright",
-        "Shock-absorbing sleeve fits up to 16\" MacBook Pro",
-        "Tuck-lock brass clasp with key",
-        "Rear luggage pass-through sleeve for trolley handle"
-      ],
-      "specifications": {
-        "Dimensions": "40 cm x 30 cm x 10 cm",
-        "Weight": "1.4 kg"
-      },
-      "rating": 4.9,
-      "reviewCount": 19,
-      "isFeatured": true,
-      "isBestSeller": false,
-      "isNewArrival": true,
-      "status": "published",
-      "vendorStoreName": "Atelier Saint-Honoré",
-      "vendorId": "vdr_sainthonore",
-      "createdAt": "2026-02-18T11:00:00.000Z"
     }
   ],
   "orders": [
@@ -1579,6 +1528,39 @@
     }
   ],
   "auditLogs": [
+    {
+      "id": "log_1791134978854",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "System Administrator authenticated into Atelier Console",
+      "timestamp": "2026-10-04T17:29:38.854Z"
+    },
+    {
+      "id": "log_1791134736398",
+      "adminEmail": "tahahussainsaroya329@gmail.com",
+      "action": "FAILED_ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "Unsuccessful admin authentication attempt (unauthorized email)",
+      "timestamp": "2026-10-04T17:25:36.398Z"
+    },
+    {
+      "id": "log_1791133298799",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "PRODUCT_DELETED",
+      "entityType": "Product",
+      "entityId": "sth_bag_02",
+      "details": "Deleted \"The Diplomat Leather Executive Briefcase\"",
+      "timestamp": "2026-10-04T17:01:38.799Z"
+    },
+    {
+      "id": "log_1791133290699",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "ADMIN_LOGIN",
+      "entityType": "Security",
+      "details": "System Administrator authenticated into Atelier Console",
+      "timestamp": "2026-10-04T17:01:30.699Z"
+    },
     {
       "id": "log_1791132713109",
       "adminEmail": "alichishtia111@gmail.com",
