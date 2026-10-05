@@ -5,9 +5,20 @@ import { createServer as createViteServer } from 'vite';
 import { app } from './server/app.js';
 import { initWebSocketServer } from './server/websocket.js';
 import { startNotificationScheduler } from './server/notificationScheduler.js';
+import { initializeNeonSchema } from './server/storage/neon.js';
+import { syncDatabaseFromRemote } from './server/db.js';
 
 async function startServer() {
   const PORT = 3000;
+
+  // Initialize Neon PostgreSQL Schema & sync from production database if configured
+  initializeNeonSchema().then(async (ok) => {
+    if (ok) {
+      await syncDatabaseFromRemote();
+    }
+  }).catch((err) => {
+    console.warn('[DB Init] Background database init note:', err.message);
+  });
 
   // Vite middleware in dev or static files in production
   if (process.env.NODE_ENV !== 'production') {

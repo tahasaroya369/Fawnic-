@@ -2,6 +2,8 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import { getDb, saveDatabase, getNextInvoiceNumber } from '../db.js';
+import { uploadMedia, deleteMedia } from '../storage/imagekit.js';
+import { recordMediaUploadInNeon } from '../storage/neon.js';
 import { requireAuth, requireAdminOrStaff, type AuthenticatedRequest } from '../middleware.js';
 import { hashPassword, removeUserSessions } from '../auth.js';
 import { createOrderNotification } from '../orderNotificationHelper.js';
@@ -41,6 +43,7 @@ router.use(requireAdminOrStaff);
 // Helper to log audit events
 function logAdminAction(adminEmail: string, action: string, entityType: string, entityId?: string, details?: string) {
   const db = getDb();
+  if (!db.auditLogs) db.auditLogs = [];
   const log: AuditLog = {
     id: `log_${Date.now()}`,
     adminEmail,
@@ -232,6 +235,9 @@ router.put('/products/:id', (req: AuthenticatedRequest, res) => {
     return;
   }
 
+  const oldMainImage = product.mainImage;
+  const oldImages = Array.isArray(product.images) ? [...product.images] : [];
+
   Object.assign(product, req.body, { updatedAt: new Date().toISOString() });
   if (req.body.hasVariations !== undefined) {
     product.hasVariations = Boolean(req.body.hasVariations);
@@ -255,6 +261,22 @@ router.put('/products/:id', (req: AuthenticatedRequest, res) => {
     product.stockStatus = 'in_stock';
   }
 
+  // ImageKit Media Replacement: Clean up replaced old images asynchronously
+  if (req.body.mainImage && req.body.mainImage !== oldMainImage && oldMainImage) {
+    if (!oldMainImage.startsWith('/assets/')) {
+      deleteMedia(oldMainImage).catch(() => {});
+    }
+  }
+  if (Array.isArray(req.body.images)) {
+    const newImages = req.body.images;
+    const removedImages = oldImages.filter(
+      (img) => !newImages.includes(img) && img !== req.body.mainImage && !img.startsWith('/assets/')
+    );
+    for (const img of removedImages) {
+      deleteMedia(img).catch(() => {});
+    }
+  }
+
   logAdminAction(req.user!.email, 'PRODUCT_UPDATED', 'Product', product.id, `Updated "${product.name}"`);
   saveDatabase();
   broadcastProductEvent({ action: 'updated', product });
@@ -271,6 +293,19 @@ router.delete('/products/:id', (req: AuthenticatedRequest, res) => {
   }
 
   const removed = db.products.splice(idx, 1)[0];
+
+  // Clean up media from ImageKit asynchronously without blocking deletion
+  if (removed.mainImage && !removed.mainImage.startsWith('/assets/')) {
+    deleteMedia(removed.mainImage).catch(() => {});
+  }
+  if (Array.isArray(removed.images)) {
+    for (const img of removed.images) {
+      if (img && img !== removed.mainImage && !img.startsWith('/assets/')) {
+        deleteMedia(img).catch(() => {});
+      }
+    }
+  }
+
   logAdminAction(req.user!.email, 'PRODUCT_DELETED', 'Product', req.params.id, `Deleted "${removed.name}"`);
   saveDatabase();
   broadcastProductEvent({
@@ -1079,7 +1114,7 @@ router.get('/audit-logs', (req: AuthenticatedRequest, res) => {
 });
 
 // 11. Image Upload (WordPress / WooCommerce style image handler)
-router.post('/upload', (req: AuthenticatedRequest, res) => {
+router.post('/upload', async (req: AuthenticatedRequest, res) => {
   try {
     const { dataUrl, filename, category } = req.body;
     if (!dataUrl) {
@@ -1122,24 +1157,37 @@ router.post('/upload', (req: AuthenticatedRequest, res) => {
       .replace(/[^a-z0-9]/g, '-')
       .slice(0, 30);
     const uniqueName = `${safeBase}-${Date.now()}.${ext}`;
-    const uploadsDir = path.join(process.cwd(), 'data', 'uploads');
 
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    }
+    // Upload to ImageKit permanent storage (with local fallback if credentials pending)
+    const uploadResult = await uploadMedia({
+      buffer,
+      filename: uniqueName,
+      mimeType,
+      folder: 'products',
+      uploadedBy: req.user?.email || 'admin',
+    });
 
-    const filePath = path.join(uploadsDir, uniqueName);
-    fs.writeFileSync(filePath, buffer);
+    // Record persistent media upload metadata in Neon PostgreSQL
+    await recordMediaUploadInNeon({
+      id: `media_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      fileName: uniqueName,
+      fileKey: uploadResult.fileId,
+      bucket: 'imagekit',
+      url: uploadResult.url,
+      contentType: mimeType,
+      sizeBytes: uploadResult.size,
+      uploadedBy: req.user?.email || 'admin',
+    });
 
-    const publicUrl = `/uploads/${uniqueName}`;
-    logAdminAction(req.user!.email, 'IMAGE_UPLOADED', 'Media', uniqueName);
+    logAdminAction(req.user!.email, 'IMAGE_UPLOADED', 'Media', uploadResult.url);
     saveDatabase();
 
     res.json({
-      url: publicUrl,
+      url: uploadResult.url,
       filename: uniqueName,
-      size: buffer.length,
+      size: uploadResult.size,
       mimeType,
+      isPersistentImageKit: uploadResult.isPersistentImageKit,
     });
   } catch (err: any) {
     console.error('Error handling upload:', err);
@@ -2252,7 +2300,7 @@ router.delete('/notifications/:id', (req: AuthenticatedRequest, res) => {
 });
 
 // Upload Notification Image
-router.post('/notifications/upload-image', (req: AuthenticatedRequest, res) => {
+router.post('/notifications/upload-image', async (req: AuthenticatedRequest, res) => {
   const { filename, data } = req.body;
   if (!data) {
     res.status(400).json({ error: 'Image data is required' });
@@ -2260,31 +2308,57 @@ router.post('/notifications/upload-image', (req: AuthenticatedRequest, res) => {
   }
 
   try {
-    const uploadDir = path.join(process.cwd(), 'data', 'uploads', 'notifications');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
     const matches = data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
     const ext = filename ? path.extname(filename) : '.jpg';
     const safeName = `notif_${Date.now()}_${Math.random().toString(36).substring(2, 7)}${ext || '.jpg'}`;
-    const filePath = path.join(uploadDir, safeName);
 
+    let buffer: Buffer;
+    let mimeType = 'image/jpeg';
     if (matches && matches.length === 3) {
-      const buffer = Buffer.from(matches[2], 'base64');
-      fs.writeFileSync(filePath, buffer);
+      mimeType = matches[1];
+      buffer = Buffer.from(matches[2], 'base64');
     } else {
-      // Raw base64 string
-      const buffer = Buffer.from(data, 'base64');
-      fs.writeFileSync(filePath, buffer);
+      buffer = Buffer.from(data, 'base64');
+      if (ext === '.png') mimeType = 'image/png';
+      else if (ext === '.webp') mimeType = 'image/webp';
     }
 
-    const publicUrl = `/uploads/notifications/${safeName}`;
-    res.json({ url: publicUrl });
+    const uploadResult = await uploadMedia({
+      buffer,
+      filename: safeName,
+      mimeType,
+      folder: 'notifications',
+      uploadedBy: req.user?.email || 'admin',
+    });
+
+    await recordMediaUploadInNeon({
+      id: `media_notif_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      fileName: safeName,
+      fileKey: uploadResult.fileId,
+      bucket: 'imagekit',
+      url: uploadResult.url,
+      contentType: mimeType,
+      sizeBytes: uploadResult.size,
+      uploadedBy: req.user?.email || 'admin',
+    });
+
+    res.json({ url: uploadResult.url });
   } catch (err: any) {
     console.error('Error saving notification image:', err);
     res.status(500).json({ error: 'Failed to upload image' });
   }
+});
+
+// Explicit Media Delete endpoint for Admin Panel
+router.delete('/media', async (req: AuthenticatedRequest, res) => {
+  const { url, fileId } = req.body || {};
+  const target = fileId || url || (req.query.url as string) || (req.query.fileId as string);
+  if (!target) {
+    res.status(400).json({ error: 'url or fileId is required' });
+    return;
+  }
+  const deleted = await deleteMedia(target);
+  res.json({ success: true, deleted });
 });
 
 // 17. Unified Global Search

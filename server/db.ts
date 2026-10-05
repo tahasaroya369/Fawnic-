@@ -1,6 +1,13 @@
 import fs from 'fs';
 import path from 'path';
 import { hashPassword } from './auth.js';
+import {
+  isNeonConfigured,
+  loadSchemaFromNeon,
+  syncSchemaToNeon,
+  recordSyncEventInNeon,
+  getSyncEventsFromNeon,
+} from './storage/neon.js';
 import type {
   User,
   Category,
@@ -40,7 +47,7 @@ interface UserWithAuth extends User {
   salt: string;
 }
 
-interface DatabaseSchema {
+export interface DatabaseSchema {
   users: UserWithAuth[];
   categories: Category[];
   products: Product[];
@@ -1803,6 +1810,12 @@ export function recordSyncEvent(event: { type: string; action?: string; [key: st
   // Save changes to persist events
   saveDatabase(currentDb);
 
+  if (isNeonConfigured()) {
+    recordSyncEventInNeon(evt).catch((err: any) => {
+      console.warn('[Neon Sync] Error recording sync event:', err.message);
+    });
+  }
+
   return evt;
 }
 
@@ -1999,6 +2012,17 @@ async function saveToCustomStorage(data: DatabaseSchema): Promise<boolean> {
 }
 
 async function loadFromRemoteStorage(): Promise<DatabaseSchema | null> {
+  if (isNeonConfigured()) {
+    try {
+      const neonData = await loadSchemaFromNeon();
+      if (neonData && neonData.users && neonData.products) {
+        return neonData;
+      }
+    } catch (err: any) {
+      console.warn('[Neon Storage] Could not load schema from Neon, checking other fallbacks:', err.message);
+    }
+  }
+
   return (
     (await loadFromVercelKV()) ||
     (await loadFromJSONBin()) ||
@@ -2008,11 +2032,13 @@ async function loadFromRemoteStorage(): Promise<DatabaseSchema | null> {
 }
 
 async function saveToRemoteStorage(data: DatabaseSchema): Promise<void> {
+  const isNeon = isNeonConfigured();
   const isVercelKV = Boolean(process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL);
   const isJSONBin = Boolean(process.env.JSONBIN_BIN_ID);
   const isSupabase = Boolean(process.env.SUPABASE_URL);
   const isCustom = Boolean(process.env.STORAGE_API_URL || process.env.REMOTE_DB_URL);
 
+  if (isNeon) await syncSchemaToNeon(data);
   if (isVercelKV) await saveToVercelKV(data);
   if (isJSONBin) await saveToJSONBin(data);
   if (isSupabase) await saveToSupabase(data);
@@ -2024,6 +2050,7 @@ const REMOTE_SYNC_COOLDOWN_MS = 2000;
 
 export async function syncDatabaseFromRemote(): Promise<void> {
   const isRemoteConfigured = Boolean(
+    isNeonConfigured() ||
     process.env.KV_REST_API_URL ||
     process.env.UPSTASH_REDIS_REST_URL ||
     process.env.JSONBIN_BIN_ID ||
