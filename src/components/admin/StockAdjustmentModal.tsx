@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Layers, AlertCircle, CheckCircle, ArrowRight } from 'lucide-react';
 import type { Product, InventoryReason } from '../../types.js';
+import { emitSyncEvent } from '../../services/notificationSocket.js';
 
 interface StockAdjustmentModalProps {
   product: Product | null;
@@ -77,6 +78,13 @@ export const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
       if (!res.ok) {
         throw new Error(data.error || 'Failed to adjust stock');
       }
+
+      emitSyncEvent({
+        type: 'product:change',
+        action: 'inventory',
+        productId: product.id,
+        product: data.product,
+      });
 
       if (onSuccess) onSuccess(data.product, data.transaction);
       if (onStockUpdated) onStockUpdated();

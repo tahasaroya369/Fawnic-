@@ -29,7 +29,7 @@ import type {
   NotificationType,
   NotificationStatus,
 } from '../../types.js';
-import { notificationSocket } from '../../services/notificationSocket.js';
+import { notificationSocket, emitSyncEvent } from '../../services/notificationSocket.js';
 import { NotificationFormModal } from './NotificationFormModal.js';
 import { NotificationDetailModal } from '../common/NotificationDetailModal.js';
 
@@ -151,6 +151,12 @@ export const AdminNotificationsTab: React.FC<AdminNotificationsTabProps> = ({ to
       });
 
       if (res.ok) {
+        const updatedData = await res.json();
+        emitSyncEvent({
+          type: 'notification:update',
+          notification: updatedData,
+          notificationId: notif.id,
+        });
         setActionMessage({
           type: 'success',
           text: `Notification "${notif.title}" is now ${isCurrentlyPublished ? 'saved as Draft' : 'Published live'}.`,
@@ -172,6 +178,12 @@ export const AdminNotificationsTab: React.FC<AdminNotificationsTabProps> = ({ to
       });
 
       if (res.ok) {
+        const dupData = await res.json();
+        emitSyncEvent({
+          type: 'notification:new',
+          notification: dupData,
+          notificationId: dupData?.id,
+        });
         setActionMessage({
           type: 'success',
           text: `Duplicated "${notif.title}" as a new draft.`,
@@ -195,6 +207,10 @@ export const AdminNotificationsTab: React.FC<AdminNotificationsTabProps> = ({ to
       });
 
       if (res.ok) {
+        emitSyncEvent({
+          type: 'notification:delete',
+          notificationId: deletingNotification.id,
+        });
         setActionMessage({
           type: 'success',
           text: `Notification "${deletingNotification.title}" deleted.`,

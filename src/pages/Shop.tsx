@@ -19,6 +19,7 @@ import {
   setCachedCategories,
   prefetchProductImages,
 } from '../services/productCache.js';
+import { fetchWithRetry } from '../utils/apiClient.js';
 import { getResponsiveImageProps, getCategoryFallbackImage } from '../utils/imageAssets.js';
 import type { Product, Category } from '../types.js';
 
@@ -63,8 +64,8 @@ export const Shop: React.FC<ShopProps> = ({ onNavigate, onQuickView, initialCate
         if (isInitial && !hasCached) setLoading(true);
 
         const [prodRes, catRes] = await Promise.all([
-          fetch('/api/products?limit=100'),
-          fetch('/api/products/categories'),
+          fetchWithRetry('/api/products?limit=100', {}, 2, 500),
+          fetchWithRetry('/api/products/categories', {}, 2, 500),
         ]);
 
         if (prodRes.ok && isMounted) {
@@ -80,7 +81,15 @@ export const Shop: React.FC<ShopProps> = ({ onNavigate, onQuickView, initialCate
           setCachedCategories(catData || []);
         }
       } catch (err) {
-        console.error('Error fetching shop data:', err);
+        // Fall back gracefully to cache
+        const cachedProds = getCachedProducts();
+        const cachedCats = getCachedCategories();
+        if (cachedProds && cachedProds.length > 0 && isMounted) {
+          setProducts(cachedProds);
+        }
+        if (cachedCats && cachedCats.length > 0 && isMounted) {
+          setCategories(cachedCats);
+        }
       } finally {
         if (isMounted) setLoading(false);
       }

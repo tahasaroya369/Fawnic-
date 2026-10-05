@@ -12,6 +12,31 @@ export interface ApiResponse<T = any> {
   message?: string;
 }
 
+/**
+ * Resilient fetch wrapper with automatic backoff retry to gracefully handle
+ * transient network lags, server reloads, or container cold starts.
+ */
+export async function fetchWithRetry(
+  input: RequestInfo | URL,
+  init?: RequestInit,
+  maxRetries = 3,
+  delayMs = 600
+): Promise<Response> {
+  let lastError: any = null;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const res = await fetch(input, init);
+      return res;
+    } catch (err) {
+      lastError = err;
+      if (attempt < maxRetries) {
+        await new Promise((resolve) => setTimeout(resolve, delayMs * (attempt + 1)));
+      }
+    }
+  }
+  throw lastError;
+}
+
 export async function safeFetch<T = any>(
   input: RequestInfo | URL,
   init?: RequestInit

@@ -3,6 +3,7 @@ import { getDb, saveDatabase, getNextInvoiceNumber } from '../db.js';
 import { requireAuth, type AuthenticatedRequest } from '../middleware.js';
 import type { Order, OrderItem } from '../../src/types.js';
 import { createOrderNotification } from '../orderNotificationHelper.js';
+import { broadcastOrderUpdate, broadcastProductEvent } from '../websocket.js';
 
 const router = express.Router();
 
@@ -271,6 +272,21 @@ router.post('/', (req: AuthenticatedRequest, res) => {
   });
 
   saveDatabase();
+
+  // Broadcast real-time order update to Admin and Customer panels
+  broadcastOrderUpdate(newOrder);
+
+  // Broadcast stock changes for affected items
+  for (const it of orderItems) {
+    const updatedProd = db.products.find((p) => p.id === it.productId);
+    if (updatedProd) {
+      broadcastProductEvent({
+        action: 'inventory',
+        productId: it.productId,
+        product: updatedProd,
+      });
+    }
+  }
 
   res.status(201).json({
     order: newOrder,

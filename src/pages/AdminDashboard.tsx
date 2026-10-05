@@ -180,13 +180,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, subR
   useEffect(() => {
     refreshAllData();
 
-    // Subscribe to real-time query events
+    // Subscribe to real-time synchronization events (orders, products, categories, notifications, queries)
     const unsubscribe = notificationSocket.subscribe((event) => {
-      if (event.type && event.type.startsWith('query:')) {
+      if (!event || !event.type) return;
+
+      if (event.type.startsWith('query:')) {
         // Fetch updated query stats
         if (token) {
           fetch('/api/admin/queries/stats', { headers: { Authorization: `Bearer ${token}` } })
-            .then((r) => r.ok ? r.json() : null)
+            .then((r) => (r.ok ? r.json() : null))
             .then((st) => {
               if (st && typeof st.unread === 'number') {
                 setUnreadQueriesCount(st.unread);
@@ -194,10 +196,80 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, subR
             })
             .catch(() => {});
         }
+      } else if (event.type.startsWith('order:') || event.type === 'order:updated') {
+        // Customer placed an order or order updated
+        if (token) {
+          fetch('/api/admin/orders', { headers: { Authorization: `Bearer ${token}` } })
+            .then((r) => (r.ok ? r.json() : null))
+            .then((data) => {
+              if (Array.isArray(data)) setOrders(data);
+            })
+            .catch(() => {});
+          fetch('/api/admin/stats', { headers: { Authorization: `Bearer ${token}` } })
+            .then((r) => (r.ok ? r.json() : null))
+            .then((st) => {
+              if (st) setStats(st);
+            })
+            .catch(() => {});
+        }
+      } else if (event.type === 'product:change') {
+        if (token) {
+          fetch('/api/admin/products', { headers: { Authorization: `Bearer ${token}` } })
+            .then((r) => (r.ok ? r.json() : null))
+            .then((data) => {
+              if (Array.isArray(data)) setProducts(data);
+            })
+            .catch(() => {});
+        }
+      } else if (event.type === 'category:change') {
+        fetch('/api/products/categories')
+          .then((r) => (r.ok ? r.json() : null))
+          .then((data) => {
+            if (Array.isArray(data)) setCategories(data);
+          })
+          .catch(() => {});
+      } else if (event.type.startsWith('notification:')) {
+        if (token) {
+          fetch('/api/admin/notifications', { headers: { Authorization: `Bearer ${token}` } })
+            .then((r) => (r.ok ? r.json() : null))
+            .then((data) => {
+              if (data) {
+                setNotifications(Array.isArray(data) ? data : data?.notifications || []);
+              }
+            })
+            .catch(() => {});
+        }
       }
     });
 
-    return unsubscribe;
+    const handleWindowProductChange = () => {
+      if (token) {
+        fetch('/api/admin/products', { headers: { Authorization: `Bearer ${token}` } })
+          .then((r) => (r.ok ? r.json() : null))
+          .then((data) => {
+            if (Array.isArray(data)) setProducts(data);
+          })
+          .catch(() => {});
+      }
+    };
+
+    const handleWindowCategoryChange = () => {
+      fetch('/api/products/categories')
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          if (Array.isArray(data)) setCategories(data);
+        })
+        .catch(() => {});
+    };
+
+    window.addEventListener('fawnic:product_change', handleWindowProductChange);
+    window.addEventListener('fawnic:category_change', handleWindowCategoryChange);
+
+    return () => {
+      unsubscribe();
+      window.removeEventListener('fawnic:product_change', handleWindowProductChange);
+      window.removeEventListener('fawnic:category_change', handleWindowCategoryChange);
+    };
   }, [token]);
 
   if (authLoading && token) {

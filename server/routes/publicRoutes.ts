@@ -18,21 +18,21 @@ router.get('/health', (req, res) => {
 // Categories (Public endpoint)
 router.get('/categories', (req, res) => {
   const db = getDb();
-  res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
   res.json(db.categories);
 });
 
 // Homepage CMS Configuration
 router.get('/cms', (req, res) => {
   const db = getDb();
-  res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
   res.json(db.homepageCms);
 });
 
 // Active Promotions
 router.get('/promotions', (req, res) => {
   const db = getDb();
-  res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
   const active = (db.promotions || []).filter((p: any) => p.isActive);
   res.json(active);
 });
@@ -40,21 +40,21 @@ router.get('/promotions', (req, res) => {
 // Store Settings
 router.get('/settings', (req, res) => {
   const db = getDb();
-  res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
   res.json(db.settings);
 });
 
 // FAQs
 router.get('/faqs', (req, res) => {
   const db = getDb();
-  res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
   res.json(db.faqs.sort((a, b) => a.order - b.order));
 });
 
 // Policies
 router.get('/policies', (req, res) => {
   const db = getDb();
-  res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
   res.json(db.policies);
 });
 

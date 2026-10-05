@@ -1,6 +1,7 @@
 import type { Server as HttpServer } from 'http';
 import { WebSocketServer, WebSocket } from 'ws';
 import { getSession } from './auth.js';
+import { recordSyncEvent } from './db.js';
 import type { NotificationRecord, Order } from '../src/types.js';
 
 interface ClientConnection {
@@ -153,6 +154,14 @@ export interface BroadcastNotificationPayload {
 export function broadcastNotificationEvent(payload: BroadcastNotificationPayload): void {
   const { action, notification, notificationId, userId } = payload;
 
+  recordSyncEvent({
+    type: action === 'created' ? 'notification:new' : action === 'deleted' ? 'notification:delete' : 'notification:update',
+    action,
+    notification,
+    notificationId: notificationId || notification?.id,
+    userId,
+  });
+
   clients.forEach((client) => {
     const isAdmin = client.role === 'admin' || client.role === 'staff';
 
@@ -298,6 +307,16 @@ export function broadcastQueryEvent(payload: BroadcastQueryPayload): void {
   const { action, query, queryId, message, targetCustomerId, stats } = payload;
   const effectiveCustomerId = targetCustomerId || query?.customerId;
 
+  recordSyncEvent({
+    type: `query:${action}`,
+    action,
+    query,
+    queryId: queryId || query?.id,
+    message,
+    targetCustomerId: effectiveCustomerId,
+    stats,
+  });
+
   clients.forEach((client) => {
     const isAdmin = client.role === 'admin' || client.role === 'staff';
     const isOwnerCustomer = Boolean(client.userId && effectiveCustomerId && client.userId === effectiveCustomerId);
@@ -345,6 +364,15 @@ export function broadcastQueryEvent(payload: BroadcastQueryPayload): void {
  * Strictly protects privacy so other customers never see this order update.
  */
 export function broadcastOrderUpdate(order: Order): void {
+  recordSyncEvent({
+    type: 'order:updated',
+    action: 'updated',
+    order,
+    orderId: order.id,
+    orderNumber: order.orderNumber,
+    status: order.status,
+  });
+
   clients.forEach((client) => {
     const isAdmin = client.role === 'admin' || client.role === 'staff';
     const isOwnerCustomer = Boolean(
@@ -378,6 +406,14 @@ export interface BroadcastProductPayload {
 }
 
 export function broadcastProductEvent(payload: BroadcastProductPayload): void {
+  recordSyncEvent({
+    type: 'product:change',
+    action: payload.action,
+    product: payload.product,
+    productId: payload.productId || payload.product?.id,
+    products: payload.products,
+  });
+
   clients.forEach((client) => {
     sendToSocket(client.ws, {
       type: 'product:change',
@@ -401,6 +437,14 @@ export interface BroadcastCategoryPayload {
 }
 
 export function broadcastCategoryEvent(payload: BroadcastCategoryPayload): void {
+  recordSyncEvent({
+    type: 'category:change',
+    action: payload.action,
+    category: payload.category,
+    categoryId: payload.categoryId || payload.category?.id,
+    categories: payload.categories,
+  });
+
   clients.forEach((client) => {
     sendToSocket(client.ws, {
       type: 'category:change',
@@ -417,6 +461,11 @@ export function broadcastCategoryEvent(payload: BroadcastCategoryPayload): void 
  * Realtime Settings Synchronization Broadcast (bank details, cashback, policies)
  */
 export function broadcastSettingsEvent(payload: { settings: any }): void {
+  recordSyncEvent({
+    type: 'settings:change',
+    settings: payload.settings,
+  });
+
   clients.forEach((client) => {
     sendToSocket(client.ws, {
       type: 'settings:change',

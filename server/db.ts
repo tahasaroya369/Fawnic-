@@ -27,6 +27,14 @@ import type {
   CustomerQuery,
 } from '../src/types.js';
 
+export interface SyncEvent {
+  id: string;
+  type: string;
+  action?: string;
+  timestamp: number;
+  [key: string]: any;
+}
+
 interface UserWithAuth extends User {
   passwordHash: string;
   salt: string;
@@ -57,6 +65,9 @@ interface DatabaseSchema {
   teamMembers: TeamMember[];
   promotions: MarketingPromotion[];
   customerNotes: Record<string, string>;
+  _syncEvents?: SyncEvent[];
+  _version?: number;
+  _updatedAt?: string;
 }
 
 let cachedDbFilePath: string | null = null;
@@ -1735,6 +1746,10 @@ export function saveDatabase(dataToSave?: DatabaseSchema): void {
   try {
     const current = dataToSave || db;
     if (!current) return;
+
+    current._version = (current._version || 0) + 1;
+    current._updatedAt = new Date().toISOString();
+
     const targetFile = getDatabaseFilePath();
     const dir = path.dirname(targetFile);
     if (!fs.existsSync(dir)) {
@@ -1742,9 +1757,315 @@ export function saveDatabase(dataToSave?: DatabaseSchema): void {
         fs.mkdirSync(dir, { recursive: true });
       } catch {}
     }
-    fs.writeFileSync(targetFile, JSON.stringify(current, null, 2), 'utf-8');
+    const tempFile = `${targetFile}.tmp.${Date.now()}`;
+    fs.writeFileSync(tempFile, JSON.stringify(current, null, 2), 'utf-8');
+    try {
+      fs.renameSync(tempFile, targetFile);
+    } catch {
+      fs.writeFileSync(targetFile, JSON.stringify(current, null, 2), 'utf-8');
+    }
+
+    // Trigger asynchronous remote persistence for production / serverless environments
+    saveToRemoteStorage(current).catch((err) => {
+      console.warn('[Storage] Remote persistence error:', err?.message || err);
+    });
   } catch (e) {
     console.error('Error saving database:', e);
+  }
+}
+
+// In-memory sync events buffer
+const syncEventsBuffer: SyncEvent[] = [];
+const MAX_SYNC_EVENTS = 200;
+
+export function recordSyncEvent(event: { type: string; action?: string; [key: string]: any }): SyncEvent {
+  const currentDb = getDb();
+  const evt: SyncEvent = {
+    ...event,
+    id: `evt_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+    timestamp: Date.now(),
+  };
+
+  syncEventsBuffer.unshift(evt);
+  if (syncEventsBuffer.length > MAX_SYNC_EVENTS) {
+    syncEventsBuffer.pop();
+  }
+
+  if (!currentDb._syncEvents) currentDb._syncEvents = [];
+  currentDb._syncEvents.unshift(evt);
+  if (currentDb._syncEvents.length > MAX_SYNC_EVENTS) {
+    currentDb._syncEvents.pop();
+  }
+
+  currentDb._version = (currentDb._version || 0) + 1;
+  currentDb._updatedAt = new Date().toISOString();
+
+  // Save changes to persist events
+  saveDatabase(currentDb);
+
+  return evt;
+}
+
+export function getSyncEvents(since = 0, limit = 50): SyncEvent[] {
+  const currentDb = getDb();
+  const events = (currentDb._syncEvents && currentDb._syncEvents.length > 0)
+    ? currentDb._syncEvents
+    : syncEventsBuffer;
+
+  if (!since || isNaN(since)) {
+    return events.slice(0, limit);
+  }
+
+  return events.filter((e) => e.timestamp > since).slice(0, limit);
+}
+
+export function getDbVersion(): number {
+  const currentDb = getDb();
+  return currentDb._version || 1;
+}
+
+// -------------------------------------------------------------
+// Remote Storage Adapters for Production / Vercel Serverless
+// Supports: Vercel KV / Upstash Redis, JSONBin.io, Supabase, Custom REST
+// -------------------------------------------------------------
+
+async function loadFromVercelKV(): Promise<DatabaseSchema | null> {
+  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return null;
+
+  try {
+    const res = await fetch(`${url}/get/fawnic_database_prod`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) return null;
+    const json = (await res.json()) as any;
+    if (json && json.result) {
+      const data = typeof json.result === 'string' ? JSON.parse(json.result) : json.result;
+      if (data && data.users && data.products) return data;
+    }
+  } catch (err) {
+    console.error('[Storage] Error loading from Vercel KV / Upstash:', err);
+  }
+  return null;
+}
+
+async function saveToVercelKV(data: DatabaseSchema): Promise<boolean> {
+  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return false;
+
+  try {
+    const res = await fetch(`${url}/set/fawnic_database_prod`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(JSON.stringify(data)),
+    });
+    return res.ok;
+  } catch (err) {
+    console.error('[Storage] Error saving to Vercel KV / Upstash:', err);
+    return false;
+  }
+}
+
+async function loadFromJSONBin(): Promise<DatabaseSchema | null> {
+  const binId = process.env.JSONBIN_BIN_ID;
+  const apiKey = process.env.JSONBIN_API_KEY || process.env.JSONBIN_MASTER_KEY || process.env.JSONBIN_ACCESS_KEY;
+  if (!binId || !apiKey) return null;
+
+  try {
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
+      headers: { 'X-Master-Key': apiKey },
+    });
+    if (!res.ok) return null;
+    const json = (await res.json()) as any;
+    if (json && json.record && json.record.users && json.record.products) {
+      return json.record;
+    }
+  } catch (err) {
+    console.error('[Storage] Error loading from JSONBin:', err);
+  }
+  return null;
+}
+
+async function saveToJSONBin(data: DatabaseSchema): Promise<boolean> {
+  const binId = process.env.JSONBIN_BIN_ID;
+  const apiKey = process.env.JSONBIN_API_KEY || process.env.JSONBIN_MASTER_KEY || process.env.JSONBIN_ACCESS_KEY;
+  if (!binId || !apiKey) return false;
+
+  try {
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': apiKey,
+      },
+      body: JSON.stringify(data),
+    });
+    return res.ok;
+  } catch (err) {
+    console.error('[Storage] Error saving to JSONBin:', err);
+    return false;
+  }
+}
+
+async function loadFromSupabase(): Promise<DatabaseSchema | null> {
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY || process.env.SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseKey) return null;
+
+  try {
+    const res = await fetch(`${supabaseUrl}/rest/v1/fawnic_store?id=eq.main&select=*`, {
+      headers: {
+        apikey: supabaseKey,
+        Authorization: `Bearer ${supabaseKey}`,
+      },
+    });
+    if (!res.ok) return null;
+    const rows = (await res.json()) as any;
+    if (Array.isArray(rows) && rows.length > 0 && rows[0].data) {
+      const data = typeof rows[0].data === 'string' ? JSON.parse(rows[0].data) : rows[0].data;
+      if (data && data.users && data.products) return data;
+    }
+  } catch (err) {
+    console.error('[Storage] Error loading from Supabase:', err);
+  }
+  return null;
+}
+
+async function saveToSupabase(data: DatabaseSchema): Promise<boolean> {
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY || process.env.SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseKey) return false;
+
+  try {
+    const res = await fetch(`${supabaseUrl}/rest/v1/fawnic_store`, {
+      method: 'POST',
+      headers: {
+        apikey: supabaseKey,
+        Authorization: `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json',
+        Prefer: 'resolution=merge-duplicates',
+      },
+      body: JSON.stringify({ id: 'main', data, updated_at: new Date().toISOString() }),
+    });
+    return res.ok;
+  } catch (err) {
+    console.error('[Storage] Error saving to Supabase:', err);
+    return false;
+  }
+}
+
+async function loadFromCustomStorage(): Promise<DatabaseSchema | null> {
+  const url = process.env.STORAGE_API_URL || process.env.REMOTE_DB_URL;
+  if (!url) return null;
+  const key = process.env.STORAGE_API_KEY || process.env.REMOTE_DB_KEY;
+
+  try {
+    const headers: Record<string, string> = {};
+    if (key) headers['Authorization'] = `Bearer ${key}`;
+    const res = await fetch(url, { headers });
+    if (!res.ok) return null;
+    const json = (await res.json()) as any;
+    const data = json.data || json;
+    if (data && data.users && data.products) return data;
+  } catch (err) {
+    console.error('[Storage] Error loading from Custom Storage:', err);
+  }
+  return null;
+}
+
+async function saveToCustomStorage(data: DatabaseSchema): Promise<boolean> {
+  const url = process.env.STORAGE_API_URL || process.env.REMOTE_DB_URL;
+  if (!url) return false;
+  const key = process.env.STORAGE_API_KEY || process.env.REMOTE_DB_KEY;
+
+  try {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (key) headers['Authorization'] = `Bearer ${key}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(data),
+    });
+    return res.ok;
+  } catch (err) {
+    console.error('[Storage] Error saving to Custom Storage:', err);
+    return false;
+  }
+}
+
+async function loadFromRemoteStorage(): Promise<DatabaseSchema | null> {
+  return (
+    (await loadFromVercelKV()) ||
+    (await loadFromJSONBin()) ||
+    (await loadFromSupabase()) ||
+    (await loadFromCustomStorage())
+  );
+}
+
+async function saveToRemoteStorage(data: DatabaseSchema): Promise<void> {
+  const isVercelKV = Boolean(process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL);
+  const isJSONBin = Boolean(process.env.JSONBIN_BIN_ID);
+  const isSupabase = Boolean(process.env.SUPABASE_URL);
+  const isCustom = Boolean(process.env.STORAGE_API_URL || process.env.REMOTE_DB_URL);
+
+  if (isVercelKV) await saveToVercelKV(data);
+  if (isJSONBin) await saveToJSONBin(data);
+  if (isSupabase) await saveToSupabase(data);
+  if (isCustom) await saveToCustomStorage(data);
+}
+
+let lastRemoteSyncTimestamp = 0;
+const REMOTE_SYNC_COOLDOWN_MS = 2000;
+
+export async function syncDatabaseFromRemote(): Promise<void> {
+  const isRemoteConfigured = Boolean(
+    process.env.KV_REST_API_URL ||
+    process.env.UPSTASH_REDIS_REST_URL ||
+    process.env.JSONBIN_BIN_ID ||
+    process.env.SUPABASE_URL ||
+    process.env.STORAGE_API_URL ||
+    process.env.REMOTE_DB_URL
+  );
+
+  if (!isRemoteConfigured) return;
+
+  const now = Date.now();
+  if (now - lastRemoteSyncTimestamp < REMOTE_SYNC_COOLDOWN_MS) {
+    return;
+  }
+  lastRemoteSyncTimestamp = now;
+
+  try {
+    const remote = await loadFromRemoteStorage();
+    if (remote && remote.users && remote.products) {
+      // Preserve admin credentials
+      const admin = remote.users.find(
+        (u: any) => u.email && u.email.toLowerCase() === 'alichishtia111@gmail.com'
+      );
+      if (admin) {
+        admin.passwordHash = 'cbb3d466de30abaa2a9eea4b4503394626e8f98b65255c1bf6d0f27f1dda9237c92bdc71826328ec229be293012fea5c86f4c982f56066148a5dc11601529048';
+        admin.salt = 'e57fbb13aefd72c43f4792a061c43a37';
+        admin.role = 'admin';
+      }
+
+      const currentVer = db?._version || 0;
+      const remoteVer = remote._version || 0;
+
+      if (!db || remoteVer >= currentVer) {
+        db = remote;
+        const targetFile = getDatabaseFilePath();
+        try {
+          fs.writeFileSync(targetFile, JSON.stringify(db, null, 2), 'utf-8');
+        } catch {}
+      }
+    }
+  } catch (err) {
+    // Non-fatal remote sync fallback
   }
 }
 

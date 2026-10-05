@@ -9,7 +9,8 @@ import customerRoutes from './routes/customerRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import publicRoutes from './routes/publicRoutes.js';
 import queryRoutes, { customerQueryRouter, adminQueryRouter } from './routes/queryRoutes.js';
-import { getDb } from './db.js';
+import { syncRouter } from './routes/syncRoutes.js';
+import { getDb, syncDatabaseFromRemote } from './db.js';
 
 export function createExpressApp(): express.Express {
   const app = express();
@@ -84,6 +85,36 @@ export function createExpressApp(): express.Express {
   // Global auth session extraction
   app.use(authMiddleware);
 
+  // Dynamic API routes cache-control header (strictly prevents stale CDN/browser caching)
+  app.use((req, res, next) => {
+    const url = req.originalUrl || req.url || '';
+    if (
+      url.startsWith('/api') ||
+      req.path.startsWith('/api') ||
+      url.startsWith('/auth') ||
+      url.startsWith('/products') ||
+      url.startsWith('/orders') ||
+      url.startsWith('/customer') ||
+      url.startsWith('/admin') ||
+      url.startsWith('/queries') ||
+      url.startsWith('/sync') ||
+      url.startsWith('/public')
+    ) {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    }
+    next();
+  });
+
+  // Background check for persistent remote storage updates (Vercel KV / Upstash / Supabase / JSONBin)
+  app.use(async (req, res, next) => {
+    try {
+      await syncDatabaseFromRemote();
+    } catch {}
+    next();
+  });
+
   // API Health Check (handles /api/health, /health, /api, /)
   app.get(['/api/health', '/health', '/api'], (req, res) => {
     res.json({
@@ -128,6 +159,9 @@ export function createExpressApp(): express.Express {
   app.use('/api/queries', queryRoutes);
   app.use('/queries', queryRoutes);
 
+  app.use('/api/sync', syncRouter);
+  app.use('/sync', syncRouter);
+
   app.use('/api/public', publicRoutes);
   app.use('/public', publicRoutes);
   app.use('/api', publicRoutes);
@@ -144,7 +178,10 @@ export function createExpressApp(): express.Express {
       url.startsWith('/orders') ||
       url.startsWith('/customer/queries') ||
       url.startsWith('/admin/queries') ||
-      url.startsWith('/queries');
+      url.startsWith('/queries') ||
+      url.startsWith('/sync') ||
+      url.startsWith('/customer') ||
+      url.startsWith('/admin');
 
     if (isApiRequest) {
       return res.status(404).json({

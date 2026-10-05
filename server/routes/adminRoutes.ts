@@ -401,6 +401,7 @@ router.put('/categories/:id', (req: AuthenticatedRequest, res) => {
     return;
   }
 
+  const oldName = cat.name;
   const { name, slug, description, banner, image, icon, subcategories, isActive, order } = req.body;
   if (name !== undefined) cat.name = name.trim();
   if (slug !== undefined) cat.slug = slug.trim();
@@ -411,6 +412,15 @@ router.put('/categories/:id', (req: AuthenticatedRequest, res) => {
   if (subcategories !== undefined) cat.subcategories = Array.isArray(subcategories) ? subcategories : [];
   if (isActive !== undefined) cat.isActive = Boolean(isActive);
   if (order !== undefined) cat.order = Number(order);
+
+  // Synchronize categoryName across all products belonging to this category
+  if (name !== undefined && cat.name !== oldName) {
+    db.products.forEach((p) => {
+      if (p.categoryId === cat.id) {
+        p.categoryName = cat.name;
+      }
+    });
+  }
 
   logAdminAction(req.user!.email, 'CATEGORY_UPDATED', 'Category', cat.id, `Updated "${cat.name}"`);
   saveDatabase();
@@ -429,17 +439,44 @@ router.delete('/categories/:id', (req: AuthenticatedRequest, res) => {
 
   const cat = db.categories[idx];
   const assignedProducts = db.products.filter((p) => p.categoryId === cat.id);
+
+  // Safely reassign any assigned products to target category or fallback so products never become orphaned
+  const reassignToId = (req.body && req.body.reassignTo) || req.query.reassignTo;
+  let targetCat = db.categories.find((c) => c.id === reassignToId && c.id !== cat.id);
+  if (!targetCat) {
+    targetCat = db.categories.find((c) => c.id !== cat.id);
+  }
+
   if (assignedProducts.length > 0) {
-    res.status(400).json({ error: `Cannot delete category. ${assignedProducts.length} products belong to this category. Reassign them first.` });
-    return;
+    if (targetCat) {
+      assignedProducts.forEach((p) => {
+        p.categoryId = targetCat!.id;
+        p.categoryName = targetCat!.name;
+      });
+    } else {
+      assignedProducts.forEach((p) => {
+        p.categoryId = 'uncategorized';
+        p.categoryName = 'Uncategorized';
+      });
+    }
   }
 
   db.categories.splice(idx, 1);
-  logAdminAction(req.user!.email, 'CATEGORY_DELETED', 'Category', cat.id, `Deleted "${cat.name}"`);
+  logAdminAction(
+    req.user!.email,
+    'CATEGORY_DELETED',
+    'Category',
+    cat.id,
+    `Deleted "${cat.name}". ${assignedProducts.length} products safely remapped to "${targetCat ? targetCat.name : 'Uncategorized'}".`
+  );
   saveDatabase();
   broadcastCategoryEvent({ action: 'deleted', categoryId: req.params.id });
 
-  res.json({ message: 'Category removed successfully' });
+  res.json({
+    message: 'Category removed successfully',
+    remappedCount: assignedProducts.length,
+    remappedTo: targetCat ? targetCat.name : 'Uncategorized',
+  });
 });
 
 // 3. Orders Management
@@ -777,6 +814,7 @@ router.post('/orders/:id/cancel', (req: AuthenticatedRequest, res) => {
 
   logAdminAction(req.user!.email, 'ORDER_CANCELLED', 'Order', order.orderNumber, reason || 'Cancelled order');
   saveDatabase();
+  broadcastOrderUpdate(order);
 
   res.json(order);
 });
@@ -792,6 +830,11 @@ router.delete('/orders/:id', (req: AuthenticatedRequest, res) => {
   const removed = db.orders.splice(idx, 1)[0];
   logAdminAction(req.user!.email, 'ORDER_PERMANENTLY_DELETED', 'Order', removed.orderNumber, `Deleted test order`);
   saveDatabase();
+
+  broadcastOrderUpdate({
+    ...removed,
+    status: 'cancelled',
+  });
 
   res.json({ message: 'Order removed permanently' });
 });

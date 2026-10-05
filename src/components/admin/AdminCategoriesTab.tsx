@@ -15,6 +15,7 @@ import {
   Image as ImageIcon,
 } from 'lucide-react';
 import type { Category } from '../../types.js';
+import { emitSyncEvent } from '../../services/notificationSocket.js';
 
 interface AdminCategoriesTabProps {
   token: string | null;
@@ -161,6 +162,14 @@ export const AdminCategoriesTab: React.FC<AdminCategoriesTabProps> = ({
         throw new Error(data.error || 'Failed to save category');
       }
 
+      const savedCat = await res.json();
+      emitSyncEvent({
+        type: 'category:change',
+        action: editingCategory ? 'updated' : 'created',
+        category: savedCat,
+        categoryId: savedCat?.id,
+      });
+
       setModalOpen(false);
       fetchCategories();
       if (onRefreshCategories) onRefreshCategories();
@@ -185,6 +194,12 @@ export const AdminCategoriesTab: React.FC<AdminCategoriesTabProps> = ({
         alert(data.error || 'Failed to delete category');
         return;
       }
+
+      emitSyncEvent({
+        type: 'category:change',
+        action: 'deleted',
+        categoryId: deleteConfirmCat.id,
+      });
 
       setDeleteConfirmCat(null);
       fetchCategories();

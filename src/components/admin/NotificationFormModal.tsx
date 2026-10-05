@@ -23,6 +23,7 @@ import type {
   NotificationAudience,
   NotificationStatus,
 } from '../../types.js';
+import { emitSyncEvent } from '../../services/notificationSocket.js';
 
 interface CustomerOption {
   id: string;
@@ -245,6 +246,13 @@ export const NotificationFormModal: React.FC<NotificationFormModalProps> = ({
         const data = await res.json();
         throw new Error(data.error || 'Failed to save notification');
       }
+
+      const savedNotif = await res.json();
+      emitSyncEvent({
+        type: editingNotification ? 'notification:update' : 'notification:new',
+        notification: savedNotif,
+        notificationId: savedNotif?.id,
+      });
 
       onSaved();
       onClose();

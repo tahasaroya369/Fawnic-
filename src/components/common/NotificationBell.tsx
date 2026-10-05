@@ -15,6 +15,7 @@ import {
 import type { NotificationItem, NotificationType } from '../../types.js';
 import { notificationSocket } from '../../services/notificationSocket.js';
 import { NotificationDetailModal } from './NotificationDetailModal.js';
+import { fetchWithRetry } from '../../utils/apiClient.js';
 
 interface NotificationBellProps {
   token?: string | null;
@@ -147,7 +148,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({
         headers['Authorization'] = `Bearer ${effectiveToken}`;
       }
 
-      const res = await fetch('/api/customer/notifications', { headers });
+      const res = await fetchWithRetry('/api/customer/notifications', { headers }, 2, 500);
       if (res.ok) {
         const data = await res.json();
         const rawList = (Array.isArray(data) ? data : (data?.notifications || [])) as NotificationItem[];
@@ -166,7 +167,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({
         setUnreadCount(unread);
       }
     } catch (err) {
-      console.error('Failed to fetch notifications:', err);
+      console.warn('Temporary delay fetching notifications, will retry automatically:', err);
     } finally {
       setIsLoading(false);
     }

@@ -11,6 +11,7 @@ import { OffersSection } from '../components/home/OffersSection.js';
 import { FinalCtaSection } from '../components/home/FinalCtaSection.js';
 import { Wallet, ShieldCheck, Clock } from 'lucide-react';
 import { getCachedProducts, setCachedProducts, prefetchProductImages } from '../services/productCache.js';
+import { fetchWithRetry } from '../utils/apiClient.js';
 import type { Product } from '../types.js';
 
 interface HomeProps {
@@ -30,7 +31,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onQuickView }) => {
         const hasCached = Boolean(getCachedProducts());
         if (isInitial && !hasCached) setLoading(true);
 
-        const res = await fetch('/api/products?limit=50');
+        const res = await fetchWithRetry('/api/products?limit=50', {}, 2, 500);
         if (res.ok && isMounted) {
           const data = await res.json();
           const items = data.products || [];
@@ -39,7 +40,13 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onQuickView }) => {
           prefetchProductImages(items);
         }
       } catch (err) {
-        console.error('Failed to load products for homepage:', err);
+        // Fall back gracefully to cache or retry silently
+        const cached = getCachedProducts();
+        if (cached && cached.length > 0 && isMounted) {
+          setProducts(cached);
+        } else {
+          console.warn('Temporary delay loading products, will re-sync:', err);
+        }
       } finally {
         if (isMounted) setLoading(false);
       }

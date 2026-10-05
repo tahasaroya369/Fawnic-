@@ -97,7 +97,7 @@ router.get('/', (req, res) => {
   const total = list.length;
   const paginated = list.slice((pNum - 1) * lNum, pNum * lNum);
 
-  res.setHeader('Cache-Control', 'public, max-age=30, stale-while-revalidate=120');
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
   res.json({
     products: paginated,
     total,
@@ -114,14 +114,14 @@ router.get('/featured', (req, res) => {
   const newArrivals = published.filter((p) => p.isNewArrival).slice(0, 8);
   const featured = published.filter((p) => p.isFeatured).slice(0, 8);
 
-  res.setHeader('Cache-Control', 'public, max-age=30, stale-while-revalidate=120');
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
   res.json({ bestSellers, newArrivals, featured });
 });
 
 // Get Categories
 router.get('/categories', (req, res) => {
   const db = getDb();
-  res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
   res.json(db.categories);
 });
 
@@ -238,7 +238,7 @@ router.get('/:slug', (req, res) => {
     (r) => r.productId === product.id && r.isApproved
   );
 
-  res.setHeader('Cache-Control', 'public, max-age=30, stale-while-revalidate=120');
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
   res.json({ product, related, reviews });
 });
 

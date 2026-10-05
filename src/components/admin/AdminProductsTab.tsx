@@ -38,6 +38,7 @@ import type { Product, Category, ProductVariation } from '../../types.js';
 import { ProductImageUploader } from './ProductImageUploader.js';
 import { ProductPreviewModal } from './ProductPreviewModal.js';
 import { sanitizeProductHtml } from '../../utils/sanitize.js';
+import { emitSyncEvent } from '../../services/notificationSocket.js';
 
 interface AdminProductsTabProps {
   products: Product[];
@@ -471,6 +472,14 @@ export const AdminProductsTab: React.FC<AdminProductsTabProps> = ({
         throw new Error(errData.error || 'Failed to save product');
       }
 
+      const savedData = await res.json();
+      emitSyncEvent({
+        type: 'product:change',
+        action: editingProduct ? 'updated' : 'created',
+        product: savedData,
+        productId: savedData?.id,
+      });
+
       handleCloseModal();
       onRefreshProducts();
     } catch (err: any) {
@@ -497,6 +506,14 @@ export const AdminProductsTab: React.FC<AdminProductsTabProps> = ({
         return;
       }
 
+      const duplicatedData = await res.json();
+      emitSyncEvent({
+        type: 'product:change',
+        action: 'created',
+        product: duplicatedData,
+        productId: duplicatedData?.id,
+      });
+
       onRefreshProducts();
     } catch (err) {
       console.error('Duplicate error:', err);
@@ -514,6 +531,12 @@ export const AdminProductsTab: React.FC<AdminProductsTabProps> = ({
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
+        emitSyncEvent({
+          type: 'product:change',
+          action: 'deleted',
+          productId: productToDelete.id,
+          product: productToDelete,
+        });
         setProductToDelete(null);
         setSelectedProductIds((prev) => prev.filter((id) => id !== productToDelete.id));
         onRefreshProducts();
@@ -558,6 +581,12 @@ export const AdminProductsTab: React.FC<AdminProductsTabProps> = ({
         alert(data.error || 'Failed to perform bulk action');
         return;
       }
+
+      emitSyncEvent({
+        type: 'product:change',
+        action: action === 'delete' ? 'deleted' : 'updated',
+        productIds: selectedProductIds,
+      });
 
       setSelectedProductIds([]);
       onRefreshProducts();

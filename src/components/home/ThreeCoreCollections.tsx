@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { ArrowUpRight } from 'lucide-react';
 import { IMAGE_ASSETS, getCategoryFallbackImage } from '../../utils/imageAssets.js';
 import { getCachedCategories, setCachedCategories, isImageLoaded, markImageLoaded } from '../../services/productCache.js';
+import { fetchWithRetry } from '../../utils/apiClient.js';
 import type { Category } from '../../types.js';
 
 interface ThreeCoreCollectionsProps {
@@ -54,7 +55,7 @@ export const ThreeCoreCollections: React.FC<ThreeCoreCollectionsProps> = ({ onNa
         const hasCached = Boolean(getCachedCategories());
         if (!hasCached) setLoading(true);
 
-        const res = await fetch('/api/categories');
+        const res = await fetchWithRetry('/api/categories', {}, 2, 500);
         if (res.ok && isMounted) {
           const data = await res.json();
           if (Array.isArray(data) && data.length > 0) {
@@ -63,7 +64,13 @@ export const ThreeCoreCollections: React.FC<ThreeCoreCollectionsProps> = ({ onNa
           }
         }
       } catch (err) {
-        console.error('Failed to load categories:', err);
+        // Fall back gracefully to cache
+        const cached = getCachedCategories();
+        if (cached && cached.length > 0 && isMounted) {
+          setCategories(cached);
+        } else {
+          console.warn('Temporary delay loading categories, using fallback collections:', err);
+        }
       } finally {
         if (isMounted) setLoading(false);
       }
