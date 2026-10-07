@@ -1,9 +1,36 @@
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
-import { getDb, saveDatabase, getNextInvoiceNumber } from '../db.js';
+import { getDb, saveDatabase, saveDatabaseAsync, getNextInvoiceNumber } from '../db.js';
 import { uploadMedia, deleteMedia } from '../storage/imagekit.js';
-import { recordMediaUploadInNeon } from '../storage/neon.js';
+import {
+  recordMediaUploadInNeon,
+  isNeonConfigured,
+  insertProductInNeon,
+  updateProductInNeon,
+  deleteProductInNeon,
+  getProductsFromNeon,
+  getCategoriesFromNeon,
+  insertCategoryInNeon,
+  updateCategoryInNeon,
+  deleteCategoryInNeon,
+  getOrdersFromNeon,
+  insertOrderInNeon,
+  updateOrderInNeon,
+  deleteOrderInNeon,
+  adjustProductStockInNeon,
+  getInventoryTransactionsFromNeon,
+  getNotificationsFromNeon,
+  insertNotificationInNeon,
+  updateNotificationInNeon,
+  deleteNotificationInNeon,
+  getCouponsFromNeon,
+  insertCouponInNeon,
+  deleteCouponInNeon,
+  updateUserInNeon,
+  deleteUserInNeon,
+  saveSettingInNeon,
+} from '../storage/neon.js';
 import { requireAuth, requireAdminOrStaff, type AuthenticatedRequest } from '../middleware.js';
 import { hashPassword, removeUserSessions } from '../auth.js';
 import { createOrderNotification } from '../orderNotificationHelper.js';
@@ -132,12 +159,26 @@ router.get('/stats', (req: AuthenticatedRequest, res) => {
 });
 
 // 2. Product Management
-router.get('/products', (req: AuthenticatedRequest, res) => {
+router.get('/products', async (req: AuthenticatedRequest, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+  if (isNeonConfigured()) {
+    try {
+      const neonProducts = await getProductsFromNeon();
+      const db = getDb();
+      if (Array.isArray(neonProducts) && neonProducts.length > 0) {
+        db.products = neonProducts;
+        res.json(neonProducts);
+        return;
+      }
+    } catch (err: any) {
+      console.warn('[Neon PostgreSQL] Error getting products for admin:', err.message);
+    }
+  }
   const db = getDb();
   res.json(db.products);
 });
 
-router.post('/products', (req: AuthenticatedRequest, res) => {
+router.post('/products', async (req: AuthenticatedRequest, res) => {
   const {
     name,
     shortDescription,
@@ -176,23 +217,27 @@ router.post('/products', (req: AuthenticatedRequest, res) => {
   const db = getDb();
   const category = db.categories.find((c) => c.id === categoryId);
 
-  const slug = name
+  const slugBase = name
     .toLowerCase()
     .trim()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)+/g, '');
 
+  const uniqueId = `fwn_prd_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+  const uniqueSlug = `${slugBase || 'product'}-${Date.now().toString(36)}-${Math.floor(100 + Math.random() * 900)}`;
+  const uniqueSku = sku?.trim() || `FWN-${Date.now().toString().slice(-6)}`;
+
   const newProduct: Product = {
-    id: `fwn_prd_${Date.now()}`,
+    id: uniqueId,
     name: name.trim(),
-    slug: `${slug}-${Math.floor(100 + Math.random() * 900)}`,
+    slug: uniqueSlug,
     shortDescription: shortDescription?.trim() || description?.slice(0, 120) || '',
     description: description?.trim() || '',
     categoryId: categoryId || 'cat_wallets',
     categoryName: category?.name || "Men's Leather Wallets",
     brand: brand?.trim() || 'FAWNIC',
     leatherType: leatherType?.trim() || 'Full-Grain Cowhide',
-    sku: sku?.trim() || `FWN-${Math.floor(1000 + Math.random() * 9000)}`,
+    sku: uniqueSku,
     regularPrice: Number(regularPrice),
     salePrice: salePrice ? Number(salePrice) : Number(regularPrice),
     costPrice: costPrice ? Number(costPrice) : undefined,
@@ -219,15 +264,39 @@ router.post('/products', (req: AuthenticatedRequest, res) => {
     createdAt: new Date().toISOString(),
   };
 
-  db.products.unshift(newProduct);
-  logAdminAction(req.user!.email, 'PRODUCT_CREATED', 'Product', newProduct.id, `Created "${newProduct.name}"`);
-  saveDatabase();
-  broadcastProductEvent({ action: 'created', product: newProduct });
+  // 1. Permanently persist into Neon PostgreSQL database first!
+  let savedProduct = newProduct;
+  if (isNeonConfigured()) {
+    try {
+      savedProduct = await insertProductInNeon(newProduct);
+      console.info(`[Neon PostgreSQL] Product permanently inserted: ${savedProduct.id} (${savedProduct.name})`);
+    } catch (neonErr: any) {
+      console.error('[Neon PostgreSQL] Error inserting product:', neonErr.message);
+      res.status(500).json({ error: 'Database failed to persist product: ' + neonErr.message });
+      return;
+    }
+  }
 
-  res.status(201).json(newProduct);
+  // 2. Update memory & file cache
+  const existingIdx = db.products.findIndex((p) => p.id === savedProduct.id);
+  if (existingIdx !== -1) {
+    db.products[existingIdx] = savedProduct;
+  } else {
+    db.products.unshift(savedProduct);
+  }
+  logAdminAction(req.user!.email, 'PRODUCT_CREATED', 'Product', savedProduct.id, `Created "${savedProduct.name}"`);
+
+  // 3. Await database bundle sync before returning response
+  await saveDatabaseAsync();
+
+  // 4. Broadcast event
+  broadcastProductEvent({ action: 'created', product: savedProduct });
+
+  // 5. Return created product
+  res.status(201).json(savedProduct);
 });
 
-router.put('/products/:id', (req: AuthenticatedRequest, res) => {
+router.put('/products/:id', async (req: AuthenticatedRequest, res) => {
   const db = getDb();
   const product = db.products.find((p) => p.id === req.params.id);
   if (!product) {
@@ -277,14 +346,27 @@ router.put('/products/:id', (req: AuthenticatedRequest, res) => {
     }
   }
 
-  logAdminAction(req.user!.email, 'PRODUCT_UPDATED', 'Product', product.id, `Updated "${product.name}"`);
-  saveDatabase();
-  broadcastProductEvent({ action: 'updated', product });
+  // Update in Neon PostgreSQL database
+  let updatedProduct = product;
+  if (isNeonConfigured()) {
+    try {
+      updatedProduct = await updateProductInNeon(product.id, product);
+      console.info(`[Neon PostgreSQL] Product permanently updated: ${updatedProduct.id}`);
+    } catch (neonErr: any) {
+      console.error('[Neon PostgreSQL] Error updating product in Neon:', neonErr.message);
+      res.status(500).json({ error: 'Database failed to update product: ' + neonErr.message });
+      return;
+    }
+  }
 
-  res.json(product);
+  logAdminAction(req.user!.email, 'PRODUCT_UPDATED', 'Product', updatedProduct.id, `Updated "${updatedProduct.name}"`);
+  await saveDatabaseAsync();
+  broadcastProductEvent({ action: 'updated', product: updatedProduct });
+
+  res.json(updatedProduct);
 });
 
-router.delete('/products/:id', (req: AuthenticatedRequest, res) => {
+router.delete('/products/:id', async (req: AuthenticatedRequest, res) => {
   const db = getDb();
   const idx = db.products.findIndex((p) => p.id === req.params.id);
   if (idx === -1) {
@@ -293,6 +375,18 @@ router.delete('/products/:id', (req: AuthenticatedRequest, res) => {
   }
 
   const removed = db.products.splice(idx, 1)[0];
+
+  // Delete from Neon PostgreSQL database
+  if (isNeonConfigured()) {
+    try {
+      await deleteProductInNeon(req.params.id);
+      console.info(`[Neon PostgreSQL] Product permanently deleted: ${req.params.id}`);
+    } catch (neonErr: any) {
+      console.error('[Neon PostgreSQL] Error deleting product in Neon:', neonErr.message);
+      res.status(500).json({ error: 'Database failed to delete product: ' + neonErr.message });
+      return;
+    }
+  }
 
   // Clean up media from ImageKit asynchronously without blocking deletion
   if (removed.mainImage && !removed.mainImage.startsWith('/assets/')) {
@@ -307,7 +401,7 @@ router.delete('/products/:id', (req: AuthenticatedRequest, res) => {
   }
 
   logAdminAction(req.user!.email, 'PRODUCT_DELETED', 'Product', req.params.id, `Deleted "${removed.name}"`);
-  saveDatabase();
+  await saveDatabaseAsync();
   broadcastProductEvent({
     action: 'deleted',
     productId: req.params.id,
@@ -317,7 +411,7 @@ router.delete('/products/:id', (req: AuthenticatedRequest, res) => {
   res.json({ message: 'Product removed successfully' });
 });
 
-router.post('/products/:id/duplicate', (req: AuthenticatedRequest, res) => {
+router.post('/products/:id/duplicate', async (req: AuthenticatedRequest, res) => {
   const db = getDb();
   const source = db.products.find((p) => p.id === req.params.id);
   if (!source) {
@@ -328,23 +422,35 @@ router.post('/products/:id/duplicate', (req: AuthenticatedRequest, res) => {
   const newSku = `FWN-${Math.floor(1000 + Math.random() * 9000)}`;
   const newProduct: Product = {
     ...source,
-    id: `fwn_prd_${Date.now()}`,
+    id: `fwn_prd_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
     name: `${source.name} (Copy)`,
     sku: newSku,
-    slug: `${source.slug}-copy-${Math.floor(100 + Math.random() * 900)}`,
+    slug: `${source.slug}-copy-${Date.now().toString(36)}`,
     status: 'draft',
     createdAt: new Date().toISOString(),
   };
 
-  db.products.unshift(newProduct);
-  logAdminAction(req.user!.email, 'PRODUCT_DUPLICATED', 'Product', newProduct.id, `Duplicated "${source.name}" as "${newProduct.name}"`);
-  saveDatabase();
-  broadcastProductEvent({ action: 'created', product: newProduct });
+  let savedProduct = newProduct;
+  if (isNeonConfigured()) {
+    try {
+      savedProduct = await insertProductInNeon(newProduct);
+      console.info(`[Neon PostgreSQL] Duplicate product persisted: ${savedProduct.id}`);
+    } catch (neonErr: any) {
+      console.error('[Neon PostgreSQL] Error duplicating product in Neon:', neonErr.message);
+      res.status(500).json({ error: 'Database failed to persist duplicate product: ' + neonErr.message });
+      return;
+    }
+  }
 
-  res.status(201).json(newProduct);
+  db.products.unshift(savedProduct);
+  logAdminAction(req.user!.email, 'PRODUCT_DUPLICATED', 'Product', savedProduct.id, `Duplicated "${source.name}" as "${savedProduct.name}"`);
+  await saveDatabaseAsync();
+  broadcastProductEvent({ action: 'created', product: savedProduct });
+
+  res.status(201).json(savedProduct);
 });
 
-router.post('/products/bulk-action', (req: AuthenticatedRequest, res) => {
+router.post('/products/bulk-action', async (req: AuthenticatedRequest, res) => {
   const { action, ids } = req.body;
   if (!Array.isArray(ids) || ids.length === 0) {
     res.status(400).json({ error: 'Array of product IDs required' });
@@ -355,34 +461,63 @@ router.post('/products/bulk-action', (req: AuthenticatedRequest, res) => {
   let modifiedCount = 0;
 
   if (action === 'delete') {
-    db.products = db.products.filter((p) => {
-      if (ids.includes(p.id)) {
-        modifiedCount++;
-        return false;
+    for (const id of ids) {
+      if (isNeonConfigured()) {
+        try {
+          await deleteProductInNeon(id);
+        } catch (err: any) {
+          console.warn('[Neon PostgreSQL] Error bulk deleting product:', id, err.message);
+        }
       }
-      return true;
-    });
+      const idx = db.products.findIndex((p) => p.id === id);
+      if (idx !== -1) {
+        db.products.splice(idx, 1);
+        modifiedCount++;
+      }
+    }
     logAdminAction(req.user!.email, 'BULK_PRODUCT_DELETE', 'Product', undefined, `Deleted ${modifiedCount} products`);
   } else if (action === 'publish' || action === 'draft' || action === 'hidden') {
-    db.products.forEach((p) => {
-      if (ids.includes(p.id)) {
-        p.status = action === 'publish' ? 'published' : action === 'hidden' ? ('hidden' as any) : 'draft';
+    const targetStatus = action === 'publish' ? 'published' : action === 'hidden' ? ('hidden' as any) : 'draft';
+    for (const id of ids) {
+      if (isNeonConfigured()) {
+        try {
+          await updateProductInNeon(id, { status: targetStatus });
+        } catch (err: any) {
+          console.warn('[Neon PostgreSQL] Error bulk updating product status:', id, err.message);
+        }
+      }
+      const p = db.products.find((prod) => prod.id === id);
+      if (p) {
+        p.status = targetStatus;
         modifiedCount++;
       }
-    });
+    }
     logAdminAction(req.user!.email, 'BULK_PRODUCT_STATUS', 'Product', undefined, `Changed status of ${modifiedCount} products to ${action}`);
   } else {
     res.status(400).json({ error: 'Invalid action' });
     return;
   }
 
-  saveDatabase();
+  await saveDatabaseAsync();
   broadcastProductEvent({ action: 'updated' });
   res.json({ success: true, count: modifiedCount });
 });
 
 // Categories Management
-router.get('/categories', (req: AuthenticatedRequest, res) => {
+router.get('/categories', async (req: AuthenticatedRequest, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+  if (isNeonConfigured()) {
+    try {
+      const neonCats = await getCategoriesFromNeon();
+      if (Array.isArray(neonCats) && neonCats.length > 0) {
+        const db = getDb();
+        db.categories = neonCats;
+      }
+    } catch (err: any) {
+      console.warn('[Neon PostgreSQL] Error getting categories for admin:', err.message);
+    }
+  }
+
   const db = getDb();
   const catsWithCounts = db.categories.map((cat) => {
     const count = db.products.filter((p) => p.categoryId === cat.id || p.categoryName === cat.name).length;
@@ -394,7 +529,7 @@ router.get('/categories', (req: AuthenticatedRequest, res) => {
   res.json(catsWithCounts);
 });
 
-router.post('/categories', (req: AuthenticatedRequest, res) => {
+router.post('/categories', async (req: AuthenticatedRequest, res) => {
   const { name, slug: customSlug, description, banner, image, icon, subcategories, isActive, order } = req.body;
   if (!name) {
     res.status(400).json({ error: 'Category name is required' });
@@ -407,7 +542,7 @@ router.post('/categories', (req: AuthenticatedRequest, res) => {
   const slug = existingWithSlug ? `${baseSlug}-${Date.now().toString().slice(-4)}` : baseSlug;
 
   const newCat: Category = {
-    id: `cat_${Date.now()}`,
+    id: `cat_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
     name: name.trim(),
     slug,
     description: description?.trim() || '',
@@ -420,15 +555,27 @@ router.post('/categories', (req: AuthenticatedRequest, res) => {
     order: typeof order === 'number' ? order : db.categories.length + 1,
   };
 
-  db.categories.push(newCat);
-  logAdminAction(req.user!.email, 'CATEGORY_CREATED', 'Category', newCat.id, `Created "${newCat.name}"`);
-  saveDatabase();
-  broadcastCategoryEvent({ action: 'created', category: newCat });
+  let savedCat = newCat;
+  if (isNeonConfigured()) {
+    try {
+      savedCat = await insertCategoryInNeon(newCat);
+      console.info(`[Neon PostgreSQL] Category permanently inserted: ${savedCat.id} (${savedCat.name})`);
+    } catch (neonErr: any) {
+      console.error('[Neon PostgreSQL] Error inserting category in Neon:', neonErr.message);
+      res.status(500).json({ error: 'Database failed to persist category: ' + neonErr.message });
+      return;
+    }
+  }
 
-  res.status(201).json(newCat);
+  db.categories.push(savedCat);
+  logAdminAction(req.user!.email, 'CATEGORY_CREATED', 'Category', savedCat.id, `Created "${savedCat.name}"`);
+  await saveDatabaseAsync();
+  broadcastCategoryEvent({ action: 'created', category: savedCat });
+
+  res.status(201).json(savedCat);
 });
 
-router.put('/categories/:id', (req: AuthenticatedRequest, res) => {
+router.put('/categories/:id', async (req: AuthenticatedRequest, res) => {
   const db = getDb();
   const cat = db.categories.find((c) => c.id === req.params.id);
   if (!cat) {
@@ -457,14 +604,26 @@ router.put('/categories/:id', (req: AuthenticatedRequest, res) => {
     });
   }
 
-  logAdminAction(req.user!.email, 'CATEGORY_UPDATED', 'Category', cat.id, `Updated "${cat.name}"`);
-  saveDatabase();
-  broadcastCategoryEvent({ action: 'updated', category: cat });
+  let updatedCat = cat;
+  if (isNeonConfigured()) {
+    try {
+      updatedCat = await updateCategoryInNeon(cat.id, cat);
+      console.info(`[Neon PostgreSQL] Category permanently updated: ${updatedCat.id}`);
+    } catch (neonErr: any) {
+      console.error('[Neon PostgreSQL] Error updating category in Neon:', neonErr.message);
+      res.status(500).json({ error: 'Database failed to update category: ' + neonErr.message });
+      return;
+    }
+  }
 
-  res.json(cat);
+  logAdminAction(req.user!.email, 'CATEGORY_UPDATED', 'Category', updatedCat.id, `Updated "${updatedCat.name}"`);
+  await saveDatabaseAsync();
+  broadcastCategoryEvent({ action: 'updated', category: updatedCat });
+
+  res.json(updatedCat);
 });
 
-router.delete('/categories/:id', (req: AuthenticatedRequest, res) => {
+router.delete('/categories/:id', async (req: AuthenticatedRequest, res) => {
   const db = getDb();
   const idx = db.categories.findIndex((c) => c.id === req.params.id);
   if (idx === -1) {
@@ -487,12 +646,29 @@ router.delete('/categories/:id', (req: AuthenticatedRequest, res) => {
       assignedProducts.forEach((p) => {
         p.categoryId = targetCat!.id;
         p.categoryName = targetCat!.name;
+        if (isNeonConfigured()) {
+          updateProductInNeon(p.id, { categoryId: targetCat!.id, categoryName: targetCat!.name }).catch(() => {});
+        }
       });
     } else {
       assignedProducts.forEach((p) => {
         p.categoryId = 'uncategorized';
         p.categoryName = 'Uncategorized';
+        if (isNeonConfigured()) {
+          updateProductInNeon(p.id, { categoryId: 'uncategorized', categoryName: 'Uncategorized' }).catch(() => {});
+        }
       });
+    }
+  }
+
+  if (isNeonConfigured()) {
+    try {
+      await deleteCategoryInNeon(req.params.id);
+      console.info(`[Neon PostgreSQL] Category permanently deleted: ${req.params.id}`);
+    } catch (neonErr: any) {
+      console.error('[Neon PostgreSQL] Error deleting category in Neon:', neonErr.message);
+      res.status(500).json({ error: 'Database failed to delete category: ' + neonErr.message });
+      return;
     }
   }
 
@@ -504,7 +680,7 @@ router.delete('/categories/:id', (req: AuthenticatedRequest, res) => {
     cat.id,
     `Deleted "${cat.name}". ${assignedProducts.length} products safely remapped to "${targetCat ? targetCat.name : 'Uncategorized'}".`
   );
-  saveDatabase();
+  await saveDatabaseAsync();
   broadcastCategoryEvent({ action: 'deleted', categoryId: req.params.id });
 
   res.json({
@@ -515,7 +691,20 @@ router.delete('/categories/:id', (req: AuthenticatedRequest, res) => {
 });
 
 // 3. Orders Management
-router.get('/orders', (req: AuthenticatedRequest, res) => {
+router.get('/orders', async (req: AuthenticatedRequest, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+  if (isNeonConfigured()) {
+    try {
+      const neonOrders = await getOrdersFromNeon();
+      if (Array.isArray(neonOrders) && neonOrders.length > 0) {
+        const db = getDb();
+        db.orders = neonOrders;
+      }
+    } catch (err: any) {
+      console.warn('[Neon PostgreSQL] Error getting orders for admin:', err.message);
+    }
+  }
+
   const db = getDb();
   const { status, search } = req.query;
   let list = db.orders;
@@ -548,15 +737,15 @@ router.get('/orders/:id', (req: AuthenticatedRequest, res) => {
   res.json(order);
 });
 
-router.put('/orders/:id/status', (req: AuthenticatedRequest, res) => {
-  handleOrderTrackingUpdate(req, res);
+router.put('/orders/:id/status', async (req: AuthenticatedRequest, res) => {
+  await handleOrderTrackingUpdate(req, res);
 });
 
-router.put('/orders/:id/tracking', (req: AuthenticatedRequest, res) => {
-  handleOrderTrackingUpdate(req, res);
+router.put('/orders/:id/tracking', async (req: AuthenticatedRequest, res) => {
+  await handleOrderTrackingUpdate(req, res);
 });
 
-function handleOrderTrackingUpdate(req: AuthenticatedRequest, res: express.Response) {
+async function handleOrderTrackingUpdate(req: AuthenticatedRequest, res: express.Response) {
   const {
     status,
     trackingNumber,
@@ -640,6 +829,15 @@ function handleOrderTrackingUpdate(req: AuthenticatedRequest, res: express.Respo
   // If status changed to cancelled, restore inventory and record transaction
   if (status === 'cancelled' && previousStatus !== 'cancelled') {
     for (const it of order.items) {
+      if (isNeonConfigured()) {
+        adjustProductStockInNeon(
+          it.productId,
+          it.quantity,
+          'Order Cancelled',
+          req.user!.email,
+          `Restored from cancelled order #${order.orderNumber}`
+        ).catch(() => {});
+      }
       const prod = db.products.find((p) => p.id === it.productId);
       if (prod) {
         const prev = prod.stock;
@@ -664,6 +862,18 @@ function handleOrderTrackingUpdate(req: AuthenticatedRequest, res: express.Respo
     }
   }
 
+  // Permanently persist order update to Neon PostgreSQL
+  if (isNeonConfigured()) {
+    try {
+      await updateOrderInNeon(order.id, order);
+      console.info(`[Neon PostgreSQL] Order updated: ${order.orderNumber}`);
+    } catch (neonErr: any) {
+      console.error('[Neon PostgreSQL] Error updating order in Neon:', neonErr.message);
+      res.status(500).json({ success: false, error: 'Database failed to persist order update: ' + neonErr.message });
+      return;
+    }
+  }
+
   // Trigger customer notification for order update
   createOrderNotification(order, order.status, {
     courierName: order.courierName || order.courier,
@@ -681,7 +891,7 @@ function handleOrderTrackingUpdate(req: AuthenticatedRequest, res: express.Respo
     order.orderNumber,
     `Tracking updated. Status: "${order.status}", Tracking #: "${order.trackingNumber || 'None'}", Courier: "${order.courier || 'None'}"`
   );
-  saveDatabase();
+  await saveDatabaseAsync();
 
   res.json({
     success: true,
@@ -691,7 +901,7 @@ function handleOrderTrackingUpdate(req: AuthenticatedRequest, res: express.Respo
 }
 
 // Payment Verification (Approve / Verify / Reject Bank Transfer Payments & Update Status)
-router.post('/orders/:id/verify-payment', (req: AuthenticatedRequest, res) => {
+router.post('/orders/:id/verify-payment', async (req: AuthenticatedRequest, res) => {
   const { action, reason, paymentStatus: customPaymentStatus, paymentVerificationStatus: customVerificationStatus, notes } = req.body;
   const db = getDb();
   const order = db.orders.find((o) => o.id === req.params.id || o.orderNumber === req.params.id);
@@ -769,7 +979,19 @@ router.post('/orders/:id/verify-payment', (req: AuthenticatedRequest, res) => {
   }
 
   order.updatedAt = new Date().toISOString();
-  saveDatabase();
+
+  if (isNeonConfigured()) {
+    try {
+      await updateOrderInNeon(order.id, order);
+      console.info(`[Neon PostgreSQL] Payment verified for order: ${order.orderNumber}`);
+    } catch (neonErr: any) {
+      console.error('[Neon PostgreSQL] Error saving payment verification to Neon:', neonErr.message);
+      res.status(500).json({ error: 'Database failed to persist payment verification: ' + neonErr.message });
+      return;
+    }
+  }
+
+  await saveDatabaseAsync();
 
   res.json({
     success: true,
@@ -782,7 +1004,7 @@ router.post('/orders/:id/verify-payment', (req: AuthenticatedRequest, res) => {
   });
 });
 
-router.post('/orders/:id/notes', (req: AuthenticatedRequest, res) => {
+router.post('/orders/:id/notes', async (req: AuthenticatedRequest, res) => {
   const { note } = req.body;
   const db = getDb();
   const order = db.orders.find((o) => o.id === req.params.id || o.orderNumber === req.params.id);
@@ -792,11 +1014,20 @@ router.post('/orders/:id/notes', (req: AuthenticatedRequest, res) => {
   }
   order.internalNotes = note;
   order.updatedAt = new Date().toISOString();
-  saveDatabase();
+
+  if (isNeonConfigured()) {
+    try {
+      await updateOrderInNeon(order.id, order);
+    } catch (neonErr: any) {
+      console.error('[Neon PostgreSQL] Error saving internal notes to Neon:', neonErr.message);
+    }
+  }
+
+  await saveDatabaseAsync();
   res.json(order);
 });
 
-router.post('/orders/:id/cancel', (req: AuthenticatedRequest, res) => {
+router.post('/orders/:id/cancel', async (req: AuthenticatedRequest, res) => {
   const { reason } = req.body;
   const db = getDb();
   const order = db.orders.find((o) => o.id === req.params.id || o.orderNumber === req.params.id);
@@ -810,12 +1041,20 @@ router.post('/orders/:id/cancel', (req: AuthenticatedRequest, res) => {
     return;
   }
 
-  const previousStatus = order.status;
   order.status = 'cancelled';
   order.updatedAt = new Date().toISOString();
 
-  // Restore inventory
+  // Restore inventory in Neon and in memory
   for (const it of order.items) {
+    if (isNeonConfigured()) {
+      adjustProductStockInNeon(
+        it.productId,
+        it.quantity,
+        'Order Cancelled',
+        req.user!.email,
+        reason || `Cancelled: Restored from order #${order.orderNumber}`
+      ).catch(() => {});
+    }
     const prod = db.products.find((p) => p.id === it.productId);
     if (prod) {
       const prev = prod.stock;
@@ -847,14 +1086,25 @@ router.post('/orders/:id/cancel', (req: AuthenticatedRequest, res) => {
     note: reason ? `Cancelled: ${reason}` : 'Order cancelled by atelier manager',
   });
 
+  if (isNeonConfigured()) {
+    try {
+      await updateOrderInNeon(order.id, order);
+      console.info(`[Neon PostgreSQL] Order cancelled: ${order.orderNumber}`);
+    } catch (neonErr: any) {
+      console.error('[Neon PostgreSQL] Error cancelling order in Neon:', neonErr.message);
+      res.status(500).json({ error: 'Database failed to persist cancellation: ' + neonErr.message });
+      return;
+    }
+  }
+
   logAdminAction(req.user!.email, 'ORDER_CANCELLED', 'Order', order.orderNumber, reason || 'Cancelled order');
-  saveDatabase();
+  await saveDatabaseAsync();
   broadcastOrderUpdate(order);
 
   res.json(order);
 });
 
-router.delete('/orders/:id', (req: AuthenticatedRequest, res) => {
+router.delete('/orders/:id', async (req: AuthenticatedRequest, res) => {
   const db = getDb();
   const idx = db.orders.findIndex((o) => o.id === req.params.id || o.orderNumber === req.params.id);
   if (idx === -1) {
@@ -863,8 +1113,20 @@ router.delete('/orders/:id', (req: AuthenticatedRequest, res) => {
   }
 
   const removed = db.orders.splice(idx, 1)[0];
+
+  if (isNeonConfigured()) {
+    try {
+      await deleteOrderInNeon(req.params.id);
+      console.info(`[Neon PostgreSQL] Order permanently deleted: ${req.params.id}`);
+    } catch (neonErr: any) {
+      console.error('[Neon PostgreSQL] Error deleting order in Neon:', neonErr.message);
+      res.status(500).json({ error: 'Database failed to delete order: ' + neonErr.message });
+      return;
+    }
+  }
+
   logAdminAction(req.user!.email, 'ORDER_PERMANENTLY_DELETED', 'Order', removed.orderNumber, `Deleted test order`);
-  saveDatabase();
+  await saveDatabaseAsync();
 
   broadcastOrderUpdate({
     ...removed,
@@ -984,12 +1246,24 @@ router.post('/reviews/:id/reply', (req: AuthenticatedRequest, res) => {
 });
 
 // 6. Coupons Management
-router.get('/coupons', (req: AuthenticatedRequest, res) => {
+router.get('/coupons', async (req: AuthenticatedRequest, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+  if (isNeonConfigured()) {
+    try {
+      const neonCoupons = await getCouponsFromNeon();
+      if (Array.isArray(neonCoupons) && neonCoupons.length > 0) {
+        const db = getDb();
+        db.coupons = neonCoupons;
+      }
+    } catch (err: any) {
+      console.warn('[Neon PostgreSQL] Error getting coupons:', err.message);
+    }
+  }
   const db = getDb();
   res.json(db.coupons);
 });
 
-router.post('/coupons', (req: AuthenticatedRequest, res) => {
+router.post('/coupons', async (req: AuthenticatedRequest, res) => {
   const { code, type, value, minOrderAmount, maxDiscount, usageLimit, expiresAt } = req.body;
   if (!code || !value) {
     res.status(400).json({ error: 'Coupon code and value are required' });
@@ -998,7 +1272,7 @@ router.post('/coupons', (req: AuthenticatedRequest, res) => {
 
   const db = getDb();
   const newCoupon: Coupon = {
-    id: `cpn_${Date.now()}`,
+    id: `cpn_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
     code: code.trim().toUpperCase(),
     type: type || 'percent',
     value: Number(value),
@@ -1011,22 +1285,46 @@ router.post('/coupons', (req: AuthenticatedRequest, res) => {
     isActive: true,
   };
 
-  db.coupons.unshift(newCoupon);
-  logAdminAction(req.user!.email, 'COUPON_CREATED', 'Coupon', newCoupon.code);
-  saveDatabase();
+  let savedCoupon = newCoupon;
+  if (isNeonConfigured()) {
+    try {
+      savedCoupon = await insertCouponInNeon(newCoupon);
+      console.info(`[Neon PostgreSQL] Coupon inserted: ${savedCoupon.code}`);
+    } catch (neonErr: any) {
+      console.error('[Neon PostgreSQL] Error inserting coupon in Neon:', neonErr.message);
+      res.status(500).json({ error: 'Database failed to persist coupon: ' + neonErr.message });
+      return;
+    }
+  }
 
-  res.status(201).json(newCoupon);
+  db.coupons.unshift(savedCoupon);
+  logAdminAction(req.user!.email, 'COUPON_CREATED', 'Coupon', savedCoupon.code);
+  await saveDatabaseAsync();
+
+  res.status(201).json(savedCoupon);
 });
 
-router.delete('/coupons/:id', (req: AuthenticatedRequest, res) => {
+router.delete('/coupons/:id', async (req: AuthenticatedRequest, res) => {
   const db = getDb();
   const idx = db.coupons.findIndex((c) => c.id === req.params.id);
   if (idx === -1) {
     res.status(404).json({ error: 'Coupon not found' });
     return;
   }
+
+  if (isNeonConfigured()) {
+    try {
+      await deleteCouponInNeon(req.params.id);
+      console.info(`[Neon PostgreSQL] Coupon deleted: ${req.params.id}`);
+    } catch (neonErr: any) {
+      console.error('[Neon PostgreSQL] Error deleting coupon in Neon:', neonErr.message);
+      res.status(500).json({ error: 'Database failed to persist coupon deletion: ' + neonErr.message });
+      return;
+    }
+  }
+
   db.coupons.splice(idx, 1);
-  saveDatabase();
+  await saveDatabaseAsync();
   res.json({ message: 'Coupon deleted' });
 });
 
@@ -1036,11 +1334,14 @@ router.get('/cms', (req: AuthenticatedRequest, res) => {
   res.json(db.homepageCms);
 });
 
-router.put('/cms', (req: AuthenticatedRequest, res) => {
+router.put('/cms', async (req: AuthenticatedRequest, res) => {
   const db = getDb();
   Object.assign(db.homepageCms, req.body);
+  if (isNeonConfigured()) {
+    await saveSettingInNeon('homepageCms', db.homepageCms);
+  }
   logAdminAction(req.user!.email, 'HOMEPAGE_CMS_UPDATED', 'CMS');
-  saveDatabase();
+  await saveDatabaseAsync();
   res.json(db.homepageCms);
 });
 
@@ -1050,7 +1351,7 @@ router.get('/policies', (req: AuthenticatedRequest, res) => {
   res.json(db.policies);
 });
 
-router.put('/policies/:id', (req: AuthenticatedRequest, res) => {
+router.put('/policies/:id', async (req: AuthenticatedRequest, res) => {
   const db = getDb();
   const policy = db.policies.find((p) => p.id === req.params.id);
   if (!policy) {
@@ -1058,7 +1359,10 @@ router.put('/policies/:id', (req: AuthenticatedRequest, res) => {
     return;
   }
   Object.assign(policy, req.body, { lastUpdated: new Date().toISOString().split('T')[0] });
-  saveDatabase();
+  if (isNeonConfigured()) {
+    await saveSettingInNeon('policies', db.policies);
+  }
+  await saveDatabaseAsync();
   res.json(policy);
 });
 
@@ -1067,7 +1371,7 @@ router.get('/faqs', (req: AuthenticatedRequest, res) => {
   res.json(db.faqs);
 });
 
-router.post('/faqs', (req: AuthenticatedRequest, res) => {
+router.post('/faqs', async (req: AuthenticatedRequest, res) => {
   const { category, question, answer } = req.body;
   const db = getDb();
   const newFaq: FAQ = {
@@ -1078,16 +1382,22 @@ router.post('/faqs', (req: AuthenticatedRequest, res) => {
     order: db.faqs.length + 1,
   };
   db.faqs.push(newFaq);
-  saveDatabase();
+  if (isNeonConfigured()) {
+    await saveSettingInNeon('faqs', db.faqs);
+  }
+  await saveDatabaseAsync();
   res.status(201).json(newFaq);
 });
 
-router.delete('/faqs/:id', (req: AuthenticatedRequest, res) => {
+router.delete('/faqs/:id', async (req: AuthenticatedRequest, res) => {
   const db = getDb();
   const idx = db.faqs.findIndex((f) => f.id === req.params.id);
   if (idx !== -1) {
     db.faqs.splice(idx, 1);
-    saveDatabase();
+    if (isNeonConfigured()) {
+      await saveSettingInNeon('faqs', db.faqs);
+    }
+    await saveDatabaseAsync();
   }
   res.json({ message: 'FAQ deleted' });
 });
@@ -1098,11 +1408,14 @@ router.get('/settings', (req: AuthenticatedRequest, res) => {
   res.json(db.settings);
 });
 
-router.put('/settings', (req: AuthenticatedRequest, res) => {
+router.put('/settings', async (req: AuthenticatedRequest, res) => {
   const db = getDb();
   Object.assign(db.settings, req.body);
+  if (isNeonConfigured()) {
+    await saveSettingInNeon('settings', db.settings);
+  }
   logAdminAction(req.user!.email, 'STORE_SETTINGS_UPDATED', 'Settings');
-  saveDatabase();
+  await saveDatabaseAsync();
   broadcastSettingsEvent({ settings: db.settings });
   res.json(db.settings);
 });
@@ -1196,12 +1509,24 @@ router.post('/upload', async (req: AuthenticatedRequest, res) => {
 });
 
 // 12. Inventory Stock Adjustment & History
-router.get('/inventory/transactions', (req: AuthenticatedRequest, res) => {
+router.get('/inventory/transactions', async (req: AuthenticatedRequest, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+  if (isNeonConfigured()) {
+    try {
+      const neonTxns = await getInventoryTransactionsFromNeon();
+      if (Array.isArray(neonTxns) && neonTxns.length > 0) {
+        const db = getDb();
+        db.inventoryTransactions = neonTxns;
+      }
+    } catch (err: any) {
+      console.warn('[Neon PostgreSQL] Error getting inventory transactions:', err.message);
+    }
+  }
   const db = getDb();
   res.json(db.inventoryTransactions || []);
 });
 
-router.post('/inventory/adjust', (req: AuthenticatedRequest, res) => {
+router.post('/inventory/adjust', async (req: AuthenticatedRequest, res) => {
   const { productId, change, reason, notes } = req.body;
   const db = getDb();
   const product = db.products.find((p) => p.id === productId);
@@ -1217,32 +1542,49 @@ router.post('/inventory/adjust', (req: AuthenticatedRequest, res) => {
     return;
   }
 
-  const previousStock = product.stock;
-  const newStock = Math.max(0, previousStock + delta);
-  product.stock = newStock;
+  let resultProduct = product;
+  let transaction: InventoryTransaction;
 
-  if (product.stock === 0) {
-    product.stockStatus = 'out_of_stock';
-  } else if (product.stock <= product.lowStockThreshold) {
-    product.stockStatus = 'low_stock';
+  if (isNeonConfigured()) {
+    try {
+      const resData = await adjustProductStockInNeon(
+        productId,
+        delta,
+        reason || 'Manual Adjustment',
+        req.user!.email,
+        notes
+      );
+      resultProduct = resData.product;
+      transaction = resData.transaction;
+      console.info(`[Neon PostgreSQL] Stock adjusted for ${resultProduct.sku}: ${resultProduct.stock}`);
+    } catch (neonErr: any) {
+      console.error('[Neon PostgreSQL] Error adjusting stock in Neon:', neonErr.message);
+      res.status(500).json({ error: 'Database failed to persist inventory adjustment: ' + neonErr.message });
+      return;
+    }
   } else {
-    product.stockStatus = 'in_stock';
+    const previousStock = product.stock;
+    const newStock = Math.max(0, previousStock + delta);
+    product.stock = newStock;
+    product.stockStatus = newStock === 0 ? 'out_of_stock' : newStock <= product.lowStockThreshold ? 'low_stock' : 'in_stock';
+    resultProduct = product;
+    transaction = {
+      id: `txn_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      productId: product.id,
+      productName: product.name,
+      sku: product.sku,
+      change: delta,
+      previousStock,
+      newStock,
+      reason: reason || 'Manual Adjustment',
+      adminEmail: req.user!.email,
+      timestamp: new Date().toISOString(),
+      notes: notes?.trim(),
+    };
   }
 
-  const transaction: InventoryTransaction = {
-    id: `txn_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-    productId: product.id,
-    productName: product.name,
-    sku: product.sku,
-    change: delta,
-    previousStock,
-    newStock,
-    reason: reason || 'Manual Adjustment',
-    adminEmail: req.user!.email,
-    timestamp: new Date().toISOString(),
-    notes: notes?.trim(),
-  };
-
+  const prodIdx = db.products.findIndex((p) => p.id === resultProduct.id);
+  if (prodIdx !== -1) db.products[prodIdx] = resultProduct;
   if (!db.inventoryTransactions) db.inventoryTransactions = [];
   db.inventoryTransactions.unshift(transaction);
 
@@ -1250,15 +1592,15 @@ router.post('/inventory/adjust', (req: AuthenticatedRequest, res) => {
     req.user!.email,
     'STOCK_ADJUSTED',
     'Inventory',
-    product.sku,
-    `${delta > 0 ? '+' : ''}${delta} (${previousStock} -> ${newStock}) - ${reason}`
+    resultProduct.sku,
+    `${delta > 0 ? '+' : ''}${delta} (New Stock: ${resultProduct.stock}) - ${reason}`
   );
 
-  saveDatabase();
-  broadcastProductEvent({ action: 'inventory', productId: product.id, product });
+  await saveDatabaseAsync();
+  broadcastProductEvent({ action: 'inventory', productId: resultProduct.id, product: resultProduct });
 
   res.json({
-    product,
+    product: resultProduct,
     transaction,
   });
 });
@@ -1809,7 +2151,7 @@ router.get('/team/activity', (req: AuthenticatedRequest, res) => {
 });
 
 // Delete Inventory Row (Removes product from catalog with audit trail)
-router.delete('/inventory/:productId', (req: AuthenticatedRequest, res) => {
+router.delete('/inventory/:productId', async (req: AuthenticatedRequest, res) => {
   const db = getDb();
   const idx = db.products.findIndex((p) => p.id === req.params.productId);
   if (idx === -1) {
@@ -1818,6 +2160,17 @@ router.delete('/inventory/:productId', (req: AuthenticatedRequest, res) => {
   }
 
   const removed = db.products.splice(idx, 1)[0];
+
+  if (isNeonConfigured()) {
+    try {
+      await deleteProductInNeon(req.params.productId);
+      console.info(`[Neon PostgreSQL] Product removed via inventory deletion: ${req.params.productId}`);
+    } catch (neonErr: any) {
+      console.error('[Neon PostgreSQL] Error deleting product inventory in Neon:', neonErr.message);
+      res.status(500).json({ error: 'Database failed to persist inventory removal: ' + neonErr.message });
+      return;
+    }
+  }
 
   // Record inventory transaction
   const tx: InventoryTransaction = {
@@ -1837,7 +2190,8 @@ router.delete('/inventory/:productId', (req: AuthenticatedRequest, res) => {
   db.inventoryTransactions.unshift(tx);
 
   logAdminAction(req.user!.email, 'INVENTORY_DELETED', 'Inventory', removed.id, `Removed inventory and catalog product "${removed.name}"`);
-  saveDatabase();
+  await saveDatabaseAsync();
+  broadcastProductEvent({ action: 'deleted', productId: req.params.productId });
 
   res.json({ message: `Inventory and product "${removed.name}" removed successfully.`, productId: removed.id });
 });
@@ -1954,7 +2308,20 @@ router.get('/roles', (req: AuthenticatedRequest, res) => {
 });
 
 // 16. Notification Management System
-router.get('/notifications', (req: AuthenticatedRequest, res) => {
+router.get('/notifications', async (req: AuthenticatedRequest, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+  if (isNeonConfigured()) {
+    try {
+      const neonNotifs = await getNotificationsFromNeon();
+      if (Array.isArray(neonNotifs) && neonNotifs.length > 0) {
+        const db = getDb();
+        db.notifications = neonNotifs;
+      }
+    } catch (err: any) {
+      console.warn('[Neon PostgreSQL] Error getting notifications for admin:', err.message);
+    }
+  }
+
   const db = getDb();
   if (!db.notifications) db.notifications = [];
   if (!db.notificationReads) db.notificationReads = [];
@@ -2040,7 +2407,7 @@ router.get('/notifications/customers', (req: AuthenticatedRequest, res) => {
 });
 
 // Create Notification
-router.post('/notifications', (req: AuthenticatedRequest, res) => {
+router.post('/notifications', async (req: AuthenticatedRequest, res) => {
   const {
     title,
     message,
@@ -2091,28 +2458,40 @@ router.post('/notifications', (req: AuthenticatedRequest, res) => {
     createdBy: req.user?.name || req.user?.email || 'Admin',
   };
 
-  db.notifications.unshift(newNotif);
+  let savedNotif = newNotif;
+  if (isNeonConfigured()) {
+    try {
+      savedNotif = await insertNotificationInNeon(newNotif);
+      console.info(`[Neon PostgreSQL] Notification inserted: ${savedNotif.id}`);
+    } catch (neonErr: any) {
+      console.error('[Neon PostgreSQL] Error inserting notification in Neon:', neonErr.message);
+      res.status(500).json({ error: 'Database failed to persist notification: ' + neonErr.message });
+      return;
+    }
+  }
+
+  db.notifications.unshift(savedNotif);
   logAdminAction(
     req.user!.email,
     'NOTIFICATION_CREATED',
     'Notification',
-    newNotif.id,
-    `Created notification "${newNotif.title}" (${newNotif.status})`
+    savedNotif.id,
+    `Created notification "${savedNotif.title}" (${savedNotif.status})`
   );
-  saveDatabase();
+  await saveDatabaseAsync();
 
   // Broadcast in real-time
   broadcastNotificationEvent({
     action: 'created',
-    notification: newNotif,
+    notification: savedNotif,
   });
   broadcastAdminNotificationStats();
 
-  res.status(201).json(newNotif);
+  res.status(201).json(savedNotif);
 });
 
 // Update Notification
-router.put('/notifications/:id', (req: AuthenticatedRequest, res) => {
+router.put('/notifications/:id', async (req: AuthenticatedRequest, res) => {
   const db = getDb();
   if (!db.notifications) db.notifications = [];
 
@@ -2159,27 +2538,40 @@ router.put('/notifications/:id', (req: AuthenticatedRequest, res) => {
 
   notif.updatedAt = now;
 
+  let savedNotif = notif;
+  if (isNeonConfigured()) {
+    try {
+      const resData = await updateNotificationInNeon(notif.id, notif);
+      if (resData) savedNotif = resData;
+      console.info(`[Neon PostgreSQL] Notification updated: ${savedNotif.id}`);
+    } catch (neonErr: any) {
+      console.error('[Neon PostgreSQL] Error updating notification in Neon:', neonErr.message);
+      res.status(500).json({ error: 'Database failed to persist notification update: ' + neonErr.message });
+      return;
+    }
+  }
+
   logAdminAction(
     req.user!.email,
     'NOTIFICATION_UPDATED',
     'Notification',
-    notif.id,
-    `Updated notification "${notif.title}" (${notif.status})`
+    savedNotif.id,
+    `Updated notification "${savedNotif.title}" (${savedNotif.status})`
   );
-  saveDatabase();
+  await saveDatabaseAsync();
 
   // Broadcast in real-time
   broadcastNotificationEvent({
     action: 'updated',
-    notification: notif,
+    notification: savedNotif,
   });
   broadcastAdminNotificationStats();
 
-  res.json(notif);
+  res.json(savedNotif);
 });
 
 // Publish Notification Toggle
-router.put('/notifications/:id/publish', (req: AuthenticatedRequest, res) => {
+router.put('/notifications/:id/publish', async (req: AuthenticatedRequest, res) => {
   const db = getDb();
   const notif = (db.notifications || []).find((n) => n.id === req.params.id);
   if (!notif) {
@@ -2191,8 +2583,16 @@ router.put('/notifications/:id/publish', (req: AuthenticatedRequest, res) => {
   notif.publishedAt = new Date().toISOString();
   notif.updatedAt = new Date().toISOString();
 
+  if (isNeonConfigured()) {
+    try {
+      await updateNotificationInNeon(notif.id, notif);
+    } catch (neonErr: any) {
+      console.error('[Neon PostgreSQL] Error publishing notification in Neon:', neonErr.message);
+    }
+  }
+
   logAdminAction(req.user!.email, 'NOTIFICATION_PUBLISHED', 'Notification', notif.id, `Published "${notif.title}"`);
-  saveDatabase();
+  await saveDatabaseAsync();
 
   broadcastNotificationEvent({
     action: 'created',
@@ -2204,7 +2604,7 @@ router.put('/notifications/:id/publish', (req: AuthenticatedRequest, res) => {
 });
 
 // Unpublish Notification (Set to Draft)
-router.put('/notifications/:id/unpublish', (req: AuthenticatedRequest, res) => {
+router.put('/notifications/:id/unpublish', async (req: AuthenticatedRequest, res) => {
   const db = getDb();
   const notif = (db.notifications || []).find((n) => n.id === req.params.id);
   if (!notif) {
@@ -2215,8 +2615,16 @@ router.put('/notifications/:id/unpublish', (req: AuthenticatedRequest, res) => {
   notif.status = 'draft';
   notif.updatedAt = new Date().toISOString();
 
+  if (isNeonConfigured()) {
+    try {
+      await updateNotificationInNeon(notif.id, notif);
+    } catch (neonErr: any) {
+      console.error('[Neon PostgreSQL] Error unpublishing notification in Neon:', neonErr.message);
+    }
+  }
+
   logAdminAction(req.user!.email, 'NOTIFICATION_UNPUBLISHED', 'Notification', notif.id, `Unpublished "${notif.title}"`);
-  saveDatabase();
+  await saveDatabaseAsync();
 
   broadcastNotificationEvent({
     action: 'updated',
@@ -2228,7 +2636,7 @@ router.put('/notifications/:id/unpublish', (req: AuthenticatedRequest, res) => {
 });
 
 // Duplicate Notification
-router.post('/notifications/:id/duplicate', (req: AuthenticatedRequest, res) => {
+router.post('/notifications/:id/duplicate', async (req: AuthenticatedRequest, res) => {
   const db = getDb();
   const source = (db.notifications || []).find((n) => n.id === req.params.id);
   if (!source) {
@@ -2249,23 +2657,32 @@ router.post('/notifications/:id/duplicate', (req: AuthenticatedRequest, res) => 
     createdBy: req.user?.name || req.user?.email || 'Admin',
   };
 
-  db.notifications.unshift(duplicateNotif);
+  let savedNotif = duplicateNotif;
+  if (isNeonConfigured()) {
+    try {
+      savedNotif = await insertNotificationInNeon(duplicateNotif);
+    } catch (neonErr: any) {
+      console.error('[Neon PostgreSQL] Error duplicating notification in Neon:', neonErr.message);
+    }
+  }
+
+  db.notifications.unshift(savedNotif);
   logAdminAction(
     req.user!.email,
     'NOTIFICATION_DUPLICATED',
     'Notification',
-    duplicateNotif.id,
+    savedNotif.id,
     `Duplicated "${source.title}"`
   );
-  saveDatabase();
+  await saveDatabaseAsync();
 
   broadcastAdminNotificationStats();
 
-  res.status(201).json(duplicateNotif);
+  res.status(201).json(savedNotif);
 });
 
 // Delete Notification
-router.delete('/notifications/:id', (req: AuthenticatedRequest, res) => {
+router.delete('/notifications/:id', async (req: AuthenticatedRequest, res) => {
   const db = getDb();
   const idx = (db.notifications || []).findIndex((n) => n.id === req.params.id);
   if (idx === -1) {
@@ -2274,6 +2691,17 @@ router.delete('/notifications/:id', (req: AuthenticatedRequest, res) => {
   }
 
   const removed = db.notifications.splice(idx, 1)[0];
+
+  if (isNeonConfigured()) {
+    try {
+      await deleteNotificationInNeon(req.params.id);
+      console.info(`[Neon PostgreSQL] Notification deleted: ${req.params.id}`);
+    } catch (neonErr: any) {
+      console.error('[Neon PostgreSQL] Error deleting notification in Neon:', neonErr.message);
+      res.status(500).json({ error: 'Database failed to persist notification deletion: ' + neonErr.message });
+      return;
+    }
+  }
 
   // Clean up any read records for this notification
   if (db.notificationReads) {
@@ -2287,7 +2715,7 @@ router.delete('/notifications/:id', (req: AuthenticatedRequest, res) => {
     req.params.id,
     `Deleted notification "${removed.title}"`
   );
-  saveDatabase();
+  await saveDatabaseAsync();
 
   // Real-time broadcast so it is immediately removed from customer dropdowns & admin panels
   broadcastNotificationEvent({

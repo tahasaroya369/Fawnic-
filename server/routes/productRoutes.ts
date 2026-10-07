@@ -1,12 +1,33 @@
 import express from 'express';
 import { getDb, saveDatabase } from '../db.js';
+import { isNeonConfigured, getProductsFromNeon, getCategoriesFromNeon } from '../storage/neon.js';
 import type { AuthenticatedRequest } from '../middleware.js';
 import type { Review } from '../../src/types.js';
 
 const router = express.Router();
 
+// Helper to ensure store has fresh Neon data
+async function ensureFreshNeonData() {
+  if (isNeonConfigured()) {
+    try {
+      const neonProducts = await getProductsFromNeon();
+      const neonCats = await getCategoriesFromNeon();
+      const db = getDb();
+      if (Array.isArray(neonProducts)) {
+        db.products = neonProducts;
+      }
+      if (Array.isArray(neonCats) && neonCats.length > 0) {
+        db.categories = neonCats;
+      }
+    } catch (err: any) {
+      console.warn('[Neon PostgreSQL] Error refreshing products for store:', err.message);
+    }
+  }
+}
+
 // Get All Products with Rich Filtering & Sorting
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
+  await ensureFreshNeonData();
   const db = getDb();
   let list = db.products.filter((p) => p.status === 'published');
 
@@ -107,7 +128,8 @@ router.get('/', (req, res) => {
 });
 
 // Featured / Best Sellers for Homepage
-router.get('/featured', (req, res) => {
+router.get('/featured', async (req, res) => {
+  await ensureFreshNeonData();
   const db = getDb();
   const published = db.products.filter((p) => p.status === 'published');
   const bestSellers = published.filter((p) => p.isBestSeller).slice(0, 8);
@@ -119,14 +141,16 @@ router.get('/featured', (req, res) => {
 });
 
 // Get Categories
-router.get('/categories', (req, res) => {
+router.get('/categories', async (req, res) => {
+  await ensureFreshNeonData();
   const db = getDb();
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
   res.json(db.categories);
 });
 
 // Get Single Category by Slug with Products
-router.get('/categories/:slug', (req, res) => {
+router.get('/categories/:slug', async (req, res) => {
+  await ensureFreshNeonData();
   const db = getDb();
   const category = db.categories.find((c) => c.slug === req.params.slug);
   if (!category) {
@@ -218,7 +242,8 @@ router.get('/reviews', (req, res) => {
 });
 
 // Get Single Product by Slug or ID
-router.get('/:slug', (req, res) => {
+router.get('/:slug', async (req, res) => {
+  await ensureFreshNeonData();
   const db = getDb();
   const product = db.products.find(
     (p) => p.slug === req.params.slug || p.id === req.params.slug

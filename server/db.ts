@@ -7,6 +7,8 @@ import {
   syncSchemaToNeon,
   recordSyncEventInNeon,
   getSyncEventsFromNeon,
+  getProductsFromNeon,
+  getCategoriesFromNeon,
 } from './storage/neon.js';
 import type {
   User,
@@ -110,7 +112,7 @@ function getDatabaseFilePath(): string {
 
 let db: DatabaseSchema;
 
-function getInitialDatabase(): DatabaseSchema {
+export function getInitialDatabase(): DatabaseSchema {
   const adminAuth = hashPassword('@Alichishti340$');
   const customerAuth = hashPassword('password123');
 
@@ -1656,6 +1658,7 @@ function loadDatabase(): DatabaseSchema {
         if (!parsed.teamMembers) parsed.teamMembers = [];
         if (!parsed.promotions) parsed.promotions = [];
         if (!parsed.customerNotes) parsed.customerNotes = {};
+        if (!parsed.auditLogs) parsed.auditLogs = [];
         if (!parsed.invoiceSettings) {
           parsed.invoiceSettings = {
             businessName: 'FAWNIC Leather Atelier',
@@ -1703,7 +1706,8 @@ function loadDatabase(): DatabaseSchema {
   }
 
   const initial = getInitialDatabase();
-  saveDatabase(initial);
+  // In serverless / read-only cold starts, save locally only and never overwrite remote storage with empty initial data
+  saveDatabase(initial, true);
   return initial;
 }
 
@@ -1749,7 +1753,7 @@ export function getNextQueryNumber(): string {
   return `${prefix}${String(nextSeq).padStart(4, '0')}`;
 }
 
-export function saveDatabase(dataToSave?: DatabaseSchema): void {
+export function saveDatabase(dataToSave?: DatabaseSchema, skipRemoteSync = false): void {
   try {
     const current = dataToSave || db;
     if (!current) return;
@@ -1772,12 +1776,26 @@ export function saveDatabase(dataToSave?: DatabaseSchema): void {
       fs.writeFileSync(targetFile, JSON.stringify(current, null, 2), 'utf-8');
     }
 
-    // Trigger asynchronous remote persistence for production / serverless environments
-    saveToRemoteStorage(current).catch((err) => {
-      console.warn('[Storage] Remote persistence error:', err?.message || err);
-    });
+    // Trigger asynchronous remote persistence for production / serverless environments unless explicitly skipped
+    if (!skipRemoteSync) {
+      saveToRemoteStorage(current).catch((err) => {
+        console.warn('[Storage] Remote persistence error:', err?.message || err);
+      });
+    }
   } catch (e) {
     console.error('Error saving database:', e);
+  }
+}
+
+export async function saveDatabaseAsync(dataToSave?: DatabaseSchema): Promise<void> {
+  saveDatabase(dataToSave);
+  const current = dataToSave || db;
+  if (current) {
+    try {
+      await saveToRemoteStorage(current);
+    } catch (err: any) {
+      console.warn('[Storage] Remote persistence async error:', err?.message || err);
+    }
   }
 }
 
@@ -2068,6 +2086,27 @@ export async function syncDatabaseFromRemote(): Promise<void> {
   lastRemoteSyncTimestamp = now;
 
   try {
+    let neonProducts: Product[] | null = null;
+    let neonCategories: Category[] | null = null;
+
+    // If Neon is configured, sync products and categories directly from relational tables
+    if (isNeonConfigured()) {
+      try {
+        neonProducts = await getProductsFromNeon();
+        neonCategories = await getCategoriesFromNeon();
+        if (neonProducts && neonProducts.length > 0) {
+          if (!db) db = loadDatabase();
+          db.products = neonProducts;
+        }
+        if (neonCategories && neonCategories.length > 0) {
+          if (!db) db = loadDatabase();
+          db.categories = neonCategories;
+        }
+      } catch (err: any) {
+        console.warn('[Neon Sync] Direct table fetch note:', err.message);
+      }
+    }
+
     const remote = await loadFromRemoteStorage();
     if (remote && remote.users && remote.products) {
       // Preserve admin credentials
@@ -2080,11 +2119,29 @@ export async function syncDatabaseFromRemote(): Promise<void> {
         admin.role = 'admin';
       }
 
+      // If Neon is configured, relational tables are the absolute source of truth
+      if (isNeonConfigured() && neonProducts && neonProducts.length > 0) {
+        remote.products = neonProducts;
+      } else if ((!remote.products || remote.products.length === 0) && (db?.products && db.products.length > 0)) {
+        remote.products = db.products;
+      }
+
+      if (isNeonConfigured() && neonCategories && neonCategories.length > 0) {
+        remote.categories = neonCategories;
+      }
+
       const currentVer = db?._version || 0;
       const remoteVer = remote._version || 0;
 
       if (!db || remoteVer >= currentVer) {
         db = remote;
+        // Never allow a stale bundle to overwrite Neon relational tables
+        if (isNeonConfigured() && neonProducts && neonProducts.length > 0) {
+          db.products = neonProducts;
+        }
+        if (isNeonConfigured() && neonCategories && neonCategories.length > 0) {
+          db.categories = neonCategories;
+        }
         const targetFile = getDatabaseFilePath();
         try {
           fs.writeFileSync(targetFile, JSON.stringify(db, null, 2), 'utf-8');

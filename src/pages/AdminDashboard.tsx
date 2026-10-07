@@ -213,6 +213,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, subR
             .catch(() => {});
         }
       } else if (event.type === 'product:change') {
+        if (event.action === 'created' && event.product) {
+          setProducts((prev) => {
+            const exists = prev.some((p) => p.id === event.product.id);
+            return exists ? prev : [event.product, ...prev];
+          });
+        }
         if (token) {
           fetch('/api/admin/products', { headers: { Authorization: `Bearer ${token}` } })
             .then((r) => (r.ok ? r.json() : null))
@@ -242,7 +248,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, subR
       }
     });
 
-    const handleWindowProductChange = () => {
+    const handleWindowProductChange = (e?: any) => {
+      const detail = e?.detail;
+      if (detail?.action === 'created' && detail?.product) {
+        setProducts((prev) => {
+          const exists = prev.some((p) => p.id === detail.product.id);
+          return exists ? prev : [detail.product, ...prev];
+        });
+      }
       if (token) {
         fetch('/api/admin/products', { headers: { Authorization: `Bearer ${token}` } })
           .then((r) => (r.ok ? r.json() : null))
