@@ -1,5 +1,13 @@
 import express from 'express';
-import { getDb, saveDatabase, getNextInvoiceNumber } from '../db.js';
+import { getDb, saveDatabase, saveDatabaseAsync, getNextInvoiceNumber } from '../db.js';
+import {
+  isNeonConfigured,
+  insertOrderInNeon,
+  updateOrderInNeon,
+  getOrdersFromNeon,
+  adjustProductStockInNeon,
+  insertInvoiceInNeon,
+} from '../storage/neon.js';
 import { requireAuth, type AuthenticatedRequest } from '../middleware.js';
 import type { Order, OrderItem } from '../../src/types.js';
 import { createOrderNotification } from '../orderNotificationHelper.js';
@@ -8,7 +16,7 @@ import { broadcastOrderUpdate, broadcastProductEvent } from '../websocket.js';
 const router = express.Router();
 
 // Create Order (Checkout)
-router.post('/', (req: AuthenticatedRequest, res) => {
+router.post('/', async (req: AuthenticatedRequest, res) => {
   const {
     customerName,
     customerEmail,
@@ -271,7 +279,29 @@ router.post('/', (req: AuthenticatedRequest, res) => {
     timestamp: new Date().toISOString(),
   });
 
-  saveDatabase();
+  // Permanently persist to Neon PostgreSQL
+  if (isNeonConfigured()) {
+    try {
+      await insertOrderInNeon(newOrder);
+      console.info(`[Neon PostgreSQL] Order permanently inserted: ${newOrder.orderNumber}`);
+      for (const it of orderItems) {
+        await adjustProductStockInNeon(
+          it.productId,
+          -it.quantity,
+          'Order Placed',
+          'online-checkout@fawnic.pk',
+          `Order #${newOrder.orderNumber}`
+        ).catch(() => {});
+      }
+      await insertInvoiceInNeon(autoInvoice).catch(() => {});
+    } catch (neonErr: any) {
+      console.error('[Neon PostgreSQL] Error inserting order in Neon:', neonErr.message);
+      res.status(500).json({ error: 'Database failed to persist order: ' + neonErr.message });
+      return;
+    }
+  }
+
+  await saveDatabaseAsync();
 
   // Broadcast real-time order update to Admin and Customer panels
   broadcastOrderUpdate(newOrder);
@@ -295,8 +325,16 @@ router.post('/', (req: AuthenticatedRequest, res) => {
 });
 
 // Track Order (Public Lookup)
-router.get('/track/:orderNumber', (req, res) => {
+router.get('/track/:orderNumber', async (req, res) => {
   const db = getDb();
+  if (isNeonConfigured()) {
+    try {
+      const neonOrders = await getOrdersFromNeon();
+      if (Array.isArray(neonOrders)) {
+        db.orders = neonOrders;
+      }
+    } catch {}
+  }
   const q = req.params.orderNumber.trim().toUpperCase();
   const order = db.orders.find(
     (o) => o.orderNumber.toUpperCase() === q || o.id === req.params.orderNumber
@@ -423,8 +461,16 @@ router.get('/track/:orderNumber', (req, res) => {
 });
 
 // Customer's Personal Orders
-router.get('/my-orders', requireAuth, (req: AuthenticatedRequest, res) => {
+router.get('/my-orders', requireAuth, async (req: AuthenticatedRequest, res) => {
   const db = getDb();
+  if (isNeonConfigured()) {
+    try {
+      const neonOrders = await getOrdersFromNeon();
+      if (Array.isArray(neonOrders)) {
+        db.orders = neonOrders;
+      }
+    } catch {}
+  }
   const userOrders = db.orders.filter(
     (o) =>
       o.customerId === req.user?.id ||
@@ -434,8 +480,16 @@ router.get('/my-orders', requireAuth, (req: AuthenticatedRequest, res) => {
 });
 
 // Single Order Details
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
   const db = getDb();
+  if (isNeonConfigured()) {
+    try {
+      const neonOrders = await getOrdersFromNeon();
+      if (Array.isArray(neonOrders)) {
+        db.orders = neonOrders;
+      }
+    } catch {}
+  }
   const order = db.orders.find(
     (o) => o.id === req.params.id || o.orderNumber === req.params.id
   );
@@ -486,7 +540,7 @@ router.post('/:id/return', requireAuth, (req: AuthenticatedRequest, res) => {
 });
 
 // Cancel Order by Customer
-router.post('/:id/cancel', requireAuth, (req: AuthenticatedRequest, res) => {
+router.post('/:id/cancel', requireAuth, async (req: AuthenticatedRequest, res) => {
   const { reason } = req.body;
   const db = getDb();
   const userId = req.user?.id;
@@ -568,7 +622,16 @@ router.post('/:id/cancel', requireAuth, (req: AuthenticatedRequest, res) => {
     timestamp: new Date().toISOString(),
   });
 
-  saveDatabase();
+  if (isNeonConfigured()) {
+    try {
+      await updateOrderInNeon(order.id, order);
+    } catch (neonErr: any) {
+      console.warn('[Neon PostgreSQL] Error saving customer order cancellation:', neonErr.message);
+    }
+  }
+
+  await saveDatabaseAsync();
+  broadcastOrderUpdate(order);
 
   res.json({ message: 'Order successfully cancelled', order });
 });

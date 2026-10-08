@@ -1,5 +1,11 @@
 import express from 'express';
-import { getDb, saveDatabase, getNextQueryNumber } from '../db.js';
+import { getDb, saveDatabase, saveDatabaseAsync, getNextQueryNumber } from '../db.js';
+import {
+  isNeonConfigured,
+  insertCustomerQueryInNeon,
+  getCustomerQueriesFromNeon,
+  deleteCustomerQueryInNeon,
+} from '../storage/neon.js';
 import { requireAuth, requireAdminOrStaff, type AuthenticatedRequest } from '../middleware.js';
 import { broadcastQueryEvent, broadcastNotificationEvent } from '../websocket.js';
 import type {
@@ -36,7 +42,7 @@ export function calculateQueryStats(queries: CustomerQuery[]): CustomerQueryStat
 // =========================================================================
 // PUBLIC / CUSTOMER SUBMISSION (Contact Us Form)
 // =========================================================================
-export function handleContactQuerySubmission(req: AuthenticatedRequest, res: express.Response) {
+export async function handleContactQuerySubmission(req: AuthenticatedRequest, res: express.Response) {
   const authUserId = req.user?.id;
   const db = getDb();
   if (!db.queries) db.queries = [];
@@ -169,7 +175,15 @@ export function handleContactQuerySubmission(req: AuthenticatedRequest, res: exp
   if (!db.notifications) db.notifications = [];
   db.notifications.unshift(adminNotif);
 
-  saveDatabase();
+  if (isNeonConfigured()) {
+    try {
+      await insertCustomerQueryInNeon(newQuery);
+    } catch (err: any) {
+      console.warn('[Neon PostgreSQL] Error saving customer query:', err.message);
+    }
+  }
+
+  await saveDatabaseAsync();
 
   // 1. Broadcast real-time query event to all connected admin panels
   broadcastQueryEvent({
@@ -208,9 +222,18 @@ export const customerQueryRouter = express.Router();
 customerQueryRouter.use(requireAuth);
 
 // Get current customer's queries - STRICT OWNERSHIP ENFORCEMENT
-customerQueryRouter.get('/', (req: AuthenticatedRequest, res) => {
+customerQueryRouter.get('/', async (req: AuthenticatedRequest, res) => {
   const db = getDb();
   const userId = req.user?.id;
+
+  if (isNeonConfigured()) {
+    try {
+      const neonQueries = await getCustomerQueriesFromNeon();
+      if (Array.isArray(neonQueries)) {
+        db.queries = neonQueries;
+      }
+    } catch {}
+  }
 
   if (!userId) {
     res.status(401).json({ error: 'Customer authentication required' });
@@ -395,13 +418,23 @@ function canStaffManageQueries(req: AuthenticatedRequest, action: 'view' | 'repl
 }
 
 // 1. Get queries with search, filters, date range, pagination
-adminQueryRouter.get('/', (req: AuthenticatedRequest, res) => {
+adminQueryRouter.get('/', async (req: AuthenticatedRequest, res) => {
   if (!canStaffManageQueries(req, 'view')) {
     res.status(403).json({ error: 'Access denied: You do not have permission to view customer queries.' });
     return;
   }
 
   const db = getDb();
+  if (isNeonConfigured()) {
+    try {
+      const neonQueries = await getCustomerQueriesFromNeon();
+      if (Array.isArray(neonQueries)) {
+        db.queries = neonQueries;
+      }
+    } catch (err: any) {
+      console.warn('[Neon PostgreSQL] Error loading queries for admin:', err.message);
+    }
+  }
   let list = (db.queries || []).filter((q) => !q.isDeleted);
 
   const stats = calculateQueryStats(db.queries || []);
@@ -554,7 +587,7 @@ adminQueryRouter.get('/:id', (req: AuthenticatedRequest, res) => {
 });
 
 // 4. Update status
-adminQueryRouter.put('/:id/status', (req: AuthenticatedRequest, res) => {
+adminQueryRouter.put('/:id/status', async (req: AuthenticatedRequest, res) => {
   if (!canStaffManageQueries(req, 'change_status')) {
     res.status(403).json({ error: 'Access denied: You do not have permission to change query status.' });
     return;
@@ -593,7 +626,15 @@ adminQueryRouter.put('/:id/status', (req: AuthenticatedRequest, res) => {
     timestamp: new Date().toISOString(),
   });
 
-  saveDatabase();
+  if (isNeonConfigured()) {
+    try {
+      await insertCustomerQueryInNeon(query);
+    } catch (err: any) {
+      console.warn('[Neon PostgreSQL] Error updating query status:', err.message);
+    }
+  }
+
+  await saveDatabaseAsync();
 
   const stats = calculateQueryStats(db.queries || []);
   broadcastQueryEvent({
@@ -678,7 +719,7 @@ adminQueryRouter.put('/:id/read', (req: AuthenticatedRequest, res) => {
 });
 
 // 7. Admin Reply to Customer
-adminQueryRouter.post('/:id/reply', (req: AuthenticatedRequest, res) => {
+adminQueryRouter.post('/:id/reply', async (req: AuthenticatedRequest, res) => {
   if (!canStaffManageQueries(req, 'reply')) {
     res.status(403).json({ error: 'Access denied: You do not have permission to reply to queries.' });
     return;
@@ -725,9 +766,15 @@ adminQueryRouter.post('/:id/reply', (req: AuthenticatedRequest, res) => {
     timestamp: now,
   });
 
-  // Contact Query replies strictly belong to the private support thread (Profile -> My Queries).
-  // Query replies are NEVER inserted into db.notifications or broadcast as header marketing notifications.
-  saveDatabase();
+  if (isNeonConfigured()) {
+    try {
+      await insertCustomerQueryInNeon(query);
+    } catch (err: any) {
+      console.warn('[Neon PostgreSQL] Error updating query reply:', err.message);
+    }
+  }
+
+  await saveDatabaseAsync();
 
   const stats = calculateQueryStats(db.queries || []);
 
@@ -809,7 +856,7 @@ adminQueryRouter.post('/:id/notes', (req: AuthenticatedRequest, res) => {
 });
 
 // 9. Archive / Unarchive
-adminQueryRouter.put('/:id/archive', (req: AuthenticatedRequest, res) => {
+adminQueryRouter.put('/:id/archive', async (req: AuthenticatedRequest, res) => {
   if (!canStaffManageQueries(req, 'archive')) {
     res.status(403).json({ error: 'Access denied: You do not have permission to archive queries.' });
     return;
@@ -835,7 +882,15 @@ adminQueryRouter.put('/:id/archive', (req: AuthenticatedRequest, res) => {
     timestamp: new Date().toISOString(),
   });
 
-  saveDatabase();
+  if (isNeonConfigured()) {
+    try {
+      await insertCustomerQueryInNeon(query);
+    } catch (err: any) {
+      console.warn('[Neon PostgreSQL] Error archiving query:', err.message);
+    }
+  }
+
+  await saveDatabaseAsync();
 
   const stats = calculateQueryStats(db.queries || []);
   broadcastQueryEvent({
@@ -848,7 +903,7 @@ adminQueryRouter.put('/:id/archive', (req: AuthenticatedRequest, res) => {
 });
 
 // 10. Soft Delete query (with confirmation)
-adminQueryRouter.delete('/:id', (req: AuthenticatedRequest, res) => {
+adminQueryRouter.delete('/:id', async (req: AuthenticatedRequest, res) => {
   if (!canStaffManageQueries(req, 'delete')) {
     res.status(403).json({ error: 'Access denied: You do not have permission to delete queries.' });
     return;
@@ -874,7 +929,15 @@ adminQueryRouter.delete('/:id', (req: AuthenticatedRequest, res) => {
     timestamp: new Date().toISOString(),
   });
 
-  saveDatabase();
+  if (isNeonConfigured()) {
+    try {
+      await deleteCustomerQueryInNeon(query.id);
+    } catch (err: any) {
+      console.error('[Neon PostgreSQL] Error deleting query in Neon:', err.message);
+    }
+  }
+
+  await saveDatabaseAsync();
 
   const stats = calculateQueryStats(db.queries || []);
   broadcastQueryEvent({

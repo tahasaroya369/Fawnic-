@@ -12,13 +12,14 @@ async function startServer() {
   const PORT = 3000;
 
   // Initialize Neon PostgreSQL Schema & sync from production database if configured
-  initializeNeonSchema().then(async (ok) => {
+  try {
+    const ok = await initializeNeonSchema();
     if (ok) {
       await syncDatabaseFromRemote();
     }
-  }).catch((err) => {
+  } catch (err: any) {
     console.warn('[DB Init] Background database init note:', err.message);
-  });
+  }
 
   // Vite middleware in dev or static files in production
   if (process.env.NODE_ENV !== 'production') {

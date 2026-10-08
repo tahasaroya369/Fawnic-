@@ -475,4 +475,36 @@ export function broadcastSettingsEvent(payload: { settings: any }): void {
   });
 }
 
+/**
+ * Realtime Coupon Synchronization Broadcast
+ */
+export interface BroadcastCouponPayload {
+  action: 'created' | 'updated' | 'deleted';
+  coupon?: any;
+  couponId?: string;
+  coupons?: any[];
+}
+
+export function broadcastCouponEvent(payload: BroadcastCouponPayload): void {
+  recordSyncEvent({
+    type: 'coupon:change',
+    action: payload.action,
+    coupon: payload.coupon,
+    couponId: payload.couponId || payload.coupon?.id,
+    coupons: payload.coupons,
+  });
+
+  clients.forEach((client) => {
+    sendToSocket(client.ws, {
+      type: 'coupon:change',
+      action: payload.action,
+      coupon: payload.coupon,
+      couponId: payload.couponId || payload.coupon?.id,
+      coupons: payload.coupons,
+      timestamp: Date.now(),
+    });
+  });
+}
+
+
 

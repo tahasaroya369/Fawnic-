@@ -91,68 +91,7 @@
       "passwordHash": "74ecacee146ed1dcbf7eec1f97f84a6a7bb14798fd9b478cf2db76b2deaa1eb52a1eba40be42cbb536004f647dd4b33e1250b8fd1c0f305f93b858bf516177a1"
     }
   ],
-  "orders": [
-    {
-      "id": "ord_1790537710088",
-      "items": [
-        {
-          "sku": "FWN-SOV-01",
-          "name": "The Sovereign Executive Bifold Wallet",
-          "image": "https://images.unsplash.com/photo-1627123424574-724758594e93?w=1000&auto=format&fit=crop&q=85",
-          "price": 4450,
-          "total": 4450,
-          "quantity": 1,
-          "subtotal": 4450,
-          "productId": "fwn_wlt_01",
-          "unitPrice": 4450,
-          "productName": "The Sovereign Executive Bifold Wallet",
-          "variantInfo": "",
-          "productImage": "https://images.unsplash.com/photo-1627123424574-724758594e93?w=1000&auto=format&fit=crop&q=85"
-        }
-      ],
-      "total": 4450,
-      "status": "pending",
-      "discount": 0,
-      "subtotal": 4450,
-      "timeline": [
-        {
-          "note": "Order placed by customer via Cash on Delivery.",
-          "status": "pending",
-          "location": "Karachi, Pakistan",
-          "timestamp": "2026-09-27T19:35:10.088Z",
-          "updatedBy": "Customer"
-        }
-      ],
-      "createdAt": "2026-09-27T19:35:10.088Z",
-      "customerId": "usr_1789586536928_tqjpi",
-      "orderNumber": "FWN-26814",
-      "shippingFee": 0,
-      "customerName": "Taha Saroya",
-      "customerEmail": "tahahussainsaroya329@gmail.com",
-      "customerPhone": "+92 3440017711",
-      "paymentMethod": "cod",
-      "paymentStatus": "pending",
-      "shippingAddress": {
-        "id": "addr_1790577190092",
-        "city": "Karachi",
-        "phone": "+92 3440017711",
-        "fullName": "Taha Saroya",
-        "province": "Sindh",
-        "isDefault": false,
-        "postalCode": "75500",
-        "addressLine1": "79 X Block Housing Colony Sheikhupura"
-      },
-      "trackingHistory": [
-        {
-          "note": "Order placed by customer via Cash on Delivery.",
-          "status": "pending",
-          "location": "Karachi, Pakistan",
-          "timestamp": "2026-09-27T19:35:10.088Z",
-          "updatedBy": "Customer"
-        }
-      ]
-    }
-  ],
+  "orders": [],
   "coupons": [],
   "queries": [
     {
@@ -499,7 +438,7 @@
       "verifiedPurchase": true
     }
   ],
-  "_version": 162,
+  "_version": 246,
   "invoices": [
     {
       "id": "inv_1791024519138",
@@ -567,36 +506,482 @@
   ],
   "products": [
     {
-      "id": "test_prd_1",
-      "name": "Classic Bifold Wallet",
-      "slug": "classic-bifold-wallet-1",
-      "sku": "FWN-TEST-1",
-      "description": "A handcrafted leather wallet.",
-      "shortDescription": "Handcrafted leather wallet.",
-      "categoryId": "cat_wallets",
-      "categoryName": "Men's Wallets",
-      "regularPrice": 4500,
-      "salePrice": 3900,
-      "stock": 25,
-      "lowStockThreshold": 5,
+      "id": "fwn_wtc_03",
+      "name": "The Royal Dress Automatic Ultra-Thin 39mm",
+      "slug": "royal-dress-automatic-ultra-thin-39mm",
+      "sku": "FWN-WTC-03",
+      "description": "The pinnacle of bespoke dress watch elegance. Measuring just 8.9mm in height, this timepiece slides effortlessly beneath tailored French cuffs. Features thermally blued feuille hands, an applied Breguet-style numeral layout, and an exhibition rotor engraved with the FAWNIC crest.",
+      "shortDescription": "Ultra-slim 8.9mm profile with sunburst guilloché dial, blued hands, and alligator-embossed full-grain strap.",
+      "categoryId": "cat_watches",
+      "categoryName": "Premium Watches",
+      "subcategoryId": "Dress Watches",
+      "subcategoryName": "Dress Watches",
+      "subcategory": "Dress Watches",
+      "regularPrice": 33000,
+      "salePrice": 29800,
+      "costPrice": 15000,
+      "stock": 9,
+      "lowStockThreshold": 3,
       "stockStatus": "in_stock",
-      "leatherType": "",
-      "mainImage": "https://images.unsplash.com/photo-1627123424574-724758594e93",
+      "leatherType": "Embossed Italian Calfskin Strap",
+      "mainImage": "/assets/images/hero_luxury_watch_1790447781834.jpg",
       "images": [
-        "https://images.unsplash.com/photo-1627123424574-724758594e93"
+        "/assets/images/hero_luxury_watch_1790447781834.jpg",
+        "/assets/images/card_luxury_watch_1790447819632.jpg"
       ],
       "features": [
-        "Full-grain leather",
-        "RFID blocking"
+        "Ultra-thin automatic caliber measuring only 3.9mm thick",
+        "Radial sunburst dial with micro-guilloché center medallion",
+        "Thermally heat-blued steel hands with diamond-cut faceted hour markers",
+        "Hand-stitched leather strap with signed deployant butterfly clasp"
       ],
       "tags": [
-        "leather",
-        "wallet"
+        "watch",
+        "dress",
+        "ultra-thin",
+        "guilloche",
+        "automatic"
       ],
       "variations": [],
       "variants": [],
       "specifications": {
-        "material": "Leather"
+        "Lug Width": "20mm",
+        "Case Diameter": "39mm",
+        "Case Thickness": "8.9mm",
+        "Water Resistance": "50 Meters / 5 ATM"
+      },
+      "isFeatured": true,
+      "isBestSeller": false,
+      "isNewArrival": true,
+      "hasVariations": false,
+      "status": "published",
+      "brand": "FAWNIC Atelier",
+      "rating": 5,
+      "reviewCount": 16,
+      "createdAt": "2026-02-15T10:00:00.000Z",
+      "updatedAt": "2026-10-07T16:52:15.565Z"
+    },
+    {
+      "id": "fwn_acc_02",
+      "name": "The Handcrafted Leather Valet Catchall Tray",
+      "slug": "handcrafted-leather-valet-catchall-tray",
+      "sku": "FWN-VLT-02",
+      "description": "A bedside and desk staple. Crafted from thick 8oz vegetable-tanned bridle leather with hand-burnished edges and solid brass corner snaps. Perfect for your watch, keys, coins, and everyday carry items.",
+      "shortDescription": "Solid brass corner snaps fold flat for travel or snap up into a nightstand EDC organizer.",
+      "categoryId": "cat_accessories",
+      "categoryName": "Leather Accessories",
+      "subcategoryId": "Valet Trays",
+      "subcategoryName": "Valet Trays",
+      "subcategory": "Valet Trays",
+      "regularPrice": 3400,
+      "salePrice": 2750,
+      "costPrice": 1100,
+      "stock": 40,
+      "lowStockThreshold": 8,
+      "stockStatus": "in_stock",
+      "leatherType": "8oz English Bridle Cowhide",
+      "mainImage": "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=1000&auto=format&fit=crop&q=85",
+      "images": [
+        "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=1000&auto=format&fit=crop&q=85"
+      ],
+      "features": [
+        "Heavy 8oz thick hide maintains rigid shape",
+        "Four solid brass snaps for instant assembly or flat travel packing",
+        "Embossed Fawnic crest in center"
+      ],
+      "tags": [
+        "valet tray",
+        "organizer",
+        "edc",
+        "leather"
+      ],
+      "variations": [],
+      "variants": [],
+      "specifications": {
+        "Flat Dimensions": "22 cm x 22 cm",
+        "Formed Tray Dimensions": "16 cm x 16 cm x 4 cm deep"
+      },
+      "isFeatured": false,
+      "isBestSeller": false,
+      "isNewArrival": true,
+      "hasVariations": false,
+      "status": "published",
+      "brand": "FAWNIC",
+      "rating": 4.8,
+      "reviewCount": 12,
+      "createdAt": "2026-02-12T16:00:00.000Z",
+      "updatedAt": "2026-10-07T16:52:15.370Z"
+    },
+    {
+      "id": "fwn_wlt_04",
+      "name": "The Armour RFID Tactical Bifold Wallet",
+      "slug": "armour-rfid-tactical-bifold-wallet",
+      "sku": "FWN-ARM-04",
+      "description": "A blend of rugged durability and executive refinement. Features reinforced corners, matte gunmetal emblem, and internal ballistic nylon reinforcement for extreme durability.",
+      "shortDescription": "Reinforced ballistic leather construction with quick-action thumb ejection and card lock.",
+      "categoryId": "cat_wallets",
+      "categoryName": "Men's Leather Wallets",
+      "subcategoryId": "RFID Wallets",
+      "subcategoryName": "RFID Wallets",
+      "subcategory": "RFID Wallets",
+      "regularPrice": 6500,
+      "salePrice": 5200,
+      "costPrice": 2600,
+      "stock": 35,
+      "lowStockThreshold": 6,
+      "stockStatus": "in_stock",
+      "leatherType": "Top-Grain Waxed Cowhide",
+      "mainImage": "/assets/images/card_mens_wallet_1790447793950.jpg",
+      "images": [
+        "/assets/images/card_mens_wallet_1790447793950.jpg",
+        "/assets/images/hero_mens_wallet_1790447762128.jpg"
+      ],
+      "features": [
+        "Full 360-degree electromagnetic RFID blocking",
+        "Quick-slide thumb thumb window for national CNIC / driver license",
+        "Triple-stitched stress points"
+      ],
+      "tags": [
+        "tactical",
+        "rfid",
+        "wallet",
+        "durable"
+      ],
+      "variations": [],
+      "variants": [],
+      "specifications": {
+        "Weight": "78 grams",
+        "Capacity": "10 cards + 15 banknotes",
+        "Dimensions": "11 cm x 8.8 cm x 1.3 cm"
+      },
+      "isFeatured": false,
+      "isBestSeller": false,
+      "isNewArrival": true,
+      "hasVariations": false,
+      "status": "published",
+      "brand": "FAWNIC",
+      "rating": 4.7,
+      "reviewCount": 22,
+      "createdAt": "2026-02-10T10:00:00.000Z",
+      "updatedAt": "2026-10-07T16:52:14.842Z"
+    },
+    {
+      "id": "fwn_crd_02",
+      "name": "The Accordion Expandable Leather Card Case",
+      "slug": "accordion-expandable-leather-card-case",
+      "sku": "FWN-ACC-CRD",
+      "description": "Ideal for executives and professionals. Opens like an accordion to reveal multiple organized compartments for business cards, credit cards, and folded currency notes.",
+      "shortDescription": "Gusseted accordion design with solid brass snap button holding up to 15 business or credit cards.",
+      "categoryId": "cat_cardholders",
+      "categoryName": "Card Holders",
+      "subcategoryId": "Accordion Cases",
+      "subcategoryName": "Accordion Cases",
+      "subcategory": "Accordion Cases",
+      "regularPrice": 3600,
+      "salePrice": 2950,
+      "costPrice": 1300,
+      "stock": 35,
+      "lowStockThreshold": 6,
+      "stockStatus": "in_stock",
+      "leatherType": "Top-Grain Waxed Leather",
+      "mainImage": "https://images.unsplash.com/photo-1544816155-12df9643f363?w=1000&auto=format&fit=crop&q=85",
+      "images": [
+        "https://images.unsplash.com/photo-1544816155-12df9643f363?w=1000&auto=format&fit=crop&q=85"
+      ],
+      "features": [
+        "Expandable fan-out gussets hold up to 15 cards",
+        "Reinforced magnetic snap closure",
+        "Divided slots for business cards and credit cards"
+      ],
+      "tags": [
+        "accordion",
+        "business cards",
+        "case",
+        "leather"
+      ],
+      "variations": [],
+      "variants": [],
+      "specifications": {
+        "Capacity": "15-20 standard cards",
+        "Dimensions": "10.5 cm x 7.5 cm x 1.8 cm"
+      },
+      "isFeatured": false,
+      "isBestSeller": false,
+      "isNewArrival": true,
+      "hasVariations": false,
+      "status": "published",
+      "brand": "FAWNIC",
+      "rating": 4.8,
+      "reviewCount": 14,
+      "createdAt": "2026-02-08T09:00:00.000Z",
+      "updatedAt": "2026-10-07T16:52:15.178Z"
+    },
+    {
+      "id": "fwn_blt_03",
+      "name": "The Raw Edge Casual Harness Leather Belt",
+      "slug": "raw-edge-casual-harness-leather-belt",
+      "sku": "FWN-CAS-03",
+      "description": "Built for denim, chinos, and casual boots. Cut wider at 40mm from uncorrected rough-out pull-up leather that scuffs, heals, and shows character with every wear.",
+      "shortDescription": "40mm wide heavy-duty denim belt made from unlined vintage pull-up leather.",
+      "categoryId": "cat_belts",
+      "categoryName": "Leather Belts",
+      "subcategoryId": "Casual Harness Belts",
+      "subcategoryName": "Casual Harness Belts",
+      "subcategory": "Casual Harness Belts",
+      "regularPrice": 4950,
+      "salePrice": 4150,
+      "costPrice": 2000,
+      "stock": 30,
+      "lowStockThreshold": 6,
+      "stockStatus": "in_stock",
+      "leatherType": "Heavy 10oz Vegetable Tanned Harness Hide",
+      "mainImage": "/assets/images/hero_mens_belt_1790447772143.jpg",
+      "images": [
+        "/assets/images/hero_mens_belt_1790447772143.jpg",
+        "/assets/images/card_mens_belt_1790447805889.jpg"
+      ],
+      "features": [
+        "Heavy 40mm width matches denim loops perfectly",
+        "Raw edge hand-buffed with saddle soap",
+        "Matte antique roller buckle prevents leather crease marks"
+      ],
+      "tags": [
+        "casual",
+        "denim",
+        "belt",
+        "vintage",
+        "harness"
+      ],
+      "variations": [],
+      "variants": [
+        {
+          "id": "var_blt3_size",
+          "name": "Waist Size (Inches)",
+          "options": [
+            {
+              "label": "32 inches",
+              "stock": 8
+            },
+            {
+              "label": "34 inches",
+              "stock": 10
+            },
+            {
+              "label": "36 inches",
+              "stock": 8
+            },
+            {
+              "label": "38 inches",
+              "stock": 4
+            }
+          ]
+        }
+      ],
+      "specifications": {
+        "Width": "40 mm (1.57 inches)",
+        "Buckle": "Antiqued Steel Roller Buckle",
+        "Thickness": "4.2 mm (10 oz weight)"
+      },
+      "isFeatured": false,
+      "isBestSeller": false,
+      "isNewArrival": false,
+      "hasVariations": false,
+      "status": "published",
+      "brand": "FAWNIC",
+      "rating": 4.9,
+      "reviewCount": 19,
+      "createdAt": "2026-02-05T15:00:00.000Z",
+      "updatedAt": "2026-10-07T16:52:15.040Z"
+    },
+    {
+      "id": "fwn_wlt_03",
+      "name": "The Royal Continental Long Wallet",
+      "slug": "royal-continental-long-wallet",
+      "sku": "FWN-RYL-03",
+      "description": "Crafted for distinguished business travel and formal occasions. Fits cleanly into suit jacket breast pockets without folding banknotes. Features 16 dedicated card slots, two full-length currency sleeves, a zippered receipt compartment, and dedicated passport slot.",
+      "shortDescription": "Prestigious breast-pocket wallet holding 16 cards, unfolded cash, and travel documents.",
+      "categoryId": "cat_wallets",
+      "categoryName": "Men's Leather Wallets",
+      "subcategoryId": "Long Continental",
+      "subcategoryName": "Long Continental",
+      "subcategory": "Long Continental",
+      "regularPrice": 7800,
+      "salePrice": 6800,
+      "costPrice": 3400,
+      "stock": 25,
+      "lowStockThreshold": 5,
+      "stockStatus": "in_stock",
+      "leatherType": "Full-Grain Pull-Up Harness Leather",
+      "mainImage": "/assets/images/hero_mens_wallet_1790447762128.jpg",
+      "images": [
+        "/assets/images/hero_mens_wallet_1790447762128.jpg",
+        "/assets/images/card_mens_wallet_1790447793950.jpg"
+      ],
+      "features": [
+        "16 individual card slots",
+        "Full-length cash compartment (no folding needed)",
+        "Antique brass YKK zipper compartment",
+        "Fits standard passport and boarding passes"
+      ],
+      "tags": [
+        "long wallet",
+        "continental",
+        "executive",
+        "suit"
+      ],
+      "variations": [],
+      "variants": [
+        {
+          "id": "var_ryl_color",
+          "name": "Leather Color",
+          "options": [
+            {
+              "label": "Deep Havana Brown",
+              "stock": 15
+            },
+            {
+              "label": "Classic Black",
+              "stock": 10
+            }
+          ]
+        }
+      ],
+      "specifications": {
+        "Weight": "130 grams",
+        "Dimensions": "19 cm x 9.5 cm x 1.8 cm",
+        "Leather Grade": "Full-Grain Vegetable-Tanned Oiled Leather"
+      },
+      "isFeatured": false,
+      "isBestSeller": false,
+      "isNewArrival": true,
+      "hasVariations": false,
+      "status": "published",
+      "brand": "FAWNIC",
+      "rating": 5,
+      "reviewCount": 16,
+      "createdAt": "2026-02-01T14:00:00.000Z",
+      "updatedAt": "2026-10-07T16:52:14.777Z"
+    },
+    {
+      "id": "fwn_wtc_02",
+      "name": "The Heritage Field Mechanical 38mm",
+      "slug": "heritage-field-mechanical-38mm",
+      "sku": "FWN-WTC-02",
+      "description": "A tribute to classical field instruments. Features a robust bead-blasted 316L case, high-contrast matte dial, and anti-magnetic inner shield. The hand-wound mechanical caliber delivers authentic tactile feedback during morning winding, complemented by an 8oz harness leather strap with solid buckle.",
+      "shortDescription": "Military-inspired manual wind caliber with vintage radium-tone Super-LumiNova markers and saddle-stitched bridle strap.",
+      "categoryId": "cat_watches",
+      "categoryName": "Premium Watches",
+      "subcategoryId": "Field Timepieces",
+      "subcategoryName": "Field Timepieces",
+      "subcategory": "Field Timepieces",
+      "regularPrice": 21500,
+      "salePrice": 18900,
+      "costPrice": 9500,
+      "stock": 18,
+      "lowStockThreshold": 5,
+      "stockStatus": "in_stock",
+      "leatherType": "8oz Harness Steerhide Strap",
+      "mainImage": "/assets/images/card_luxury_watch_1790447819632.jpg",
+      "images": [
+        "/assets/images/card_luxury_watch_1790447819632.jpg",
+        "/assets/images/hero_luxury_watch_1790447781834.jpg"
+      ],
+      "features": [
+        "Manual-wind 21,600 VPH caliber with tactile winding action",
+        "Vintage Old Radium Swiss Super-LumiNova on hands and numerals",
+        "Box-section sapphire crystal with internal anti-glare treatment",
+        "Solid screw-down caseback engraved with individual atelier serial number"
+      ],
+      "tags": [
+        "watch",
+        "mechanical",
+        "field",
+        "military",
+        "heritage"
+      ],
+      "variations": [],
+      "variants": [],
+      "specifications": {
+        "Lug Width": "20mm",
+        "Case Diameter": "38mm",
+        "Case Thickness": "10.2mm",
+        "Water Resistance": "100 Meters / 10 ATM"
+      },
+      "isFeatured": true,
+      "isBestSeller": false,
+      "isNewArrival": true,
+      "hasVariations": false,
+      "status": "published",
+      "brand": "FAWNIC Atelier",
+      "rating": 4.8,
+      "reviewCount": 19,
+      "createdAt": "2026-02-01T10:00:00.000Z",
+      "updatedAt": "2026-10-07T16:52:15.500Z"
+    },
+    {
+      "id": "fwn_blt_02",
+      "name": "The Dual-Tone Reversible Executive Belt",
+      "slug": "dual-tone-reversible-executive-belt",
+      "sku": "FWN-REV-02",
+      "description": "Two luxury belts in one. Precision spring-loaded rotation buckle allows instant transformation between midnight black formal dress and rich chestnut business casual.",
+      "shortDescription": "Innovative rotating buckle design offering Jet Black on one side and Rich Chestnut on the other.",
+      "categoryId": "cat_belts",
+      "categoryName": "Leather Belts",
+      "subcategoryId": "Reversible Belts",
+      "subcategoryName": "Reversible Belts",
+      "subcategory": "Reversible Belts",
+      "regularPrice": 6200,
+      "salePrice": 5250,
+      "costPrice": 2500,
+      "stock": 40,
+      "lowStockThreshold": 8,
+      "stockStatus": "in_stock",
+      "leatherType": "Top-Grain Double-Sided Nappa Leather",
+      "mainImage": "/assets/images/card_mens_belt_1790447805889.jpg",
+      "images": [
+        "/assets/images/card_mens_belt_1790447805889.jpg",
+        "/assets/images/hero_mens_belt_1790447772143.jpg"
+      ],
+      "features": [
+        "Dual-sided: Jet Black and Chestnut Brown",
+        "360-degree swivel mechanical buckle",
+        "Reinforced feather-edge perimeter stitching"
+      ],
+      "tags": [
+        "reversible",
+        "belt",
+        "dual-tone",
+        "black",
+        "brown"
+      ],
+      "variations": [],
+      "variants": [
+        {
+          "id": "var_blt2_size",
+          "name": "Waist Size (Inches)",
+          "options": [
+            {
+              "label": "32 inches",
+              "stock": 10
+            },
+            {
+              "label": "34 inches",
+              "stock": 12
+            },
+            {
+              "label": "36 inches",
+              "stock": 10
+            },
+            {
+              "label": "38 inches",
+              "stock": 8
+            }
+          ]
+        }
+      ],
+      "specifications": {
+        "Width": "33 mm",
+        "Buckle": "Satin Zinc-Alloy with Gunmetal PVD Coating"
       },
       "isFeatured": true,
       "isBestSeller": false,
@@ -604,10 +989,473 @@
       "hasVariations": false,
       "status": "published",
       "brand": "FAWNIC",
+      "rating": 4.8,
+      "reviewCount": 31,
+      "createdAt": "2026-01-25T11:00:00.000Z",
+      "updatedAt": "2026-10-07T16:52:14.974Z"
+    },
+    {
+      "id": "fwn_crd_01",
+      "name": "The Minimalist Hand-Stitched Card Sleeve",
+      "slug": "minimalist-hand-stitched-card-sleeve",
+      "sku": "FWN-CRD-01",
+      "description": "An ode to traditional hand-craftsmanship. Every sleeve is cut by hand and saddle-stitched using two needles and braided beeswax linen thread. Holds 4 to 6 credit cards comfortably while practically disappearing inside any suit or trouser pocket.",
+      "shortDescription": "Hand-waxed linen saddle stitching across 3 precision card pockets and central cash fold.",
+      "categoryId": "cat_cardholders",
+      "categoryName": "Card Holders",
+      "subcategoryId": "Minimalist Sleeves",
+      "subcategoryName": "Minimalist Sleeves",
+      "subcategory": "Minimalist Sleeves",
+      "regularPrice": 2800,
+      "salePrice": 2250,
+      "costPrice": 900,
+      "stock": 50,
+      "lowStockThreshold": 10,
+      "stockStatus": "in_stock",
+      "leatherType": "Full-Grain Italian Pueblo Leather",
+      "mainImage": "https://images.unsplash.com/photo-1559563458-527698bf5295?w=1000&auto=format&fit=crop&q=85",
+      "images": [
+        "https://images.unsplash.com/photo-1559563458-527698bf5295?w=1000&auto=format&fit=crop&q=85"
+      ],
+      "features": [
+        "100% Traditional hand-stitched with waxed linen thread",
+        "3 Card slots + central cash folded pocket",
+        "Smooth rounded corners prevent pocket wear"
+      ],
+      "tags": [
+        "card holder",
+        "minimalist",
+        "saddle stitch",
+        "sleeve"
+      ],
+      "variations": [],
+      "variants": [
+        {
+          "id": "var_crd1_color",
+          "name": "Color Tone",
+          "options": [
+            {
+              "label": "Saddle Tan",
+              "stock": 20
+            },
+            {
+              "label": "Dark Chocolate",
+              "stock": 15
+            },
+            {
+              "label": "Navy Indigo",
+              "stock": 15
+            }
+          ]
+        }
+      ],
+      "specifications": {
+        "Weight": "28 grams",
+        "Dimensions": "10 cm x 7 cm x 0.4 cm"
+      },
+      "isFeatured": true,
+      "isBestSeller": true,
+      "isNewArrival": false,
+      "hasVariations": false,
+      "status": "published",
+      "brand": "FAWNIC",
+      "rating": 4.9,
+      "reviewCount": 25,
+      "createdAt": "2026-01-18T10:00:00.000Z",
+      "updatedAt": "2026-10-07T16:52:15.104Z"
+    },
+    {
+      "id": "fwn_wlt_02",
+      "name": "The Apex Slim Front-Pocket Wallet",
+      "slug": "apex-slim-front-pocket-wallet",
+      "sku": "FWN-APX-02",
+      "description": "Engineered for the discerning minimalist who rejects pocket bulge. The Apex maintains a razor-thin 0.7cm footprint while effortlessly carrying up to 7 cards and folded bills. Equipped with a textured leather pull-strap that fans out your secondary cards in an instant, and a front quick-access slot for your everyday transit or payment card.",
+      "shortDescription": "Ultra-thin silhouette designed for seamless front pocket carry with quick-pull card strap.",
+      "categoryId": "cat_wallets",
+      "categoryName": "Men's Leather Wallets",
+      "subcategoryId": "Slim Front-Pocket",
+      "subcategoryName": "Slim Front-Pocket",
+      "subcategory": "Slim Front-Pocket",
+      "regularPrice": 4200,
+      "salePrice": 3450,
+      "costPrice": 1600,
+      "stock": 60,
+      "lowStockThreshold": 10,
+      "stockStatus": "in_stock",
+      "leatherType": "Top-Grain Nappa Leather",
+      "mainImage": "/assets/images/card_mens_wallet_1790447793950.jpg",
+      "images": [
+        "/assets/images/card_mens_wallet_1790447793950.jpg",
+        "/assets/images/hero_mens_wallet_1790447762128.jpg"
+      ],
+      "features": [
+        "Only 7mm thick when empty",
+        "Quick-draw pull strap for rapid card access",
+        "Integrated RFID shielding protects all internal slots",
+        "Beveled edges with matching tonal saddle stitching"
+      ],
+      "tags": [
+        "slim",
+        "wallet",
+        "minimalist",
+        "front-pocket"
+      ],
+      "variations": [],
+      "variants": [
+        {
+          "id": "var_apx_color",
+          "name": "Leather Color",
+          "options": [
+            {
+              "label": "Saddle Tan",
+              "stock": 25
+            },
+            {
+              "label": "Obsidian Black",
+              "stock": 25
+            },
+            {
+              "label": "British Racing Green",
+              "stock": 10
+            }
+          ]
+        }
+      ],
+      "specifications": {
+        "Weight": "42 grams",
+        "Capacity": "5-8 cards plus folded cash",
+        "Dimensions": "10.2 cm x 7.6 cm x 0.7 cm",
+        "Leather Grade": "Full-Grain Top-Grade Nappa"
+      },
+      "careInstructions": "Buff gently with a soft microfiber cloth. Store in dust bag when traveling.",
+      "isFeatured": true,
+      "isBestSeller": true,
+      "isNewArrival": false,
+      "hasVariations": false,
+      "status": "published",
+      "brand": "FAWNIC",
+      "rating": 4.8,
+      "reviewCount": 29,
+      "createdAt": "2026-01-15T12:00:00.000Z",
+      "updatedAt": "2026-10-07T16:52:14.712Z"
+    },
+    {
+      "id": "fwn_wtc_01",
+      "name": "The Sovereign Automatic Chronograph 41mm",
+      "slug": "sovereign-automatic-chronograph-41mm",
+      "sku": "FWN-WTC-01",
+      "description": "Engineered for connoisseurs of fine mechanical horology. The Sovereign Automatic features an exhibition sapphire caseback revealing the decorated rotor and balance wheel. Hand-finished surgical 316L stainless steel case with dual-finish satin brushing and mirror-polished bevels. Fitted with a custom full-grain Italian calfskin strap crafted in our atelier.",
+      "shortDescription": "High-beat 28,800 VPH mechanical movement, anti-reflective double-domed sapphire crystal, and vegetable-tanned leather strap.",
+      "categoryId": "cat_watches",
+      "categoryName": "Premium Watches",
+      "subcategoryId": "Automatic Chronographs",
+      "subcategoryName": "Automatic Chronographs",
+      "subcategory": "Automatic Chronographs",
+      "regularPrice": 28500,
+      "salePrice": 24500,
+      "costPrice": 12000,
+      "stock": 14,
+      "lowStockThreshold": 4,
+      "stockStatus": "in_stock",
+      "leatherType": "Italian Full-Grain Calfskin Strap",
+      "mainImage": "/assets/images/hero_luxury_watch_1790447781834.jpg",
+      "images": [
+        "/assets/images/hero_luxury_watch_1790447781834.jpg",
+        "/assets/images/card_luxury_watch_1790447819632.jpg"
+      ],
+      "features": [
+        "28,800 VPH High-Beat Caliber with 42-hour power reserve",
+        "Scratch-resistant double-domed sapphire crystal with 5-layer anti-reflective coating",
+        "Solid 316L surgical-grade stainless steel case with exhibition glass back",
+        "Interchangeable quick-release FAWNIC handcrafted leather strap"
+      ],
+      "tags": [
+        "watch",
+        "automatic",
+        "horology",
+        "chronograph",
+        "sapphire",
+        "luxury"
+      ],
+      "variations": [],
+      "variants": [],
+      "specifications": {
+        "Lug Width": "20mm",
+        "Case Diameter": "41mm",
+        "Case Thickness": "11.8mm",
+        "Water Resistance": "100 Meters / 10 ATM"
+      },
+      "isFeatured": true,
+      "isBestSeller": true,
+      "isNewArrival": false,
+      "hasVariations": false,
+      "status": "published",
+      "brand": "FAWNIC Atelier",
+      "rating": 4.9,
+      "reviewCount": 24,
+      "createdAt": "2026-01-12T10:00:00.000Z",
+      "updatedAt": "2026-10-07T16:52:15.435Z"
+    },
+    {
+      "id": "fwn_blt_01",
+      "name": "The Artisan Solid Brass Full-Grain Formal Belt",
+      "slug": "artisan-solid-brass-full-grain-formal-belt",
+      "sku": "FWN-BLT-01",
+      "description": "The definitive formal belt crafted without filler, cardboard, or synthetic bonded backing. Cut directly from dense 3.8mm thick vegetable-tanned steerhide. Each belt is hand-edged, burnished with natural carnauba wax, and anchored by a hand-polished solid brass buckle secured by Chicago screws for easy buckle swapping.",
+      "shortDescription": "35mm dress belt cut from continuous 9oz full-grain steerhide with solid forged brass hardware.",
+      "categoryId": "cat_belts",
+      "categoryName": "Leather Belts",
+      "subcategoryId": "Formal Dress Belts",
+      "subcategoryName": "Formal Dress Belts",
+      "subcategory": "Formal Dress Belts",
+      "regularPrice": 5500,
+      "salePrice": 4650,
+      "costPrice": 2200,
+      "stock": 55,
+      "lowStockThreshold": 10,
+      "stockStatus": "in_stock",
+      "leatherType": "9oz Full-Grain Steerhide",
+      "mainImage": "/assets/images/hero_mens_belt_1790447772143.jpg",
+      "images": [
+        "/assets/images/hero_mens_belt_1790447772143.jpg",
+        "/assets/images/card_mens_belt_1790447805889.jpg"
+      ],
+      "features": [
+        "Cut from single continuous slab of 9oz full-grain steerhide",
+        "Solid forged brass hardware with micro-brushed finish",
+        "Removable Chicago screw construction allows custom buckle swapping",
+        "5 precision teardrop holes spaced 1 inch apart",
+        "Beveled edge profile hand-burnished with natural carnauba wax"
+      ],
+      "tags": [
+        "belt",
+        "formal",
+        "brass",
+        "leather",
+        "steerhide"
+      ],
+      "variations": [],
+      "variants": [
+        {
+          "id": "var_blt1_size",
+          "name": "Waist Size (Inches)",
+          "options": [
+            {
+              "label": "30 inches",
+              "stock": 8
+            },
+            {
+              "label": "32 inches",
+              "stock": 12
+            },
+            {
+              "label": "34 inches",
+              "stock": 15
+            },
+            {
+              "label": "36 inches",
+              "stock": 10
+            },
+            {
+              "label": "38 inches",
+              "stock": 6
+            },
+            {
+              "label": "40 inches",
+              "stock": 4
+            }
+          ]
+        },
+        {
+          "id": "var_blt1_color",
+          "name": "Leather & Hardware",
+          "options": [
+            {
+              "label": "Jet Black (Brushed Nickel Buckle)",
+              "stock": 25
+            },
+            {
+              "label": "Cognac Amber (Antique Brass Buckle)",
+              "stock": 20
+            },
+            {
+              "label": "Cordovan Deep Red (Solid Brass Buckle)",
+              "stock": 10
+            }
+          ]
+        }
+      ],
+      "specifications": {
+        "Width": "35 mm (1.38 inches) - Standard Formal Dress Width",
+        "Buckle": "100% Solid Forged Brass (Lead-Free)",
+        "Thickness": "3.8 mm (9 oz weight)",
+        "Leather Type": "Full-Grain English Bridle Steerhide"
+      },
+      "careInstructions": "Condition with neatsfoot or mink oil once yearly. Wipe buckle with dry cotton.",
+      "isFeatured": true,
+      "isBestSeller": true,
+      "isNewArrival": false,
+      "hasVariations": false,
+      "status": "published",
+      "brand": "FAWNIC",
+      "rating": 4.9,
+      "reviewCount": 44,
+      "createdAt": "2026-01-12T09:00:00.000Z",
+      "updatedAt": "2026-10-07T16:52:14.908Z"
+    },
+    {
+      "id": "fwn_wlt_01",
+      "name": "The Sovereign Executive Bifold Wallet",
+      "slug": "sovereign-executive-bifold-wallet",
+      "sku": "FWN-SOV-01",
+      "description": "A timeless cornerstone of the Fawnic collection. The Sovereign is cut from dense 1.2mm vegetable-tanned cowhide that begins with a rich satin sheen and deepens into a magnificent vintage patina with daily use. Features eight hand-creased card slots, two hidden multi-purpose pockets, and a divided full-length cash compartment lined with durable Japanese cotton twill. Integrated with military-grade copper-nickel RFID blocking mesh to protect your contactless debit cards and biometric IDs.",
+      "shortDescription": "Handcrafted from full-grain vegetable-tanned Italian cowhide with hand-burnished edges, 8 card slots, and RFID defense.",
+      "categoryId": "cat_wallets",
+      "categoryName": "Men's Leather Wallets",
+      "subcategoryId": "Bifold Wallets",
+      "subcategoryName": "Bifold Wallets",
+      "subcategory": "Bifold Wallets",
+      "regularPrice": 5200,
+      "salePrice": 4450,
+      "costPrice": 2200,
+      "stock": 45,
+      "lowStockThreshold": 8,
+      "stockStatus": "in_stock",
+      "leatherType": "Full-Grain Italian Vegetable-Tanned Cowhide",
+      "mainImage": "/assets/images/hero_mens_wallet_1790447762128.jpg",
+      "images": [
+        "/assets/images/hero_mens_wallet_1790447762128.jpg",
+        "/assets/images/card_mens_wallet_1790447793950.jpg"
+      ],
+      "features": [
+        "Cut from 100% Full-Grain Vegetable-Tanned Cowhide",
+        "Certified 13.56 MHz RFID signal blocking layer",
+        "8 precision-beveled card slots + 2 hidden compartments",
+        "Dual-section currency divider fits Pakistani Rupee banknotes cleanly",
+        "Hand-waxed beeswax edge burnishing for lifelong durability"
+      ],
+      "tags": [
+        "bifold",
+        "wallet",
+        "rfid",
+        "leather",
+        "luxury",
+        "cognac"
+      ],
+      "variations": [],
+      "variants": [
+        {
+          "id": "var_sov_color",
+          "name": "Leather Color",
+          "options": [
+            {
+              "label": "Vintage Cognac",
+              "stock": 20
+            },
+            {
+              "label": "Midnight Onyx Black",
+              "stock": 15
+            },
+            {
+              "label": "Mahogany Brown",
+              "stock": 10
+            }
+          ]
+        }
+      ],
+      "specifications": {
+        "Origin": "Handcrafted in Fawnic Atelier, Pakistan",
+        "Weight": "85 grams",
+        "Dimensions": "11.5 cm x 9.2 cm x 1.4 cm",
+        "Leather Grade": "Full-Grain Vegetable-Tanned Cowhide (Grade A)",
+        "Hardware / Lining": "German bonded nylon thread, Japanese cotton twill lining"
+      },
+      "careInstructions": "Apply organic leather balm once every 6 months. Avoid prolonged water exposure. If wet, let dry naturally away from direct heat.",
+      "isFeatured": true,
+      "isBestSeller": true,
+      "isNewArrival": false,
+      "hasVariations": false,
+      "status": "published",
+      "brand": "FAWNIC",
+      "rating": 4.9,
+      "reviewCount": 38,
+      "createdAt": "2026-01-10T10:00:00.000Z",
+      "updatedAt": "2026-10-07T16:52:14.646Z"
+    },
+    {
+      "id": "fwn_acc_01",
+      "name": "The Fawnic Heirloom Gift Ensemble (Wallet + Belt + Card Sleeve)",
+      "slug": "fawnic-heirloom-gift-ensemble",
+      "sku": "FWN-GFT-01",
+      "description": "Curated for milestone celebrations, weddings, and executive appreciation. Includes our flagship Sovereign Bifold Wallet, the Artisan Solid Brass Formal Belt, and a matching Hand-Stitched Card Sleeve, all cut from color-matched full-grain Italian leather hides. Encased in a bespoke gold-stamped velvet-lined rigid presentation box with custom Fawnic authenticity certificate.",
+      "shortDescription": "The pinnacle luxury gift set presented in a gold-embossed matte wooden presentation box.",
+      "categoryId": "cat_accessories",
+      "categoryName": "Leather Accessories",
+      "subcategoryId": "Heirloom Gift Sets",
+      "subcategoryName": "Heirloom Gift Sets",
+      "subcategory": "Heirloom Gift Sets",
+      "regularPrice": 14500,
+      "salePrice": 11800,
+      "costPrice": 5500,
+      "stock": 20,
+      "lowStockThreshold": 4,
+      "stockStatus": "in_stock",
+      "leatherType": "Matched Full-Grain Italian Hide",
+      "mainImage": "https://images.unsplash.com/photo-1544816155-12df9643f363?w=1000&auto=format&fit=crop&q=85",
+      "images": [
+        "https://images.unsplash.com/photo-1544816155-12df9643f363?w=1000&auto=format&fit=crop&q=85",
+        "https://images.unsplash.com/photo-1627123424574-724758594e93?w=1000&auto=format&fit=crop&q=85",
+        "https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=1000&auto=format&fit=crop&q=85"
+      ],
+      "features": [
+        "Includes Sovereign Bifold Wallet + Artisan Belt + Minimalist Card Sleeve",
+        "Color-matched from identical full-grain leather hides",
+        "Presented in gold-foiled rigid wooden gift chest with velvet lining",
+        "Includes handwritten calligraphy gift card on request"
+      ],
+      "tags": [
+        "gift set",
+        "heirloom",
+        "wallet and belt",
+        "luxury gift",
+        "wedding"
+      ],
+      "variations": [],
+      "variants": [
+        {
+          "id": "var_gft_size",
+          "name": "Belt Size in Set",
+          "options": [
+            {
+              "label": "32 Waist Belt",
+              "stock": 6
+            },
+            {
+              "label": "34 Waist Belt",
+              "stock": 8
+            },
+            {
+              "label": "36 Waist Belt",
+              "stock": 6
+            }
+          ]
+        }
+      ],
+      "specifications": {
+        "Guarantee": "Fawnic Lifetime Craftsmanship Guarantee",
+        "Box Dimensions": "32 cm x 24 cm x 8 cm",
+        "Total Set Weight": "680 grams"
+      },
+      "isFeatured": true,
+      "isBestSeller": true,
+      "isNewArrival": false,
+      "hasVariations": false,
+      "status": "published",
+      "brand": "FAWNIC",
       "rating": 5,
-      "reviewCount": 0,
-      "createdAt": "2026-10-07T13:43:59.250Z",
-      "updatedAt": "2026-10-07T13:43:59.584Z"
+      "reviewCount": 18,
+      "createdAt": "2026-01-05T12:00:00.000Z",
+      "updatedAt": "2026-10-07T16:52:15.306Z"
     }
   ],
   "settings": {
@@ -645,7 +1493,7 @@
       "fwn_blt_03"
     ]
   },
-  "_updatedAt": "2026-10-06T21:32:00.621Z",
+  "_updatedAt": "2026-10-07T16:52:15.668Z",
   "categories": [
     {
       "id": "cat_wallets",
@@ -653,6 +1501,7 @@
       "slug": "wallets",
       "icon": "Wallet",
       "banner": "/assets/images/cat_mens_wallet_v2_1790449008902.jpg",
+      "image": "/assets/images/cat_mens_wallet_v2_1790449008902.jpg",
       "description": "Quality leather wallets designed for easy everyday carry.",
       "featured": true,
       "isActive": true,
@@ -671,6 +1520,7 @@
       "slug": "belts",
       "icon": "Shield",
       "banner": "/assets/images/cat_mens_belt_v2_1790449023189.jpg",
+      "image": "/assets/images/cat_mens_belt_v2_1790449023189.jpg",
       "description": "Strong leather belts with solid hardware that lasts.",
       "featured": true,
       "isActive": true,
@@ -688,6 +1538,7 @@
       "slug": "watches",
       "icon": "Clock",
       "banner": "/assets/images/cat_luxury_watch_v2_1790449038082.jpg",
+      "image": "/assets/images/cat_luxury_watch_v2_1790449038082.jpg",
       "description": "Classic timepieces with leather straps and precision movements.",
       "featured": true,
       "isActive": true,
@@ -705,6 +1556,7 @@
       "slug": "card-holders",
       "icon": "CreditCard",
       "banner": "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=1000&auto=format&fit=crop&q=85",
+      "image": "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=1000&auto=format&fit=crop&q=85",
       "description": "Ultra-thin card sleeves and accordion cases for seamless everyday carry.",
       "featured": false,
       "isActive": true,
@@ -721,6 +1573,7 @@
       "slug": "accessories",
       "icon": "Package",
       "banner": "https://images.unsplash.com/photo-1563903530908-afdd155d057a?w=1000&auto=format&fit=crop&q=85",
+      "image": "https://images.unsplash.com/photo-1563903530908-afdd155d057a?w=1000&auto=format&fit=crop&q=85",
       "description": "Key cloches, valet catchall trays, travel watch rolls, and heirloom gift box ensembles.",
       "featured": false,
       "isActive": true,

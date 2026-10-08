@@ -419,25 +419,6 @@ export async function initializeNeonSchema(): Promise<boolean> {
             updated_at = NOW();
         `);
 
-        // Check if products table is empty. If so, seed from initial catalog products!
-        const prodCountRes = await client.query('SELECT count(*) as count FROM products');
-        const prodCount = parseInt(prodCountRes.rows[0]?.count || '0', 10);
-        if (prodCount === 0) {
-          console.info('[Neon PostgreSQL] Products table is empty. Seeding authentic catalog products...');
-          try {
-            const { getInitialDatabase } = await import('../db.js');
-            const initialData = getInitialDatabase();
-            if (initialData && Array.isArray(initialData.products) && initialData.products.length > 0) {
-              for (const p of initialData.products) {
-                await insertProductDirect(client, p);
-              }
-              console.info(`[Neon PostgreSQL] Successfully seeded ${initialData.products.length} catalog products.`);
-            }
-          } catch (seedErr: any) {
-            console.warn('[Neon PostgreSQL] Note during product seeding:', seedErr.message);
-          }
-        }
-
         // Check if coupons table is empty. If so, seed initial coupons.
         const cpnCountRes = await client.query('SELECT count(*) as count FROM coupons');
         const cpnCount = parseInt(cpnCountRes.rows[0]?.count || '0', 10);
@@ -812,6 +793,24 @@ export async function deleteProductInNeon(id: string): Promise<boolean> {
   }
 }
 
+export async function deleteProductsInNeon(ids: string[]): Promise<boolean> {
+  if (!Array.isArray(ids) || ids.length === 0) return true;
+  const dbUrl = getNeonDatabaseUrl();
+  if (!dbUrl) return false;
+
+  try {
+    await initializeNeonSchema();
+    const pool = getNeonPool();
+    if (!pool) return false;
+
+    await pool.query('DELETE FROM products WHERE id = ANY($1::varchar[])', [ids]);
+    return true;
+  } catch (err: any) {
+    console.error('[Neon PostgreSQL] Error bulk deleting products in Neon:', err.message);
+    throw err;
+  }
+}
+
 export async function getProductsFromNeon(): Promise<Product[]> {
   const dbUrl = getNeonDatabaseUrl();
   if (!dbUrl) return [];
@@ -1112,9 +1111,9 @@ export async function insertOrderInNeon(order: Order): Promise<Order> {
     order.paymentProof || '',
     order.bankTxRef || '',
     (order as any).internalNotes || '',
-    (order as any).dispatchDate || '',
-    (order as any).deliveryDate || '',
-    (order as any).expectedDelivery || '',
+    (order as any).dispatchDate ? new Date((order as any).dispatchDate) : null,
+    (order as any).deliveryDate ? new Date((order as any).deliveryDate) : null,
+    (order as any).expectedDelivery ? String((order as any).expectedDelivery) : '',
     Number(order.cashbackAmount) || 0,
     order.createdAt ? new Date(order.createdAt) : new Date(),
   ];
@@ -1796,13 +1795,13 @@ export async function getInvoicesFromNeon(): Promise<InvoiceRecord[]> {
       customerAddress: row.customer_address || '',
       items: typeof row.items === 'string' ? JSON.parse(row.items) : (row.items || []),
       subtotal: Number(row.subtotal) || 0,
-      shippingFee: Number(row.shipping_fee) || 0,
+      shippingFee: Number(row.shipping_cost ?? row.shipping_fee) || 0,
       discount: Number(row.discount) || 0,
       tax: Number(row.tax) || 0,
       total: Number(row.total) || 0,
       paymentMethod: row.payment_method || 'Cash on Delivery (COD)',
       paymentStatus: row.payment_status || 'pending',
-      orderDate: row.order_date ? new Date(row.order_date).toISOString() : new Date().toISOString(),
+      orderDate: row.due_date || row.order_date ? new Date(row.due_date || row.order_date).toISOString() : new Date().toISOString(),
       createdAt: row.created_at ? new Date(row.created_at).toISOString() : new Date().toISOString(),
       status: (row.status as any) || 'issued',
       notes: row.notes || undefined,
@@ -1824,12 +1823,12 @@ export async function insertInvoiceInNeon(inv: InvoiceRecord): Promise<InvoiceRe
   const query = `
     INSERT INTO invoices (
       id, invoice_number, order_id, order_number, customer_name, customer_email,
-      customer_phone, customer_address, items, subtotal, shipping_fee, discount,
-      total, payment_method, payment_status, status, order_date, created_at, notes, type
+      customer_phone, customer_address, items, subtotal, shipping_cost, discount,
+      tax, total, payment_method, payment_status, status, due_date, created_at, notes, type
     ) VALUES (
       $1, $2, $3, $4, $5, $6,
       $7, $8, $9, $10, $11, $12,
-      $13, $14, $15, $16, $17, $18, $19, $20
+      $13, $14, $15, $16, $17, $18, $19, $20, $21
     )
     ON CONFLICT (id) DO UPDATE SET
       invoice_number = EXCLUDED.invoice_number,
@@ -1841,13 +1840,14 @@ export async function insertInvoiceInNeon(inv: InvoiceRecord): Promise<InvoiceRe
       customer_address = EXCLUDED.customer_address,
       items = EXCLUDED.items,
       subtotal = EXCLUDED.subtotal,
-      shipping_fee = EXCLUDED.shipping_fee,
+      shipping_cost = EXCLUDED.shipping_cost,
       discount = EXCLUDED.discount,
+      tax = EXCLUDED.tax,
       total = EXCLUDED.total,
       payment_method = EXCLUDED.payment_method,
       payment_status = EXCLUDED.payment_status,
       status = EXCLUDED.status,
-      order_date = EXCLUDED.order_date,
+      due_date = EXCLUDED.due_date,
       notes = EXCLUDED.notes,
       type = EXCLUDED.type
     RETURNING *;
@@ -1866,6 +1866,7 @@ export async function insertInvoiceInNeon(inv: InvoiceRecord): Promise<InvoiceRe
     Number(inv.subtotal) || 0,
     Number(inv.shippingFee) || 0,
     Number(inv.discount) || 0,
+    Number(inv.tax) || 0,
     Number(inv.total) || 0,
     inv.paymentMethod || '',
     inv.paymentStatus || 'pending',
@@ -1954,8 +1955,56 @@ export async function syncSchemaToNeon(db: DatabaseSchema): Promise<boolean> {
     let productsToSave = db.products;
     try {
       const liveNeonProducts = await getProductsFromNeon();
-      if (liveNeonProducts && liveNeonProducts.length > 0) {
+      if (Array.isArray(liveNeonProducts)) {
         productsToSave = liveNeonProducts;
+      }
+    } catch {}
+
+    let categoriesToSave = db.categories;
+    try {
+      const liveNeonCats = await getCategoriesFromNeon();
+      if (Array.isArray(liveNeonCats)) {
+        categoriesToSave = liveNeonCats;
+      }
+    } catch {}
+
+    let ordersToSave = db.orders;
+    try {
+      const liveNeonOrders = await getOrdersFromNeon();
+      if (Array.isArray(liveNeonOrders)) {
+        ordersToSave = liveNeonOrders;
+      }
+    } catch {}
+
+    let notifsToSave = db.notifications;
+    try {
+      const liveNeonNotifs = await getNotificationsFromNeon();
+      if (Array.isArray(liveNeonNotifs)) {
+        notifsToSave = liveNeonNotifs;
+      }
+    } catch {}
+
+    let couponsToSave = db.coupons;
+    try {
+      const liveNeonCoupons = await getCouponsFromNeon();
+      if (Array.isArray(liveNeonCoupons)) {
+        couponsToSave = liveNeonCoupons;
+      }
+    } catch {}
+
+    let queriesToSave = db.queries;
+    try {
+      const liveNeonQueries = await getCustomerQueriesFromNeon();
+      if (Array.isArray(liveNeonQueries)) {
+        queriesToSave = liveNeonQueries;
+      }
+    } catch {}
+
+    let invoicesToSave = db.invoices;
+    try {
+      const liveNeonInvoices = await getInvoicesFromNeon();
+      if (Array.isArray(liveNeonInvoices)) {
+        invoicesToSave = liveNeonInvoices;
       }
     } catch {}
 
@@ -1966,19 +2015,19 @@ export async function syncSchemaToNeon(db: DatabaseSchema): Promise<boolean> {
       [
         JSON.stringify({
           users: db.users,
-          categories: db.categories,
+          categories: categoriesToSave,
           products: productsToSave,
-          orders: db.orders,
-          queries: db.queries,
-          notifications: db.notifications,
+          orders: ordersToSave,
+          queries: queriesToSave,
+          notifications: notifsToSave,
           notificationReads: db.notificationReads,
-          coupons: db.coupons,
+          coupons: couponsToSave,
           reviews: db.reviews,
           faqs: db.faqs,
           policies: db.policies,
           settings: db.settings,
           homepageCms: db.homepageCms,
-          invoices: db.invoices,
+          invoices: invoicesToSave,
           invoiceSettings: db.invoiceSettings,
           teamMembers: db.teamMembers,
           inventoryTransactions: db.inventoryTransactions,

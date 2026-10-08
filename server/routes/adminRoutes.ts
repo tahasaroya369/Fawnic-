@@ -9,6 +9,7 @@ import {
   insertProductInNeon,
   updateProductInNeon,
   deleteProductInNeon,
+  deleteProductsInNeon,
   getProductsFromNeon,
   getCategoriesFromNeon,
   insertCategoryInNeon,
@@ -29,6 +30,10 @@ import {
   deleteCouponInNeon,
   updateUserInNeon,
   deleteUserInNeon,
+  insertUserInNeon,
+  getInvoicesFromNeon,
+  insertInvoiceInNeon,
+  deleteInvoiceInNeon,
   saveSettingInNeon,
 } from '../storage/neon.js';
 import { requireAuth, requireAdminOrStaff, type AuthenticatedRequest } from '../middleware.js';
@@ -41,6 +46,7 @@ import {
   broadcastProductEvent,
   broadcastCategoryEvent,
   broadcastSettingsEvent,
+  broadcastCouponEvent,
 } from '../websocket.js';
 import type {
   Product,
@@ -165,7 +171,7 @@ router.get('/products', async (req: AuthenticatedRequest, res) => {
     try {
       const neonProducts = await getProductsFromNeon();
       const db = getDb();
-      if (Array.isArray(neonProducts) && neonProducts.length > 0) {
+      if (Array.isArray(neonProducts)) {
         db.products = neonProducts;
         res.json(neonProducts);
         return;
@@ -367,20 +373,14 @@ router.put('/products/:id', async (req: AuthenticatedRequest, res) => {
 });
 
 router.delete('/products/:id', async (req: AuthenticatedRequest, res) => {
+  const targetId = req.params.id;
   const db = getDb();
-  const idx = db.products.findIndex((p) => p.id === req.params.id);
-  if (idx === -1) {
-    res.status(404).json({ error: 'Product not found' });
-    return;
-  }
 
-  const removed = db.products.splice(idx, 1)[0];
-
-  // Delete from Neon PostgreSQL database
+  // 1. Delete from Neon PostgreSQL database permanently first
   if (isNeonConfigured()) {
     try {
-      await deleteProductInNeon(req.params.id);
-      console.info(`[Neon PostgreSQL] Product permanently deleted: ${req.params.id}`);
+      await deleteProductInNeon(targetId);
+      console.info(`[Neon PostgreSQL] Product permanently deleted: ${targetId}`);
     } catch (neonErr: any) {
       console.error('[Neon PostgreSQL] Error deleting product in Neon:', neonErr.message);
       res.status(500).json({ error: 'Database failed to delete product: ' + neonErr.message });
@@ -388,27 +388,93 @@ router.delete('/products/:id', async (req: AuthenticatedRequest, res) => {
     }
   }
 
-  // Clean up media from ImageKit asynchronously without blocking deletion
-  if (removed.mainImage && !removed.mainImage.startsWith('/assets/')) {
-    deleteMedia(removed.mainImage).catch(() => {});
-  }
-  if (Array.isArray(removed.images)) {
-    for (const img of removed.images) {
-      if (img && img !== removed.mainImage && !img.startsWith('/assets/')) {
-        deleteMedia(img).catch(() => {});
+  // 2. Remove from local memory / store if present
+  const idx = db.products.findIndex((p) => p.id === targetId);
+  const removed = idx !== -1 ? db.products.splice(idx, 1)[0] : null;
+
+  // 3. Clean up media from ImageKit only if no other product references it
+  if (removed) {
+    const isImageReferenced = (imgUrl?: string) => {
+      if (!imgUrl) return false;
+      return db.products.some(
+        (p) => p.id !== removed.id && (p.mainImage === imgUrl || p.images?.includes(imgUrl))
+      );
+    };
+
+    if (removed.mainImage && !removed.mainImage.startsWith('/assets/') && !isImageReferenced(removed.mainImage)) {
+      deleteMedia(removed.mainImage).catch(() => {});
+    }
+    if (Array.isArray(removed.images)) {
+      for (const img of removed.images) {
+        if (img && img !== removed.mainImage && !img.startsWith('/assets/') && !isImageReferenced(img)) {
+          deleteMedia(img).catch(() => {});
+        }
       }
     }
   }
 
-  logAdminAction(req.user!.email, 'PRODUCT_DELETED', 'Product', req.params.id, `Deleted "${removed.name}"`);
+  logAdminAction(req.user!.email, 'PRODUCT_DELETED', 'Product', targetId, `Deleted product ${targetId}`);
   await saveDatabaseAsync();
   broadcastProductEvent({
     action: 'deleted',
-    productId: req.params.id,
-    product: { id: req.params.id, slug: removed.slug, name: removed.name },
+    productId: targetId,
+    productIds: [targetId],
+    product: removed ? { id: targetId, slug: removed.slug, name: removed.name } : { id: targetId },
   });
 
-  res.json({ message: 'Product removed successfully' });
+  res.json({ message: 'Product removed successfully', id: targetId });
+});
+
+// Bulk and single product deletion via DELETE /api/admin/products
+router.delete('/products', async (req: AuthenticatedRequest, res) => {
+  const rawIds = req.body?.ids || req.body?.productIds || req.body?.items || req.body?.id || req.query.ids || req.query.id;
+  const ids: string[] = Array.isArray(rawIds)
+    ? rawIds.filter((x: any) => typeof x === 'string' && x.trim())
+    : typeof rawIds === 'string'
+    ? (rawIds.includes(',') ? rawIds.split(',').map((s) => s.trim()).filter(Boolean) : [rawIds.trim()])
+    : [];
+
+  if (ids.length === 0) {
+    res.status(400).json({ error: 'Array of product IDs is required' });
+    return;
+  }
+
+  const db = getDb();
+  let modifiedCount = 0;
+
+  if (isNeonConfigured()) {
+    try {
+      await deleteProductsInNeon(ids);
+      console.info(`[Neon PostgreSQL] Bulk deleted ${ids.length} products`);
+    } catch (neonErr: any) {
+      console.error('[Neon PostgreSQL] Error bulk deleting products:', neonErr.message);
+      res.status(500).json({ error: 'Database failed to delete products: ' + neonErr.message });
+      return;
+    }
+  }
+
+  for (const id of ids) {
+    const idx = db.products.findIndex((p) => p.id === id);
+    if (idx !== -1) {
+      const removed = db.products.splice(idx, 1)[0];
+      if (removed && removed.mainImage && !removed.mainImage.startsWith('/assets/')) {
+        const isStillReferenced = db.products.some(
+          (p) => p.mainImage === removed.mainImage || p.images?.includes(removed.mainImage)
+        );
+        if (!isStillReferenced) {
+          deleteMedia(removed.mainImage).catch(() => {});
+        }
+      }
+      modifiedCount++;
+    }
+  }
+
+  logAdminAction(req.user!.email, 'BULK_PRODUCT_DELETE', 'Product', undefined, `Deleted ${ids.length} products`);
+  await saveDatabaseAsync();
+  broadcastProductEvent({ action: 'deleted', productIds: ids, productId: ids[0] });
+  broadcastProductEvent({ action: 'updated' });
+
+  res.json({ message: `Successfully deleted ${ids.length} products`, deletedIds: ids });
 });
 
 router.post('/products/:id/duplicate', async (req: AuthenticatedRequest, res) => {
@@ -451,9 +517,16 @@ router.post('/products/:id/duplicate', async (req: AuthenticatedRequest, res) =>
 });
 
 router.post('/products/bulk-action', async (req: AuthenticatedRequest, res) => {
-  const { action, ids } = req.body;
-  if (!Array.isArray(ids) || ids.length === 0) {
-    res.status(400).json({ error: 'Array of product IDs required' });
+  const { action } = req.body;
+  const rawIds = req.body.ids || req.body.productIds || req.body.items || req.body.id || req.query.ids || req.query.id;
+  const ids: string[] = Array.isArray(rawIds)
+    ? rawIds.filter((x: any) => typeof x === 'string' && x.trim())
+    : typeof rawIds === 'string'
+    ? (rawIds.includes(',') ? rawIds.split(',').map((s) => s.trim()).filter(Boolean) : [rawIds.trim()])
+    : [];
+
+  if (ids.length === 0) {
+    res.status(400).json({ error: 'Array of product IDs is required' });
     return;
   }
 
@@ -461,23 +534,34 @@ router.post('/products/bulk-action', async (req: AuthenticatedRequest, res) => {
   let modifiedCount = 0;
 
   if (action === 'delete') {
-    for (const id of ids) {
-      if (isNeonConfigured()) {
-        try {
-          await deleteProductInNeon(id);
-        } catch (err: any) {
-          console.warn('[Neon PostgreSQL] Error bulk deleting product:', id, err.message);
-        }
+    if (isNeonConfigured()) {
+      try {
+        await deleteProductsInNeon(ids);
+      } catch (err: any) {
+        console.warn('[Neon PostgreSQL] Error bulk deleting products:', err.message);
       }
+    }
+    for (const id of ids) {
       const idx = db.products.findIndex((p) => p.id === id);
       if (idx !== -1) {
-        db.products.splice(idx, 1);
+        const removed = db.products.splice(idx, 1)[0];
+        if (removed && removed.mainImage && !removed.mainImage.startsWith('/assets/')) {
+          const isStillReferenced = db.products.some(
+            (p) => p.mainImage === removed.mainImage || p.images?.includes(removed.mainImage)
+          );
+          if (!isStillReferenced) {
+            deleteMedia(removed.mainImage).catch(() => {});
+          }
+        }
         modifiedCount++;
       }
     }
-    logAdminAction(req.user!.email, 'BULK_PRODUCT_DELETE', 'Product', undefined, `Deleted ${modifiedCount} products`);
-  } else if (action === 'publish' || action === 'draft' || action === 'hidden') {
-    const targetStatus = action === 'publish' ? 'published' : action === 'hidden' ? ('hidden' as any) : 'draft';
+    logAdminAction(req.user!.email, 'BULK_PRODUCT_DELETE', 'Product', undefined, `Deleted ${ids.length} products`);
+    await saveDatabaseAsync();
+    broadcastProductEvent({ action: 'deleted', productIds: ids, productId: ids[0] });
+    broadcastProductEvent({ action: 'updated' });
+  } else if (action === 'publish' || action === 'draft' || action === 'hidden' || action === 'hide') {
+    const targetStatus = action === 'publish' ? 'published' : (action === 'hidden' || action === 'hide') ? ('hidden' as any) : 'draft';
     for (const id of ids) {
       if (isNeonConfigured()) {
         try {
@@ -492,14 +576,14 @@ router.post('/products/bulk-action', async (req: AuthenticatedRequest, res) => {
         modifiedCount++;
       }
     }
-    logAdminAction(req.user!.email, 'BULK_PRODUCT_STATUS', 'Product', undefined, `Changed status of ${modifiedCount} products to ${action}`);
+    logAdminAction(req.user!.email, 'BULK_PRODUCT_STATUS', 'Product', undefined, `Changed status of ${modifiedCount} products to ${targetStatus}`);
+    await saveDatabaseAsync();
+    broadcastProductEvent({ action: 'updated' });
   } else {
     res.status(400).json({ error: 'Invalid action' });
     return;
   }
 
-  await saveDatabaseAsync();
-  broadcastProductEvent({ action: 'updated' });
   res.json({ success: true, count: modifiedCount });
 });
 
@@ -509,7 +593,7 @@ router.get('/categories', async (req: AuthenticatedRequest, res) => {
   if (isNeonConfigured()) {
     try {
       const neonCats = await getCategoriesFromNeon();
-      if (Array.isArray(neonCats) && neonCats.length > 0) {
+      if (Array.isArray(neonCats)) {
         const db = getDb();
         db.categories = neonCats;
       }
@@ -696,7 +780,7 @@ router.get('/orders', async (req: AuthenticatedRequest, res) => {
   if (isNeonConfigured()) {
     try {
       const neonOrders = await getOrdersFromNeon();
-      if (Array.isArray(neonOrders) && neonOrders.length > 0) {
+      if (Array.isArray(neonOrders)) {
         const db = getDb();
         db.orders = neonOrders;
       }
@@ -1251,7 +1335,7 @@ router.get('/coupons', async (req: AuthenticatedRequest, res) => {
   if (isNeonConfigured()) {
     try {
       const neonCoupons = await getCouponsFromNeon();
-      if (Array.isArray(neonCoupons) && neonCoupons.length > 0) {
+      if (Array.isArray(neonCoupons)) {
         const db = getDb();
         db.coupons = neonCoupons;
       }
@@ -1260,7 +1344,7 @@ router.get('/coupons', async (req: AuthenticatedRequest, res) => {
     }
   }
   const db = getDb();
-  res.json(db.coupons);
+  res.json(db.coupons || []);
 });
 
 router.post('/coupons', async (req: AuthenticatedRequest, res) => {
@@ -1297,25 +1381,23 @@ router.post('/coupons', async (req: AuthenticatedRequest, res) => {
     }
   }
 
+  if (!db.coupons) db.coupons = [];
   db.coupons.unshift(savedCoupon);
   logAdminAction(req.user!.email, 'COUPON_CREATED', 'Coupon', savedCoupon.code);
   await saveDatabaseAsync();
+  broadcastCouponEvent({ action: 'created', coupon: savedCoupon });
 
   res.status(201).json(savedCoupon);
 });
 
 router.delete('/coupons/:id', async (req: AuthenticatedRequest, res) => {
   const db = getDb();
-  const idx = db.coupons.findIndex((c) => c.id === req.params.id);
-  if (idx === -1) {
-    res.status(404).json({ error: 'Coupon not found' });
-    return;
-  }
+  const target = req.params.id;
 
   if (isNeonConfigured()) {
     try {
-      await deleteCouponInNeon(req.params.id);
-      console.info(`[Neon PostgreSQL] Coupon deleted: ${req.params.id}`);
+      await deleteCouponInNeon(target);
+      console.info(`[Neon PostgreSQL] Coupon deleted: ${target}`);
     } catch (neonErr: any) {
       console.error('[Neon PostgreSQL] Error deleting coupon in Neon:', neonErr.message);
       res.status(500).json({ error: 'Database failed to persist coupon deletion: ' + neonErr.message });
@@ -1323,9 +1405,14 @@ router.delete('/coupons/:id', async (req: AuthenticatedRequest, res) => {
     }
   }
 
-  db.coupons.splice(idx, 1);
+  if (!db.coupons) db.coupons = [];
+  const idx = db.coupons.findIndex((c) => c.id === target || c.code.toUpperCase() === target.toUpperCase());
+  if (idx !== -1) {
+    db.coupons.splice(idx, 1);
+  }
   await saveDatabaseAsync();
-  res.json({ message: 'Coupon deleted' });
+  broadcastCouponEvent({ action: 'deleted', couponId: target });
+  res.json({ message: 'Coupon deleted successfully' });
 });
 
 // 7. Homepage CMS Management
@@ -1514,7 +1601,7 @@ router.get('/inventory/transactions', async (req: AuthenticatedRequest, res) => 
   if (isNeonConfigured()) {
     try {
       const neonTxns = await getInventoryTransactionsFromNeon();
-      if (Array.isArray(neonTxns) && neonTxns.length > 0) {
+      if (Array.isArray(neonTxns)) {
         const db = getDb();
         db.inventoryTransactions = neonTxns;
       }
@@ -1606,13 +1693,33 @@ router.post('/inventory/adjust', async (req: AuthenticatedRequest, res) => {
 });
 
 // 13. Invoices Management
-router.get('/invoices', (req: AuthenticatedRequest, res) => {
+router.get('/invoices', async (req: AuthenticatedRequest, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+  if (isNeonConfigured()) {
+    try {
+      const neonInvoices = await getInvoicesFromNeon();
+      if (Array.isArray(neonInvoices)) {
+        const db = getDb();
+        db.invoices = neonInvoices;
+      }
+    } catch (err: any) {
+      console.warn('[Neon PostgreSQL] Error getting invoices for admin:', err.message);
+    }
+  }
   const db = getDb();
   res.json(db.invoices || []);
 });
 
-router.get('/invoices/:id', (req: AuthenticatedRequest, res) => {
+router.get('/invoices/:id', async (req: AuthenticatedRequest, res) => {
   const db = getDb();
+  if (isNeonConfigured()) {
+    try {
+      const neonInvoices = await getInvoicesFromNeon();
+      if (Array.isArray(neonInvoices)) {
+        db.invoices = neonInvoices;
+      }
+    } catch {}
+  }
   const inv = (db.invoices || []).find((i) => i.id === req.params.id || i.invoiceNumber === req.params.id);
   if (!inv) {
     res.status(404).json({ error: 'Invoice not found' });
@@ -1621,21 +1728,34 @@ router.get('/invoices/:id', (req: AuthenticatedRequest, res) => {
   res.json(inv);
 });
 
-router.delete('/invoices/:id', (req: AuthenticatedRequest, res) => {
+router.delete('/invoices/:id', async (req: AuthenticatedRequest, res) => {
+  const targetId = req.params.id;
   const db = getDb();
-  if (!db.invoices) db.invoices = [];
-  const idx = db.invoices.findIndex((i) => i.id === req.params.id || i.invoiceNumber === req.params.id);
-  if (idx === -1) {
-    res.status(404).json({ error: 'Invoice not found' });
-    return;
+
+  if (isNeonConfigured()) {
+    try {
+      await deleteInvoiceInNeon(targetId);
+      console.info(`[Neon PostgreSQL] Invoice permanently deleted: ${targetId}`);
+    } catch (neonErr: any) {
+      console.error('[Neon PostgreSQL] Error deleting invoice in Neon:', neonErr.message);
+      res.status(500).json({ error: 'Database failed to delete invoice: ' + neonErr.message });
+      return;
+    }
   }
-  const deleted = db.invoices.splice(idx, 1)[0];
-  logAdminAction(req.user!.email, 'INVOICE_DELETED', 'Invoice', deleted.invoiceNumber, `Deleted invoice ${deleted.invoiceNumber}`);
-  saveDatabase();
-  res.json({ message: 'Invoice deleted successfully', invoiceNumber: deleted.invoiceNumber });
+
+  if (!db.invoices) db.invoices = [];
+  const idx = db.invoices.findIndex((i) => i.id === targetId || i.invoiceNumber === targetId);
+  let invoiceNumber = targetId;
+  if (idx !== -1) {
+    const deleted = db.invoices.splice(idx, 1)[0];
+    invoiceNumber = deleted.invoiceNumber;
+  }
+  logAdminAction(req.user!.email, 'INVOICE_DELETED', 'Invoice', invoiceNumber, `Deleted invoice ${invoiceNumber}`);
+  await saveDatabaseAsync();
+  res.json({ message: 'Invoice deleted successfully', invoiceNumber });
 });
 
-router.post('/invoices/generate/:orderId', (req: AuthenticatedRequest, res) => {
+router.post('/invoices/generate/:orderId', async (req: AuthenticatedRequest, res) => {
   const db = getDb();
   const order = db.orders.find((o) => o.id === req.params.orderId || o.orderNumber === req.params.orderId);
 
@@ -1687,15 +1807,24 @@ router.post('/invoices/generate/:orderId', (req: AuthenticatedRequest, res) => {
     status: order.paymentStatus === 'paid' ? 'paid' : 'issued',
   };
 
+  if (isNeonConfigured()) {
+    try {
+      await insertInvoiceInNeon(newInvoice);
+      console.info(`[Neon PostgreSQL] Generated invoice inserted: ${newInvoice.invoiceNumber}`);
+    } catch (neonErr: any) {
+      console.error('[Neon PostgreSQL] Error saving generated invoice in Neon:', neonErr.message);
+    }
+  }
+
   db.invoices.unshift(newInvoice);
   logAdminAction(req.user!.email, 'INVOICE_GENERATED', 'Invoice', newInvoice.invoiceNumber, `Generated for order ${order.orderNumber}`);
-  saveDatabase();
+  await saveDatabaseAsync();
 
   res.status(201).json(newInvoice);
 });
 
 // Manual Invoice Creation
-router.post('/invoices/manual', (req: AuthenticatedRequest, res) => {
+router.post('/invoices/manual', async (req: AuthenticatedRequest, res) => {
   const db = getDb();
   const {
     customerName,
@@ -1798,15 +1927,24 @@ router.post('/invoices/manual', (req: AuthenticatedRequest, res) => {
     notes: notes?.trim() || '',
   };
 
+  if (isNeonConfigured()) {
+    try {
+      await insertInvoiceInNeon(manualInvoice);
+      console.info(`[Neon PostgreSQL] Manual invoice inserted: ${manualInvoice.invoiceNumber}`);
+    } catch (neonErr: any) {
+      console.error('[Neon PostgreSQL] Error saving manual invoice in Neon:', neonErr.message);
+    }
+  }
+
   db.invoices.unshift(manualInvoice);
   logAdminAction(req.user!.email, 'MANUAL_INVOICE_CREATED', 'Invoice', invoiceNumber, `Created manual invoice ${invoiceNumber} for ${customerName}`);
-  saveDatabase();
+  await saveDatabaseAsync();
 
   res.status(201).json(manualInvoice);
 });
 
 // Update Existing Invoice (Edit Invoice)
-router.put('/invoices/:id', (req: AuthenticatedRequest, res) => {
+router.put('/invoices/:id', async (req: AuthenticatedRequest, res) => {
   const db = getDb();
   if (!db.invoices) db.invoices = [];
   const idx = db.invoices.findIndex((i) => i.id === req.params.id || i.invoiceNumber === req.params.id);
@@ -1897,8 +2035,17 @@ router.put('/invoices/:id', (req: AuthenticatedRequest, res) => {
   existing.taxRate = Number(taxRate) || 0;
   existing.total = total;
 
+  if (isNeonConfigured()) {
+    try {
+      await insertInvoiceInNeon(existing);
+      console.info(`[Neon PostgreSQL] Updated invoice persisted: ${existing.invoiceNumber}`);
+    } catch (neonErr: any) {
+      console.error('[Neon PostgreSQL] Error updating invoice in Neon:', neonErr.message);
+    }
+  }
+
   logAdminAction(req.user!.email, 'INVOICE_UPDATED', 'Invoice', existing.invoiceNumber, `Updated invoice ${existing.invoiceNumber} for ${customerName}`);
-  saveDatabase();
+  await saveDatabaseAsync();
 
   res.json(existing);
 });
@@ -2313,7 +2460,7 @@ router.get('/notifications', async (req: AuthenticatedRequest, res) => {
   if (isNeonConfigured()) {
     try {
       const neonNotifs = await getNotificationsFromNeon();
-      if (Array.isArray(neonNotifs) && neonNotifs.length > 0) {
+      if (Array.isArray(neonNotifs)) {
         const db = getDb();
         db.notifications = neonNotifs;
       }
@@ -2588,6 +2735,8 @@ router.put('/notifications/:id/publish', async (req: AuthenticatedRequest, res) 
       await updateNotificationInNeon(notif.id, notif);
     } catch (neonErr: any) {
       console.error('[Neon PostgreSQL] Error publishing notification in Neon:', neonErr.message);
+      res.status(500).json({ error: 'Database failed to persist notification: ' + neonErr.message });
+      return;
     }
   }
 
@@ -2620,6 +2769,8 @@ router.put('/notifications/:id/unpublish', async (req: AuthenticatedRequest, res
       await updateNotificationInNeon(notif.id, notif);
     } catch (neonErr: any) {
       console.error('[Neon PostgreSQL] Error unpublishing notification in Neon:', neonErr.message);
+      res.status(500).json({ error: 'Database failed to persist notification: ' + neonErr.message });
+      return;
     }
   }
 

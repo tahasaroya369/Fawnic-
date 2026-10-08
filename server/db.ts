@@ -9,6 +9,11 @@ import {
   getSyncEventsFromNeon,
   getProductsFromNeon,
   getCategoriesFromNeon,
+  getOrdersFromNeon,
+  getNotificationsFromNeon,
+  getCouponsFromNeon,
+  getCustomerQueriesFromNeon,
+  getInvoicesFromNeon,
 } from './storage/neon.js';
 import type {
   User,
@@ -2088,27 +2093,38 @@ export async function syncDatabaseFromRemote(): Promise<void> {
   try {
     let neonProducts: Product[] | null = null;
     let neonCategories: Category[] | null = null;
+    let neonOrders: Order[] | null = null;
+    let neonNotifications: NotificationRecord[] | null = null;
+    let neonCoupons: Coupon[] | null = null;
+    let neonQueries: CustomerQuery[] | null = null;
+    let neonInvoices: InvoiceRecord[] | null = null;
 
-    // If Neon is configured, sync products and categories directly from relational tables
+    // If Neon is configured, sync directly from authoritative relational tables
     if (isNeonConfigured()) {
       try {
         neonProducts = await getProductsFromNeon();
         neonCategories = await getCategoriesFromNeon();
-        if (neonProducts && neonProducts.length > 0) {
-          if (!db) db = loadDatabase();
-          db.products = neonProducts;
-        }
-        if (neonCategories && neonCategories.length > 0) {
-          if (!db) db = loadDatabase();
-          db.categories = neonCategories;
-        }
+        neonOrders = await getOrdersFromNeon();
+        neonNotifications = await getNotificationsFromNeon();
+        neonCoupons = await getCouponsFromNeon();
+        neonQueries = await getCustomerQueriesFromNeon();
+        neonInvoices = await getInvoicesFromNeon();
+
+        if (!db) db = loadDatabase();
+        if (Array.isArray(neonProducts)) db.products = neonProducts;
+        if (Array.isArray(neonCategories)) db.categories = neonCategories;
+        if (Array.isArray(neonOrders)) db.orders = neonOrders;
+        if (Array.isArray(neonNotifications)) db.notifications = neonNotifications;
+        if (Array.isArray(neonCoupons)) db.coupons = neonCoupons;
+        if (Array.isArray(neonQueries)) db.queries = neonQueries;
+        if (Array.isArray(neonInvoices)) db.invoices = neonInvoices;
       } catch (err: any) {
         console.warn('[Neon Sync] Direct table fetch note:', err.message);
       }
     }
 
     const remote = await loadFromRemoteStorage();
-    if (remote && remote.users && remote.products) {
+    if (remote && remote.users) {
       // Preserve admin credentials
       const admin = remote.users.find(
         (u: any) => u.email && u.email.toLowerCase() === 'alichishtia111@gmail.com'
@@ -2120,14 +2136,16 @@ export async function syncDatabaseFromRemote(): Promise<void> {
       }
 
       // If Neon is configured, relational tables are the absolute source of truth
-      if (isNeonConfigured() && neonProducts && neonProducts.length > 0) {
-        remote.products = neonProducts;
+      if (isNeonConfigured()) {
+        if (Array.isArray(neonProducts)) remote.products = neonProducts;
+        if (Array.isArray(neonCategories)) remote.categories = neonCategories;
+        if (Array.isArray(neonOrders)) remote.orders = neonOrders;
+        if (Array.isArray(neonNotifications)) remote.notifications = neonNotifications;
+        if (Array.isArray(neonCoupons)) remote.coupons = neonCoupons;
+        if (Array.isArray(neonQueries)) remote.queries = neonQueries;
+        if (Array.isArray(neonInvoices)) remote.invoices = neonInvoices;
       } else if ((!remote.products || remote.products.length === 0) && (db?.products && db.products.length > 0)) {
         remote.products = db.products;
-      }
-
-      if (isNeonConfigured() && neonCategories && neonCategories.length > 0) {
-        remote.categories = neonCategories;
       }
 
       const currentVer = db?._version || 0;
@@ -2136,11 +2154,14 @@ export async function syncDatabaseFromRemote(): Promise<void> {
       if (!db || remoteVer >= currentVer) {
         db = remote;
         // Never allow a stale bundle to overwrite Neon relational tables
-        if (isNeonConfigured() && neonProducts && neonProducts.length > 0) {
-          db.products = neonProducts;
-        }
-        if (isNeonConfigured() && neonCategories && neonCategories.length > 0) {
-          db.categories = neonCategories;
+        if (isNeonConfigured()) {
+          if (Array.isArray(neonProducts)) db.products = neonProducts;
+          if (Array.isArray(neonCategories)) db.categories = neonCategories;
+          if (Array.isArray(neonOrders)) db.orders = neonOrders;
+          if (Array.isArray(neonNotifications)) db.notifications = neonNotifications;
+          if (Array.isArray(neonCoupons)) db.coupons = neonCoupons;
+          if (Array.isArray(neonQueries)) db.queries = neonQueries;
+          if (Array.isArray(neonInvoices)) db.invoices = neonInvoices;
         }
         const targetFile = getDatabaseFilePath();
         try {

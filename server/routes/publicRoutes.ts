@@ -1,5 +1,6 @@
 import express from 'express';
 import { getDb, saveDatabase } from '../db.js';
+import { isNeonConfigured, getCouponsFromNeon, getCategoriesFromNeon } from '../storage/neon.js';
 import type { ContactMessage } from '../../src/types.js';
 import { handleContactQuerySubmission } from './queryRoutes.js';
 
@@ -16,7 +17,15 @@ router.get('/health', (req, res) => {
 });
 
 // Categories (Public endpoint)
-router.get('/categories', (req, res) => {
+router.get('/categories', async (req, res) => {
+  if (isNeonConfigured()) {
+    try {
+      const neonCats = await getCategoriesFromNeon();
+      if (Array.isArray(neonCats)) {
+        getDb().categories = neonCats;
+      }
+    } catch {}
+  }
   const db = getDb();
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
   res.json(db.categories);
@@ -94,7 +103,7 @@ router.post('/newsletter', (req, res) => {
 router.post('/validate-coupon', validateCouponHandler);
 router.post('/coupons/validate', validateCouponHandler);
 
-function validateCouponHandler(req: express.Request, res: express.Response) {
+async function validateCouponHandler(req: express.Request, res: express.Response) {
   const { code, subtotal, cartSubtotal } = req.body;
   const targetSubtotal = subtotal !== undefined ? subtotal : cartSubtotal;
   if (!code) {
@@ -102,8 +111,17 @@ function validateCouponHandler(req: express.Request, res: express.Response) {
     return;
   }
 
+  if (isNeonConfigured()) {
+    try {
+      const neonCoupons = await getCouponsFromNeon();
+      if (Array.isArray(neonCoupons)) {
+        getDb().coupons = neonCoupons;
+      }
+    } catch {}
+  }
+
   const db = getDb();
-  const coupon = db.coupons.find((c) => c.code.toUpperCase() === code.trim().toUpperCase() && c.isActive);
+  const coupon = (db.coupons || []).find((c) => c.code.toUpperCase() === code.trim().toUpperCase() && c.isActive);
 
   if (!coupon) {
     res.status(404).json({ error: 'Invalid or expired promotional code', valid: false });

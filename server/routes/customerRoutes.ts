@@ -1,5 +1,6 @@
 import express from 'express';
-import { getDb, saveDatabase } from '../db.js';
+import { getDb, saveDatabase, saveDatabaseAsync } from '../db.js';
+import { isNeonConfigured, getOrdersFromNeon, getNotificationsFromNeon } from '../storage/neon.js';
 import { requireAuth, type AuthenticatedRequest } from '../middleware.js';
 import type { Address, NotificationItem } from '../../src/types.js';
 import { broadcastNotificationEvent } from '../websocket.js';
@@ -11,7 +12,15 @@ const router = express.Router();
 // ==========================================
 
 // Get Customer's Personal Orders
-router.get('/orders', requireAuth, (req: AuthenticatedRequest, res) => {
+router.get('/orders', requireAuth, async (req: AuthenticatedRequest, res) => {
+  if (isNeonConfigured()) {
+    try {
+      const neonOrders = await getOrdersFromNeon();
+      if (Array.isArray(neonOrders)) {
+        getDb().orders = neonOrders;
+      }
+    } catch {}
+  }
   const db = getDb();
   const userId = req.user?.id;
   const userEmail = req.user?.email?.toLowerCase();
@@ -29,7 +38,15 @@ router.get('/orders', requireAuth, (req: AuthenticatedRequest, res) => {
 });
 
 // Single Order Details
-router.get('/orders/:id', requireAuth, (req: AuthenticatedRequest, res) => {
+router.get('/orders/:id', requireAuth, async (req: AuthenticatedRequest, res) => {
+  if (isNeonConfigured()) {
+    try {
+      const neonOrders = await getOrdersFromNeon();
+      if (Array.isArray(neonOrders)) {
+        getDb().orders = neonOrders;
+      }
+    } catch {}
+  }
   const db = getDb();
   const userId = req.user?.id;
   const userEmail = req.user?.email?.toLowerCase();
@@ -385,7 +402,15 @@ router.post('/wishlist/toggle', requireAuth, (req: AuthenticatedRequest, res) =>
 });
 
 // Get Customer Notifications (Accessible by authenticated customer or guest)
-router.get('/notifications', (req: AuthenticatedRequest, res) => {
+router.get('/notifications', async (req: AuthenticatedRequest, res) => {
+  if (isNeonConfigured()) {
+    try {
+      const neonNotifs = await getNotificationsFromNeon();
+      if (Array.isArray(neonNotifs)) {
+        getDb().notifications = neonNotifs;
+      }
+    } catch {}
+  }
   const db = getDb();
   const userId = req.user?.id;
   const isRegistered = Boolean(userId);
