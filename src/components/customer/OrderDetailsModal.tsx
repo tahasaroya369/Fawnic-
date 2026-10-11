@@ -24,6 +24,7 @@ interface OrderDetailsModalProps {
   onPrintInvoice: (order: Order) => void;
   onCancelOrder?: (orderId: string) => void;
   onRequestReturn?: (order: Order) => void;
+  isCancelling?: boolean;
 }
 
 const TIMELINE_STEPS = [
@@ -42,6 +43,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   onPrintInvoice,
   onCancelOrder,
   onRequestReturn,
+  isCancelling = false,
 }) => {
   const [copiedTracking, setCopiedTracking] = useState(false);
   const [showFullHistory, setShowFullHistory] = useState(false);
@@ -156,6 +158,19 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
         {/* Content */}
         <div className="p-5 sm:p-6 space-y-6 max-h-[calc(85vh-110px)] overflow-y-auto">
           
+          {/* Cancellation Notice */}
+          {isCancelled && (
+            <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl flex items-center gap-3 text-xs text-emerald-800 dark:text-emerald-300">
+              <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+              <div>
+                <p className="font-bold">Your order has been cancelled successfully.</p>
+                <p className="text-emerald-700 dark:text-emerald-400 text-[11px] mt-0.5">
+                  The order status has been updated to Cancelled. No further charges or dispatch will occur.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Visual Order Timeline */}
           {isCancelled ? (
             <div className="p-4 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 rounded-2xl flex items-center gap-3 text-xs text-rose-800 dark:text-rose-300">
@@ -175,7 +190,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                 </span>
                 <span className="text-[11px] text-amber-600 dark:text-amber-400 font-semibold capitalize flex items-center gap-1">
                   <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                  {order.status.replace(/_/g, ' ')}
+                  {(order.status || 'Status').replace(/_/g, ' ')}
                 </span>
               </div>
 
@@ -410,25 +425,25 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5 font-semibold text-stone-900 dark:text-stone-100">
                         {idx === 0 && <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping mr-0.5" />}
-                        <span className="capitalize">{ev.status.replace(/_/g, ' ')}</span>
+                        <span className="capitalize">{(ev?.status || 'Update').replace(/_/g, ' ')}</span>
                       </div>
                       <span className="text-[10px] text-stone-400">
-                        {new Date(ev.timestamp).toLocaleString('en-PK', {
+                        {ev?.timestamp ? new Date(ev.timestamp).toLocaleString('en-PK', {
                           month: 'short',
                           day: 'numeric',
                           hour: '2-digit',
                           minute: '2-digit',
-                        })}
+                        }) : ''}
                       </span>
                     </div>
 
-                    {ev.note && (
+                    {ev?.note && (
                       <p className="text-[11px] text-stone-600 dark:text-stone-300 mt-1 leading-relaxed">
                         {ev.note}
                       </p>
                     )}
 
-                    {ev.location && (
+                    {ev?.location && (
                       <div className="flex items-center gap-1 text-[10px] text-stone-400 mt-1">
                         <MapPin className="w-3 h-3 text-stone-400 shrink-0" />
                         <span>{ev.location}</span>
@@ -448,17 +463,17 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                 <span>Shipping Destination</span>
               </div>
               <p className="font-semibold text-stone-900 dark:text-stone-100">
-                {order.shippingAddress.fullName || order.customerName}
+                {order.shippingAddress?.fullName || order.customerName || 'Valued Patron'}
               </p>
               <p className="text-stone-500 dark:text-stone-400">
-                {order.shippingAddress.addressLine1 || order.shippingAddress.streetAddress || ''}
-                {order.shippingAddress.addressLine2 ? `, ${order.shippingAddress.addressLine2}` : ''}
+                {order.shippingAddress?.addressLine1 || order.shippingAddress?.streetAddress || ''}
+                {order.shippingAddress?.addressLine2 ? `, ${order.shippingAddress.addressLine2}` : ''}
               </p>
               <p className="text-stone-500 dark:text-stone-400">
-                {order.shippingAddress.city}, {order.shippingAddress.province} {order.shippingAddress.postalCode ? `- ${order.shippingAddress.postalCode}` : ''}
+                {[order.shippingAddress?.city, order.shippingAddress?.province].filter(Boolean).join(', ') || 'Pakistan'} {order.shippingAddress?.postalCode ? `- ${order.shippingAddress.postalCode}` : ''}
               </p>
               <p className="text-stone-600 dark:text-stone-300 font-mono text-[11px]">
-                {order.shippingAddress.phone || order.customerPhone}
+                {order.shippingAddress?.phone || order.customerPhone || 'N/A'}
               </p>
             </div>
 
@@ -469,13 +484,13 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
               <div className="flex justify-between text-stone-500">
                 <span>Payment Method:</span>
                 <span className="font-bold text-stone-900 dark:text-stone-100 uppercase">
-                  {order.paymentMethod === 'cod' ? 'Cash on Delivery (COD)' : order.paymentMethod}
+                  {order.paymentMethod === 'cod' ? 'Cash on Delivery (COD)' : (order.paymentMethod || 'COD')}
                 </span>
               </div>
               <div className="flex justify-between text-stone-500">
                 <span>Payment Status:</span>
                 <span className="font-bold text-stone-900 dark:text-stone-100 capitalize">
-                  {order.paymentStatus}
+                  {order.paymentStatus || 'pending'}
                 </span>
               </div>
               <div className="flex justify-between text-stone-500">
@@ -490,19 +505,19 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
           {/* Products List */}
           <div className="space-y-3">
             <span className="text-xs font-bold text-stone-900 dark:text-stone-100 block">
-              Items Ordered ({order.items.length})
+              Items Ordered ({(order.items || []).length})
             </span>
             <div className="divide-y divide-stone-100 dark:divide-stone-800 rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 overflow-hidden">
-              {order.items.map((item, idx) => (
+              {(order.items || []).map((item, idx) => (
                 <div key={item.id || `${item.productId || 'modal_it'}_${idx}`} className="p-3.5 flex items-center gap-3 text-xs">
                   <img
                     src={item.image || item.productImage}
-                    alt={item.name || item.productName}
+                    alt={item.name || item.productName || 'Product'}
                     className="w-14 h-14 rounded-xl object-cover bg-stone-100 dark:bg-stone-800 shrink-0 border border-stone-100 dark:border-stone-800"
                   />
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-stone-900 dark:text-stone-100 truncate">
-                      {item.name || item.productName}
+                      {item.name || item.productName || 'Leather Item'}
                     </p>
                     {(item.selectedColor || item.selectedVariation?.color || (item.selectedVariation && item.selectedVariation.type !== 'size' && !item.selectedVariation.size && item.selectedVariation.name)) && (
                       <p className="text-[11px] font-semibold text-amber-800 dark:text-amber-400">
@@ -523,11 +538,11 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                       SKU: {item.selectedVariation?.sku || item.sku || 'FWN-ART'}
                     </p>
                     <p className="text-[11px] text-stone-400">
-                      Qty: {item.quantity} × Rs. {(item.price || item.unitPrice).toLocaleString()}
+                      Qty: {item.quantity} × Rs. {((item.price ?? item.unitPrice) || 0).toLocaleString()}
                     </p>
                   </div>
                   <span className="font-serif font-bold text-stone-950 dark:text-stone-50 text-xs">
-                    Rs. {(item.subtotal || item.total || (item.quantity * (item.price || item.unitPrice))).toLocaleString()}
+                    Rs. {(item.subtotal ?? (item.total ?? (item.quantity * ((item.price ?? item.unitPrice) || 0))) || 0).toLocaleString()}
                   </span>
                 </div>
               ))}
@@ -538,12 +553,12 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
           <div className="p-4 bg-stone-50 dark:bg-stone-800/40 rounded-2xl space-y-2 text-xs">
             <div className="flex justify-between text-stone-500">
               <span>Subtotal</span>
-              <span>Rs. {order.subtotal.toLocaleString()}</span>
+              <span>Rs. {(order.subtotal || 0).toLocaleString()}</span>
             </div>
             {order.discountAmount && order.discountAmount > 0 ? (
               <div className="flex justify-between text-emerald-600 font-semibold">
                 <span>Discount Savings</span>
-                <span>- Rs. {order.discountAmount.toLocaleString()}</span>
+                <span>- Rs. {(order.discountAmount || 0).toLocaleString()}</span>
               </div>
             ) : null}
             <div className="flex justify-between text-stone-500">
@@ -552,13 +567,13 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                 {order.shippingFee === 0 ? (
                   <span className="text-emerald-600 font-bold">FREE</span>
                 ) : (
-                  `Rs. ${order.shippingFee.toLocaleString()}`
+                  `Rs. ${(order.shippingFee || 0).toLocaleString()}`
                 )}
               </span>
             </div>
             <div className="pt-2 border-t border-stone-200 dark:border-stone-700 flex justify-between font-bold text-stone-950 dark:text-stone-50 text-sm">
               <span>Total Paid / Payable</span>
-              <span className="font-serif">Rs. {order.total.toLocaleString()}</span>
+              <span className="font-serif">Rs. {(order.total || 0).toLocaleString()}</span>
             </div>
           </div>
 
@@ -574,16 +589,25 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
             </div>
 
             <div className="flex items-center gap-2 ml-auto">
-              {order.status === 'pending' && onCancelOrder && (
+              {['pending', 'processing', 'confirmed', 'new'].includes((order.status || '').toLowerCase()) && !order.dispatchDate && onCancelOrder && (
                 <button
+                  disabled={isCancelling}
                   onClick={() => {
-                    onCancelOrder(order.id);
-                    onClose();
+                    onCancelOrder(order.id || order.orderNumber);
                   }}
-                  className="px-4 py-2 border border-rose-200 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+                  className="px-4 py-2 border border-rose-200 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-xl text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
                 >
-                  Cancel Order
+                  {isCancelling && (
+                    <div className="w-3 h-3 border-2 border-rose-600 border-t-transparent rounded-full animate-spin" />
+                  )}
+                  <span>{isCancelling ? 'Cancelling...' : 'Cancel Order'}</span>
                 </button>
+              )}
+
+              {['packed', 'ready', 'ready_to_dispatch'].includes((order.status || '').toLowerCase()) && (
+                <span className="text-[11px] text-amber-700 dark:text-amber-400 font-semibold px-2.5 py-1 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/60 rounded-xl">
+                  Packed for dispatch (Non-cancellable)
+                </span>
               )}
 
               {order.status === 'delivered' && !order.returnRequested && onRequestReturn && (

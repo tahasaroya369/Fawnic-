@@ -107,11 +107,12 @@ export function createExpressApp(): express.Express {
     next();
   });
 
-  // Background check for persistent remote storage updates (Vercel KV / Upstash / Supabase / JSONBin)
-  app.use(async (req, res, next) => {
-    try {
-      await syncDatabaseFromRemote();
-    } catch {}
+  // Non-blocking background sync for remote storage updates (never blocks response)
+  app.use((req, res, next) => {
+    const url = req.path || '';
+    if (url.startsWith('/api') || url.startsWith('/admin') || url.startsWith('/customer')) {
+      syncDatabaseFromRemote().catch(() => {});
+    }
     next();
   });
 

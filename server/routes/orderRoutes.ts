@@ -5,6 +5,7 @@ import {
   insertOrderInNeon,
   updateOrderInNeon,
   getOrdersFromNeon,
+  getProductsFromNeon,
   adjustProductStockInNeon,
   insertInvoiceInNeon,
 } from '../storage/neon.js';
@@ -17,311 +18,385 @@ const router = express.Router();
 
 // Create Order (Checkout)
 router.post('/', async (req: AuthenticatedRequest, res) => {
-  const {
-    customerName,
-    customerEmail,
-    customerPhone,
-    shippingAddress,
-    items,
-    paymentMethod,
-    paymentProof,
-    bankTxRef,
-    couponCode,
-    notes,
-  } = req.body;
+  try {
+    const {
+      customerName,
+      customerEmail,
+      customerPhone,
+      shippingAddress,
+      items,
+      paymentMethod,
+      paymentProof,
+      bankTxRef,
+      couponCode,
+      notes,
+    } = req.body;
 
-  if (!customerName || !customerEmail || !customerPhone || !shippingAddress || !items || !items.length) {
-    res.status(400).json({ error: 'Missing required order details' });
-    return;
-  }
+    const resolvedName = (
+      customerName ||
+      shippingAddress?.fullName ||
+      shippingAddress?.recipientName ||
+      req.user?.name ||
+      ''
+    ).trim();
 
-  const db = getDb();
+    const resolvedEmail = (
+      customerEmail ||
+      req.user?.email ||
+      req.body.guestEmail ||
+      ''
+    ).trim().toLowerCase();
 
-  // Validate items and calculate subtotal
-  let subtotal = 0;
-  const orderItems: OrderItem[] = [];
+    const resolvedPhone = (
+      customerPhone ||
+      shippingAddress?.phone ||
+      req.user?.phone ||
+      ''
+    ).trim();
 
-  for (const it of items) {
-    const product = db.products.find((p) => p.id === it.productId);
-    if (!product) {
-      res.status(404).json({ error: `Product not found: ${it.productName || it.productId}` });
-      return;
-    }
+    const resolvedCity = (shippingAddress?.city || '').trim();
 
-    if (product.stock < it.quantity) {
+    if (
+      !resolvedName ||
+      !resolvedEmail ||
+      !resolvedPhone ||
+      !shippingAddress ||
+      !resolvedCity ||
+      !items ||
+      !Array.isArray(items) ||
+      items.length === 0
+    ) {
       res.status(400).json({
-        error: `Insufficient stock for "${product.name}". Available: ${product.stock}, requested: ${it.quantity}.`,
+        error: 'Missing required order details. Customer name, email, phone, city, and cart items are required.',
       });
       return;
     }
 
-    const price = product.salePrice || product.regularPrice;
-    const itemSubtotal = price * it.quantity;
-    subtotal += itemSubtotal;
+    const resolvedShippingAddress = {
+      ...shippingAddress,
+      fullName: shippingAddress.fullName || shippingAddress.recipientName || resolvedName,
+      recipientName: shippingAddress.recipientName || shippingAddress.fullName || resolvedName,
+      phone: shippingAddress.phone || resolvedPhone,
+      city: resolvedCity,
+      province: (shippingAddress.province || 'Punjab').trim(),
+    };
 
-    // Real inventory deduction!
-    product.stock -= it.quantity;
-    if (product.stock === 0) {
-      product.stockStatus = 'out_of_stock';
-    } else if (product.stock <= product.lowStockThreshold) {
-      product.stockStatus = 'low_stock';
+    const db = getDb();
+
+    // Ensure latest products and stock from Neon if configured
+    if (isNeonConfigured()) {
+      try {
+        const neonProducts = await getProductsFromNeon();
+        if (Array.isArray(neonProducts) && neonProducts.length > 0) {
+          db.products = neonProducts;
+        }
+      } catch (err: any) {
+        console.warn('[Neon Sync] Product fetch note during checkout:', err.message);
+      }
     }
 
-    const selectedVar = it.selectedVariation;
-    const colorVal = it.selectedColor || selectedVar?.color || (selectedVar?.type !== 'size' && !selectedVar?.size ? selectedVar?.name : undefined) || it.selectedVariants?.['Color'];
-    const sizeVal = it.selectedSize || selectedVar?.size || (selectedVar?.type === 'size' ? selectedVar?.name : undefined) || it.selectedVariants?.['Size'] || it.selectedVariants?.['Waist Size'];
+    // Validate items and calculate subtotal
+    let subtotal = 0;
+    const orderItems: OrderItem[] = [];
 
-    const variantParts: string[] = [];
-    if (colorVal) variantParts.push(`Color: ${colorVal}`);
-    if (sizeVal) variantParts.push(`Size: ${sizeVal}`);
-    if (it.selectedVariants) {
-      Object.entries(it.selectedVariants).forEach(([k, v]) => {
-        if (k !== 'Color' && k !== 'Size' && k !== 'Waist Size') {
-          variantParts.push(`${k}: ${v}`);
-        }
+    for (const it of items) {
+      const quantity = Math.max(1, Number(it.quantity) || 1);
+      const product = db.products.find((p) => p.id === it.productId || p.sku === it.productId);
+      if (!product) {
+        res.status(404).json({ error: `Product not found: ${it.productName || it.productId}` });
+        return;
+      }
+
+      if (product.stock < quantity) {
+        res.status(400).json({
+          error: `Insufficient stock for "${product.name}". Available: ${product.stock}, requested: ${quantity}.`,
+        });
+        return;
+      }
+
+      const price = product.salePrice || product.regularPrice;
+      const itemSubtotal = price * quantity;
+      subtotal += itemSubtotal;
+
+      // Real inventory deduction
+      product.stock -= quantity;
+      if (product.stock === 0) {
+        product.stockStatus = 'out_of_stock';
+      } else if (product.stock <= product.lowStockThreshold) {
+        product.stockStatus = 'low_stock';
+      }
+
+      const selectedVar = it.selectedVariation;
+      const colorVal = it.selectedColor || selectedVar?.color || (selectedVar?.type !== 'size' && !selectedVar?.size ? selectedVar?.name : undefined) || it.selectedVariants?.['Color'];
+      const sizeVal = it.selectedSize || selectedVar?.size || (selectedVar?.type === 'size' ? selectedVar?.name : undefined) || it.selectedVariants?.['Size'] || it.selectedVariants?.['Waist Size'];
+
+      const variantParts: string[] = [];
+      if (colorVal) variantParts.push(`Color: ${colorVal}`);
+      if (sizeVal) variantParts.push(`Size: ${sizeVal}`);
+      if (it.selectedVariants) {
+        Object.entries(it.selectedVariants).forEach(([k, v]) => {
+          if (k !== 'Color' && k !== 'Size' && k !== 'Waist Size') {
+            variantParts.push(`${k}: ${v}`);
+          }
+        });
+      }
+      const variantText = it.variantInfo || (variantParts.length > 0 ? variantParts.join(' | ') : undefined);
+
+      orderItems.push({
+        productId: product.id,
+        name: product.name,
+        productName: product.name,
+        image: selectedVar?.image || product.mainImage,
+        productImage: selectedVar?.image || product.mainImage,
+        sku: selectedVar?.sku || product.sku,
+        variantInfo: variantText,
+        selectedVariation: selectedVar,
+        selectedColor: colorVal,
+        selectedSize: sizeVal,
+        selectedVariants: it.selectedVariants,
+        quantity: it.quantity,
+        price: price,
+        unitPrice: price,
+        total: itemSubtotal,
+        subtotal: itemSubtotal,
       });
     }
-    const variantText = it.variantInfo || (variantParts.length > 0 ? variantParts.join(' | ') : undefined);
 
-    orderItems.push({
-      productId: product.id,
-      name: product.name,
-      productName: product.name,
-      image: selectedVar?.image || product.mainImage,
-      productImage: selectedVar?.image || product.mainImage,
-      sku: selectedVar?.sku || product.sku,
-      variantInfo: variantText,
-      selectedVariation: selectedVar,
-      selectedColor: colorVal,
-      selectedSize: sizeVal,
-      selectedVariants: it.selectedVariants,
-      quantity: it.quantity,
-      price: price,
-      unitPrice: price,
-      total: itemSubtotal,
-      subtotal: itemSubtotal,
-    });
-  }
+    // Shipping Fee Logic
+    const freeThreshold = 5000;
+    const standardFee = db.settings?.standardShippingFee || 250;
+    const shippingFee = subtotal >= freeThreshold ? 0 : standardFee;
 
-  // Shipping Fee Logic
-  const freeThreshold = 5000;
-  const standardFee = db.settings?.standardShippingFee || 250;
-  const shippingFee = subtotal >= freeThreshold ? 0 : standardFee;
+    // Online Payment 7% Cashback on orders of Rs. 5,000 or more (credited within 24 hours)
+    const isOnlinePayment = (paymentMethod || 'cod') === 'bank_transfer';
+    const isCashbackEligible = isOnlinePayment && subtotal >= 5000;
+    const cashbackPercentage = isCashbackEligible ? 7 : 0;
+    const cashbackAmount = isCashbackEligible ? Math.round(subtotal * 0.07) : 0;
 
-  // Online Payment 7% Cashback on orders of Rs. 5,000 or more (credited within 24 hours)
-  const isOnlinePayment = (paymentMethod || 'cod') === 'bank_transfer';
-  const isCashbackEligible = isOnlinePayment && subtotal >= 5000;
-  const cashbackPercentage = isCashbackEligible ? 7 : 0;
-  const cashbackAmount = isCashbackEligible ? Math.round(subtotal * 0.07) : 0;
+    // Coupon Discount Calculation
+    let discount = 0;
+    let appliedCouponCode: string | undefined = undefined;
 
-  // Coupon Discount Calculation
-  let discount = 0;
-  let appliedCouponCode: string | undefined = undefined;
-
-  if (couponCode && typeof couponCode === 'string') {
-    const code = couponCode.trim().toUpperCase();
-    const coupon = db.coupons.find((c) => c.code === code && c.isActive);
-    if (coupon && subtotal >= coupon.minOrderAmount) {
-      if (coupon.type === 'percent') {
-        discount = (subtotal * coupon.value) / 100;
-        if (coupon.maxDiscount && discount > coupon.maxDiscount) {
-          discount = coupon.maxDiscount;
+    if (couponCode && typeof couponCode === 'string') {
+      const code = couponCode.trim().toUpperCase();
+      const coupon = db.coupons.find((c) => c.code === code && c.isActive);
+      if (coupon && subtotal >= coupon.minOrderAmount) {
+        if (coupon.type === 'percent') {
+          discount = (subtotal * coupon.value) / 100;
+          if (coupon.maxDiscount && discount > coupon.maxDiscount) {
+            discount = coupon.maxDiscount;
+          }
+        } else {
+          discount = coupon.value;
         }
-      } else {
-        discount = coupon.value;
+        coupon.usedCount += 1;
+        appliedCouponCode = coupon.code;
       }
-      coupon.usedCount += 1;
-      appliedCouponCode = coupon.code;
     }
-  }
 
-  const total = Math.max(0, subtotal + shippingFee - discount);
+    const total = Math.max(0, subtotal + shippingFee - discount);
 
-  // Generate Unique Order Number
-  const orderNum = `FWN-${Math.floor(10000 + Math.random() * 90000)}`;
-
-  const newOrder: Order = {
-    id: `ord_${Date.now()}`,
-    orderNumber: orderNum,
-    customerId: req.user?.id,
-    customerName: customerName.trim(),
-    customerEmail: customerEmail.trim().toLowerCase(),
-    customerPhone: customerPhone.trim(),
-    shippingAddress,
-    items: orderItems,
-    subtotal,
-    shippingFee,
-    discount,
-    couponCode: appliedCouponCode,
-    total,
-    cashbackPercentage: cashbackPercentage || undefined,
-    cashbackAmount: cashbackAmount || undefined,
-    cashbackStatus: isCashbackEligible ? 'processing_24h' : undefined,
-    paymentMethod: paymentMethod || 'cod',
-    paymentStatus: paymentMethod === 'bank_transfer' ? 'pending_verification' : 'pending',
-    paymentProof: paymentProof || undefined,
-    paymentProofSubmittedAt: paymentProof ? new Date().toISOString() : undefined,
-    bankTxRef: bankTxRef?.trim() || undefined,
-    status: 'pending',
-    notes: notes?.trim(),
-    trackingNumber: undefined,
-    courierName: undefined,
-    courier: undefined,
-    dispatchDate: undefined,
-    deliveryDate: undefined,
-    expectedDelivery: undefined,
-    estimatedDelivery: undefined,
-    timeline: [
-      {
-        status: 'pending',
-        timestamp: new Date().toISOString(),
-        updatedBy: 'Customer',
-        note: paymentMethod === 'bank_transfer'
-          ? `Order placed via Bank Transfer. Payment Status: PENDING VERIFICATION.${bankTxRef ? ` Ref: ${bankTxRef}.` : ''}${paymentProof ? ' Receipt proof uploaded.' : ''}`
-          : 'Order placed by customer via Cash on Delivery.',
-        location: `${shippingAddress.city || 'Karachi'}, Pakistan`,
-      },
-    ],
-    trackingHistory: [
-      {
-        status: 'pending',
-        timestamp: new Date().toISOString(),
-        updatedBy: 'Customer',
-        note: paymentMethod === 'bank_transfer'
-          ? `Order placed via Bank Transfer. Payment Status: PENDING VERIFICATION.${bankTxRef ? ` Ref: ${bankTxRef}.` : ''}`
-          : 'Order placed by customer via Cash on Delivery.',
-        location: `${shippingAddress.city || 'Karachi'}, Pakistan`,
-      },
-    ],
-    createdAt: new Date().toISOString(),
-  };
-
-  db.orders.unshift(newOrder);
-
-  // Automatic Order Invoice Generation as required
-  if (!db.invoices) db.invoices = [];
-  const autoInvoiceNumber = getNextInvoiceNumber();
-  const fullAddress = [
-    shippingAddress.houseNumber,
-    shippingAddress.streetAddress,
-    shippingAddress.area,
-    shippingAddress.city,
-    shippingAddress.province,
-  ]
-    .filter(Boolean)
-    .join(', ');
-
-  const autoInvoice = {
-    id: `inv_${Date.now()}`,
-    invoiceNumber: autoInvoiceNumber,
-    orderId: newOrder.id,
-    orderNumber: newOrder.orderNumber,
-    customerName: newOrder.customerName,
-    customerEmail: newOrder.customerEmail,
-    customerPhone: newOrder.customerPhone,
-    customerAddress: fullAddress || 'Address on file',
-    items: newOrder.items.map((it) => ({
-      productId: it.productId,
-      productName: it.productName,
-      name: it.productName,
-      productImage: it.productImage,
-      image: it.productImage,
-      sku: it.sku,
-      variantInfo: it.variantInfo,
-      selectedColor: it.variantInfo,
-      quantity: it.quantity,
-      unitPrice: it.unitPrice,
-      price: it.unitPrice,
-      subtotal: it.subtotal,
-    })),
-    subtotal: newOrder.subtotal,
-    shippingFee: newOrder.shippingFee,
-    discount: newOrder.discount,
-    total: newOrder.total,
-    paymentMethod: newOrder.paymentMethod === 'cod' ? 'Cash on Delivery (COD)' : 'Bank Transfer (1Link IBFT)',
-    paymentStatus: newOrder.paymentStatus,
-    orderDate: newOrder.createdAt,
-    createdAt: new Date().toISOString(),
-    status: 'issued' as const,
-  };
-  db.invoices.unshift(autoInvoice);
-
-  // Record inventory transactions for audit
-  if (!db.inventoryTransactions) db.inventoryTransactions = [];
-  for (const it of orderItems) {
-    db.inventoryTransactions.unshift({
-      id: `txn_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
-      productId: it.productId,
-      productName: it.productName,
-      sku: it.sku || 'FWN-ART',
-      change: -it.quantity,
-      previousStock: (db.products.find((p) => p.id === it.productId)?.stock || 0) + it.quantity,
-      newStock: db.products.find((p) => p.id === it.productId)?.stock || 0,
-      reason: 'Order Placed',
-      referenceId: newOrder.orderNumber,
-      adminEmail: 'online-checkout@fawnic.pk',
-      timestamp: new Date().toISOString(),
-      notes: `Consignment order ${newOrder.orderNumber}`,
-    });
-  }
-
-  // Automatic Real-Time Order Received Notification
-  createOrderNotification(newOrder, 'received');
-
-  // Audit Log
-  db.auditLogs.unshift({
-    id: `log_${Date.now()}`,
-    adminEmail: 'system',
-    action: 'NEW_ORDER_PLACED',
-    entityType: 'Order',
-    entityId: newOrder.orderNumber,
-    details: `Order for Rs. ${total.toLocaleString()} placed by ${customerName} (${paymentMethod.toUpperCase()})`,
-    timestamp: new Date().toISOString(),
-  });
-
-  // Permanently persist to Neon PostgreSQL
-  if (isNeonConfigured()) {
-    try {
-      await insertOrderInNeon(newOrder);
-      console.info(`[Neon PostgreSQL] Order permanently inserted: ${newOrder.orderNumber}`);
-      for (const it of orderItems) {
-        await adjustProductStockInNeon(
-          it.productId,
-          -it.quantity,
-          'Order Placed',
-          'online-checkout@fawnic.pk',
-          `Order #${newOrder.orderNumber}`
-        ).catch(() => {});
+    // Link customer ID if authenticated or existing user
+    let customerId = req.user?.id;
+    if (!customerId && resolvedEmail) {
+      const matched = (db.users || []).find((u) => u.email.toLowerCase() === resolvedEmail);
+      if (matched) {
+        customerId = matched.id;
       }
-      await insertInvoiceInNeon(autoInvoice).catch(() => {});
-    } catch (neonErr: any) {
-      console.error('[Neon PostgreSQL] Error inserting order in Neon:', neonErr.message);
-      res.status(500).json({ error: 'Database failed to persist order: ' + neonErr.message });
-      return;
     }
-  }
 
-  await saveDatabaseAsync();
+    // Generate Unique Order Number
+    const orderNum = `FWN-${Math.floor(10000 + Math.random() * 90000)}`;
 
-  // Broadcast real-time order update to Admin and Customer panels
-  broadcastOrderUpdate(newOrder);
+    const newOrder: Order = {
+      id: `ord_${Date.now()}`,
+      orderNumber: orderNum,
+      customerId,
+      customerName: resolvedName,
+      customerEmail: resolvedEmail,
+      customerPhone: resolvedPhone,
+      shippingAddress: resolvedShippingAddress,
+      items: orderItems,
+      subtotal,
+      shippingFee,
+      discount,
+      couponCode: appliedCouponCode,
+      total,
+      cashbackPercentage: cashbackPercentage || undefined,
+      cashbackAmount: cashbackAmount || undefined,
+      cashbackStatus: isCashbackEligible ? 'processing_24h' : undefined,
+      paymentMethod: paymentMethod || 'cod',
+      paymentStatus: paymentMethod === 'bank_transfer' ? 'pending_verification' : 'pending',
+      paymentProof: paymentProof || undefined,
+      paymentProofSubmittedAt: paymentProof ? new Date().toISOString() : undefined,
+      bankTxRef: bankTxRef?.trim() || undefined,
+      status: 'pending',
+      notes: notes?.trim(),
+      trackingNumber: undefined,
+      courierName: undefined,
+      courier: undefined,
+      dispatchDate: undefined,
+      deliveryDate: undefined,
+      expectedDelivery: undefined,
+      estimatedDelivery: undefined,
+      timeline: [
+        {
+          status: 'pending',
+          timestamp: new Date().toISOString(),
+          updatedBy: 'Customer',
+          note: paymentMethod === 'bank_transfer'
+            ? `Order placed via Bank Transfer. Payment Status: PENDING VERIFICATION.${bankTxRef ? ` Ref: ${bankTxRef}.` : ''}${paymentProof ? ' Receipt proof uploaded.' : ''}`
+            : 'Order placed by customer via Cash on Delivery.',
+          location: `${shippingAddress.city || 'Karachi'}, Pakistan`,
+        },
+      ],
+      trackingHistory: [
+        {
+          status: 'pending',
+          timestamp: new Date().toISOString(),
+          updatedBy: 'Customer',
+          note: paymentMethod === 'bank_transfer'
+            ? `Order placed via Bank Transfer. Payment Status: PENDING VERIFICATION.${bankTxRef ? ` Ref: ${bankTxRef}.` : ''}`
+            : 'Order placed by customer via Cash on Delivery.',
+          location: `${shippingAddress.city || 'Karachi'}, Pakistan`,
+        },
+      ],
+      createdAt: new Date().toISOString(),
+    };
 
-  // Broadcast stock changes for affected items
-  for (const it of orderItems) {
-    const updatedProd = db.products.find((p) => p.id === it.productId);
-    if (updatedProd) {
-      broadcastProductEvent({
-        action: 'inventory',
+    if (!db.orders) db.orders = [];
+    db.orders.unshift(newOrder);
+
+    // Automatic Order Invoice Generation
+    if (!db.invoices) db.invoices = [];
+    const autoInvoiceNumber = getNextInvoiceNumber();
+    const fullAddress = [
+      shippingAddress.addressLine1 || shippingAddress.streetAddress || shippingAddress.houseNumber,
+      shippingAddress.addressLine2 || shippingAddress.area,
+      shippingAddress.landmark ? `(Near: ${shippingAddress.landmark})` : '',
+      shippingAddress.city,
+      shippingAddress.province,
+      shippingAddress.postalCode,
+    ]
+      .filter(Boolean)
+      .join(', ');
+
+    const autoInvoice = {
+      id: `inv_${Date.now()}`,
+      invoiceNumber: autoInvoiceNumber,
+      orderId: newOrder.id,
+      orderNumber: newOrder.orderNumber,
+      customerName: newOrder.customerName,
+      customerEmail: newOrder.customerEmail,
+      customerPhone: newOrder.customerPhone,
+      customerAddress: fullAddress || 'Address on file',
+      items: newOrder.items.map((it) => ({
         productId: it.productId,
-        product: updatedProd,
+        productName: it.productName,
+        name: it.productName,
+        productImage: it.productImage,
+        image: it.productImage,
+        sku: it.sku,
+        variantInfo: it.variantInfo,
+        selectedColor: it.variantInfo,
+        quantity: it.quantity,
+        unitPrice: it.unitPrice,
+        price: it.unitPrice,
+        subtotal: it.subtotal,
+      })),
+      subtotal: newOrder.subtotal,
+      shippingFee: newOrder.shippingFee,
+      discount: newOrder.discount,
+      total: newOrder.total,
+      paymentMethod: newOrder.paymentMethod === 'cod' ? 'Cash on Delivery (COD)' : 'Bank Transfer (1Link IBFT)',
+      paymentStatus: newOrder.paymentStatus,
+      orderDate: newOrder.createdAt,
+      createdAt: new Date().toISOString(),
+      status: 'issued' as const,
+    };
+    db.invoices.unshift(autoInvoice);
+
+    // Record inventory transactions for audit
+    if (!db.inventoryTransactions) db.inventoryTransactions = [];
+    for (const it of orderItems) {
+      db.inventoryTransactions.unshift({
+        id: `txn_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+        productId: it.productId,
+        productName: it.productName,
+        sku: it.sku || 'FWN-ART',
+        change: -it.quantity,
+        previousStock: (db.products.find((p) => p.id === it.productId)?.stock || 0) + it.quantity,
+        newStock: db.products.find((p) => p.id === it.productId)?.stock || 0,
+        reason: 'Order Placed',
+        referenceId: newOrder.orderNumber,
+        adminEmail: 'online-checkout@fawnic.pk',
+        timestamp: new Date().toISOString(),
+        notes: `Consignment order ${newOrder.orderNumber}`,
       });
     }
-  }
 
-  res.status(201).json({
-    order: newOrder,
-    message: 'Order placed successfully',
-  });
+    // Automatic Real-Time Order Received Notification
+    createOrderNotification(newOrder, 'received');
+
+    // Audit Log
+    if (!db.auditLogs) db.auditLogs = [];
+    db.auditLogs.unshift({
+      id: `log_${Date.now()}`,
+      adminEmail: customerId || 'customer',
+      action: 'NEW_ORDER_PLACED',
+      entityType: 'Order',
+      entityId: newOrder.orderNumber,
+      details: `Order for Rs. ${total.toLocaleString()} placed by ${customerName} (${paymentMethod.toUpperCase()})`,
+      timestamp: new Date().toISOString(),
+    });
+
+    // Permanently persist to Neon PostgreSQL
+    if (isNeonConfigured()) {
+      try {
+        await insertOrderInNeon(newOrder);
+        console.info(`[Neon PostgreSQL] Order permanently inserted: ${newOrder.orderNumber}`);
+        for (const it of orderItems) {
+          await adjustProductStockInNeon(
+            it.productId,
+            -it.quantity,
+            'Order Placed',
+            'online-checkout@fawnic.pk',
+            `Order #${newOrder.orderNumber}`
+          ).catch((e) => console.warn('[Stock Neon]:', e.message));
+        }
+        await insertInvoiceInNeon(autoInvoice).catch(() => {});
+      } catch (neonErr: any) {
+        console.error('[Neon PostgreSQL] Error inserting order in Neon:', neonErr.message);
+        res.status(500).json({ error: 'Database failed to persist order: ' + neonErr.message });
+        return;
+      }
+    }
+
+    await saveDatabaseAsync();
+
+    // Broadcast real-time order update to Admin and Customer panels
+    broadcastOrderUpdate(newOrder);
+
+    // Broadcast stock changes for affected items
+    for (const it of orderItems) {
+      const updatedProd = db.products.find((p) => p.id === it.productId);
+      if (updatedProd) {
+        broadcastProductEvent({
+          action: 'inventory',
+          productId: it.productId,
+          product: updatedProd,
+        });
+      }
+    }
+
+    res.status(201).json({
+      order: newOrder,
+      message: 'Order placed successfully',
+    });
+  } catch (err: any) {
+    console.error('[Order Placement Error]', err);
+    res.status(500).json({ error: err.message || 'An error occurred while placing the order' });
+  }
 });
 
 // Track Order (Public Lookup)
@@ -524,6 +599,7 @@ router.post('/:id/return', requireAuth, (req: AuthenticatedRequest, res) => {
   order.updatedAt = new Date().toISOString();
 
   // Audit
+  if (!db.auditLogs) db.auditLogs = [];
   db.auditLogs.unshift({
     id: `log_${Date.now()}`,
     adminEmail: req.user?.email || 'customer',
@@ -539,101 +615,34 @@ router.post('/:id/return', requireAuth, (req: AuthenticatedRequest, res) => {
   res.json({ message: 'Return request submitted. Our team will coordinate courier pickup.', order });
 });
 
+import { cancelCustomerOrderCore } from '../services/orderCancellationService.js';
+
 // Cancel Order by Customer
 router.post('/:id/cancel', requireAuth, async (req: AuthenticatedRequest, res) => {
-  const { reason } = req.body;
-  const db = getDb();
-  const userId = req.user?.id;
-  const userEmail = req.user?.email?.toLowerCase();
-  const orderId = req.params.id;
-
-  const order = (db.orders || []).find(
-    (o) => o.id === orderId || o.orderNumber === orderId
-  );
-
-  if (!order) {
-    res.status(404).json({ error: 'Order not found' });
-    return;
-  }
-
-  const isOwner =
-    (userId && order.customerId === userId) ||
-    (userEmail && order.customerEmail && order.customerEmail.toLowerCase() === userEmail);
-
-  if (!isOwner) {
-    res.status(403).json({ error: 'Access denied to this order' });
-    return;
-  }
-
-  if (order.status === 'cancelled') {
-    res.status(400).json({ error: 'Order is already cancelled', order });
-    return;
-  }
-
-  if (['shipped', 'out_for_delivery', 'delivered', 'completed'].includes(order.status)) {
-    res.status(400).json({
-      error: `Order cannot be cancelled because it is already ${order.status.replace('_', ' ')}. You may request a return once delivered.`,
+  try {
+    const result = await cancelCustomerOrderCore({
+      orderId: req.params.id,
+      userId: req.user?.id,
+      userEmail: req.user?.email,
+      isAdmin: req.user?.role === 'admin',
+      reason: req.body?.reason,
+      cancelledByName: req.user?.name || req.user?.email,
     });
-    return;
-  }
 
-  order.status = 'cancelled';
-  order.updatedAt = new Date().toISOString();
-  if (!order.timeline) order.timeline = [];
-  order.timeline.push({
-    status: 'cancelled',
-    timestamp: new Date().toISOString(),
-    updatedBy: req.user?.name || req.user?.email || 'Customer',
-    note: reason || 'Cancelled by customer from dashboard',
-  });
-
-  // Restore inventory
-  for (const it of order.items || []) {
-    const prod = (db.products || []).find((p) => p.id === it.productId);
-    if (prod) {
-      prod.stock = (prod.stock || 0) + (it.quantity || 1);
-      if (prod.stock > 0) prod.stockStatus = 'in_stock';
-
-      if (!db.inventoryTransactions) db.inventoryTransactions = [];
-      db.inventoryTransactions.unshift({
-        id: `txn_rest_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-        productId: prod.id,
-        productName: prod.name,
-        sku: prod.sku,
-        change: it.quantity || 1,
-        previousStock: prod.stock - (it.quantity || 1),
-        newStock: prod.stock,
-        reason: 'Order Cancelled',
-        performedByName: req.user?.name || req.user?.email || 'Customer',
-        adminEmail: req.user?.email || 'customer@fawnic.pk',
-        timestamp: new Date().toISOString(),
-      });
+    if (!result.success) {
+      res.status(result.statusCode).json({ error: result.error, order: result.order });
+      return;
     }
+
+    res.status(result.statusCode).json({
+      success: true,
+      message: result.message || 'Order successfully cancelled',
+      order: result.order,
+    });
+  } catch (err: any) {
+    console.error('[Order Cancel Error]', err);
+    res.status(500).json({ error: err.message || 'Failed to cancel order' });
   }
-
-  if (!db.auditLogs) db.auditLogs = [];
-  db.auditLogs.unshift({
-    id: `log_${Date.now()}`,
-    adminEmail: req.user?.email || 'Customer',
-    action: 'ORDER_CANCELLED_BY_CUSTOMER',
-    entityType: 'Order',
-    entityId: order.orderNumber,
-    details: `Customer cancelled order. Reason: ${reason || 'Not specified'}`,
-    timestamp: new Date().toISOString(),
-  });
-
-  if (isNeonConfigured()) {
-    try {
-      await updateOrderInNeon(order.id, order);
-    } catch (neonErr: any) {
-      console.warn('[Neon PostgreSQL] Error saving customer order cancellation:', neonErr.message);
-    }
-  }
-
-  await saveDatabaseAsync();
-  broadcastOrderUpdate(order);
-
-  res.json({ message: 'Order successfully cancelled', order });
 });
 
 // Upload or Submit Payment Proof for Bank Transfer Order

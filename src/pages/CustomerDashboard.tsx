@@ -59,6 +59,43 @@ const PAKISTAN_PROVINCES = [
   'Gilgit-Baltistan',
 ];
 
+const PAKISTAN_CITY_SUGGESTIONS = [
+  'Karachi',
+  'Lahore',
+  'Islamabad',
+  'Rawalpindi',
+  'Faisalabad',
+  'Multan',
+  'Peshawar',
+  'Quetta',
+  'Hyderabad',
+  'Sialkot',
+  'Gujranwala',
+  'Sukkur',
+  'Bahawalpur',
+  'Sargodha',
+  'Abbottabad',
+  'Mardan',
+  'Swat',
+  'Gwadar',
+  'Muzaffarabad',
+  'Mirpur',
+  'Gilgit',
+  'Skardu',
+  'Larkana',
+  'Gujrat',
+  'Sahiwal',
+  'Rahim Yar Khan',
+  'Jhang',
+  'Kasur',
+  'Okara',
+  'Wah Cantt',
+  'Dera Ghazi Khan',
+  'Mirpur Khas',
+  'Nawabshah',
+  'Jhelum',
+];
+
 export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
   initialTab = 'overview',
   initialOrderNumber,
@@ -92,6 +129,11 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
   // Filter & Search states for Orders
   const [orderFilter, setOrderFilter] = useState<string>('all');
   const [orderSearch, setOrderSearch] = useState<string>('');
+  const [cancellingOrderId, setCancellingOrderId] = useState<string | null>(null);
+  const [orderToCancelModal, setOrderToCancelModal] = useState<Order | null>(null);
+  const [cancelReasonText, setCancelReasonText] = useState('Customer requested cancellation from dashboard');
+  const [cancelActionError, setCancelActionError] = useState<string | null>(null);
+  const [cancelToastMessage, setCancelToastMessage] = useState<string | null>(null);
 
   // Address modal state
   const [showAddressModal, setShowAddressModal] = useState(false);
@@ -610,30 +652,115 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
     );
   }
 
-  // Cancel order handler
+  // Open cancel order confirmation modal
+  const handleInitiateCancel = (ord: Order) => {
+    setCancelActionError(null);
+    setCancelReasonText('Customer requested cancellation from dashboard');
+    setOrderToCancelModal(ord);
+  };
+
   const handleCancelOrder = async (orderId: string) => {
-    if (!confirm('Are you sure you want to cancel this order?')) return;
+    const target = orders.find((o) => o.id === orderId || o.orderNumber === orderId) || selectedDetailsOrder;
+    if (target) {
+      handleInitiateCancel(target);
+    }
+  };
+
+  // Perform cancellation request
+  const handleConfirmCancel = async () => {
+    if (!orderToCancelModal || cancellingOrderId) return;
+    const targetOrder = orderToCancelModal;
+    const targetId = targetOrder.id || targetOrder.orderNumber;
     try {
-      const res = await fetch(`/api/customer/orders/${orderId}/cancel`, {
+      setCancellingOrderId(targetId);
+      setCancelActionError(null);
+
+      let res = await fetch(`/api/customer/orders/${encodeURIComponent(targetId)}/cancel`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ reason: 'Customer requested cancellation from dashboard' }),
+        body: JSON.stringify({ reason: cancelReasonText }),
       });
-      if (res.ok) {
-        const data = await res.json();
-        setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: 'cancelled' } : o)));
-        if (selectedDetailsOrder?.id === orderId) {
-          setSelectedDetailsOrder((prev) => (prev ? { ...prev, status: 'cancelled' } : null));
-        }
-      } else {
-        const err = await res.json();
-        alert(err.error || 'Failed to cancel order.');
+
+      if (res.status === 404) {
+        res = await fetch(`/api/orders/${encodeURIComponent(targetId)}/cancel`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ reason: cancelReasonText }),
+        });
       }
-    } catch (e) {
-      alert('Error cancelling order. Please check network.');
+
+      let data: any;
+      const contentType = res.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        throw new Error(text || 'Server error occurred');
+      }
+
+      if (res.ok && data.success) {
+        const updatedOrder: Order = {
+          ...targetOrder,
+          ...(data.order || {}),
+          status: 'cancelled',
+          updatedAt: data.order?.updatedAt || new Date().toISOString(),
+        };
+
+        setOrders((prev) =>
+          (prev || []).map((o) =>
+            (o?.id && o.id === targetOrder.id) || (o?.orderNumber && o.orderNumber === targetOrder.orderNumber)
+              ? { ...o, ...updatedOrder, status: 'cancelled' }
+              : o
+          )
+        );
+
+        if (
+          selectedDetailsOrder &&
+          ((selectedDetailsOrder.id && selectedDetailsOrder.id === targetOrder.id) ||
+           (selectedDetailsOrder.orderNumber && selectedDetailsOrder.orderNumber === targetOrder.orderNumber))
+        ) {
+          setSelectedDetailsOrder({
+            ...selectedDetailsOrder,
+            ...updatedOrder,
+            status: 'cancelled',
+          });
+        }
+
+        if (
+          guestOrderResult &&
+          ((guestOrderResult.id && guestOrderResult.id === targetOrder.id) ||
+           (guestOrderResult.orderNumber && guestOrderResult.orderNumber === targetOrder.orderNumber))
+        ) {
+          setGuestOrderResult({
+            ...guestOrderResult,
+            ...updatedOrder,
+            status: 'cancelled',
+          });
+        }
+
+        // Keep the customer on the appropriate customer order history or order details page
+        if (activeTab === 'status') {
+          setActiveTab('orders');
+          setOrderFilter('all');
+        }
+
+        setOrderToCancelModal(null);
+        setCancelActionError(null);
+        setCancelToastMessage('Your order has been cancelled successfully.');
+        setTimeout(() => setCancelToastMessage(null), 6000);
+      } else {
+        setCancelActionError(data.error || 'Failed to cancel order.');
+      }
+    } catch (e: any) {
+      setCancelActionError(e.message || 'Error cancelling order. Please check network connection.');
+    } finally {
+      setCancellingOrderId(null);
     }
   };
 
@@ -850,7 +977,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
   // Order summary metrics
   const totalOrdersCount = orders.length;
   const activeOrders = orders.filter((o) =>
-    ['pending', 'processing', 'ready_to_dispatch', 'shipped', 'out_for_delivery'].includes(o.status)
+    ['pending', 'processing', 'packed', 'ready_to_dispatch', 'dispatched', 'shipped', 'in_transit', 'out_for_delivery', 'confirmed', 'new'].includes(o.status)
   );
   const deliveredOrders = orders.filter((o) => o.status === 'delivered');
   const cancelledOrders = orders.filter((o) => o.status === 'cancelled');
@@ -864,8 +991,8 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
   // Filtered orders for "My Orders" tab
   const filteredOrders = orders.filter((ord) => {
     // Filter tab
-    if (orderFilter === 'processing' && !['pending', 'processing'].includes(ord.status)) return false;
-    if (orderFilter === 'dispatched' && !['ready_to_dispatch', 'shipped', 'out_for_delivery'].includes(ord.status))
+    if (orderFilter === 'processing' && !['pending', 'processing', 'confirmed', 'new'].includes(ord.status)) return false;
+    if (orderFilter === 'dispatched' && !['packed', 'ready_to_dispatch', 'dispatched', 'shipped', 'in_transit', 'out_for_delivery'].includes(ord.status))
       return false;
     if (orderFilter === 'delivered' && ord.status !== 'delivered') return false;
     if (orderFilter === 'cancelled' && ord.status !== 'cancelled') return false;
@@ -1131,6 +1258,22 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
 
         {/* RIGHT CONTENT PANEL */}
         <div className="lg:col-span-9 space-y-6">
+          
+          {cancelToastMessage && (
+            <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl flex items-center justify-between text-xs text-emerald-800 dark:text-emerald-300 shadow-xs">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <span>{cancelToastMessage}</span>
+              </div>
+              <button
+                onClick={() => setCancelToastMessage(null)}
+                className="text-emerald-700 dark:text-emerald-400 hover:text-emerald-900 cursor-pointer p-1"
+                title="Dismiss"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
           
           {/* ========================================== */}
           {/* TAB 1: OVERVIEW */}
@@ -1405,17 +1548,24 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                   const getProgressPercent = (status: string) => {
                     switch (status.toLowerCase()) {
                       case 'pending':
+                      case 'new':
                         return 15;
+                      case 'confirmed':
+                        return 25;
                       case 'processing':
                         return 40;
+                      case 'packed':
                       case 'ready_to_dispatch':
                       case 'ready':
                         return 65;
                       case 'shipped':
-                      case 'out_for_delivery':
                       case 'dispatched':
+                      case 'in_transit':
                         return 85;
+                      case 'out_for_delivery':
+                        return 92;
                       case 'delivered':
+                      case 'completed':
                         return 100;
                       default:
                         return 20;
@@ -1537,14 +1687,25 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                         <span className="text-stone-500">
                           Total Amount: <strong className="text-stone-900 dark:text-stone-100 font-serif">Rs. {ord.total.toLocaleString()}</strong> ({ord.paymentMethod.toUpperCase()})
                         </span>
-                        {ord.status === 'pending' && (
-                          <button
-                            onClick={() => handleCancelOrder(ord.id)}
-                            className="text-rose-600 hover:underline font-semibold cursor-pointer"
-                          >
-                            Cancel Order
-                          </button>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {['packed', 'ready', 'ready_to_dispatch'].includes((ord.status || '').toLowerCase()) && (
+                            <span className="text-[11px] text-amber-700 dark:text-amber-400 font-semibold px-2.5 py-0.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/50 dark:border-amber-800/50 rounded-lg">
+                              Packed for dispatch (Non-cancellable)
+                            </span>
+                          )}
+                          {['pending', 'processing', 'confirmed', 'new'].includes((ord.status || '').toLowerCase()) && !ord.dispatchDate && (
+                            <button
+                              onClick={() => handleInitiateCancel(ord)}
+                              disabled={cancellingOrderId === ord.id}
+                              className="text-rose-600 hover:underline font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+                            >
+                              {cancellingOrderId === ord.id && (
+                                <div className="w-3 h-3 border-2 border-rose-600 border-t-transparent rounded-full animate-spin" />
+                              )}
+                              <span>{cancellingOrderId === ord.id ? 'Cancelling...' : 'Cancel Order'}</span>
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   );
@@ -1711,12 +1872,22 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                       </span>
 
                       <div className="flex items-center gap-3">
-                        {ord.status === 'pending' && (
+                        {['packed', 'ready', 'ready_to_dispatch'].includes((ord.status || '').toLowerCase()) && (
+                          <span className="text-[11px] text-amber-700 dark:text-amber-400 font-semibold px-2.5 py-0.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/50 dark:border-amber-800/50 rounded-lg">
+                            Packed for dispatch (Non-cancellable)
+                          </span>
+                        )}
+
+                        {['pending', 'processing', 'confirmed', 'new'].includes((ord.status || '').toLowerCase()) && !ord.dispatchDate && (
                           <button
-                            onClick={() => handleCancelOrder(ord.id)}
-                            className="text-rose-600 hover:underline font-semibold cursor-pointer"
+                            onClick={() => handleInitiateCancel(ord)}
+                            disabled={cancellingOrderId === ord.id}
+                            className="text-rose-600 hover:underline font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
                           >
-                            Cancel Order
+                            {cancellingOrderId === ord.id && (
+                              <div className="w-3 h-3 border-2 border-rose-600 border-t-transparent rounded-full animate-spin" />
+                            )}
+                            <span>{cancellingOrderId === ord.id ? 'Cancelling...' : 'Cancel Order'}</span>
                           </button>
                         )}
 
@@ -2428,6 +2599,10 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
         onClose={() => setSelectedDetailsOrder(null)}
         onPrintInvoice={(ord) => setSelectedInvoiceOrder(ord)}
         onCancelOrder={handleCancelOrder}
+        isCancelling={Boolean(
+          cancellingOrderId &&
+          (cancellingOrderId === selectedDetailsOrder?.id || cancellingOrderId === selectedDetailsOrder?.orderNumber)
+        )}
         onRequestReturn={(ord) => {
           setReturnTargetOrder(ord);
           setReturnModalOpen(true);
@@ -2455,6 +2630,103 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
           setActiveTab('returns');
         }}
       />
+
+      {/* Customer Cancel Order Confirmation Modal */}
+      {orderToCancelModal && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white dark:bg-stone-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-stone-200 dark:border-stone-800 space-y-5 animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-stone-800">
+              <div className="flex items-center gap-2.5 text-rose-600 dark:text-rose-400">
+                <AlertTriangle className="w-5 h-5 shrink-0" />
+                <h3 className="font-serif font-bold text-base text-stone-900 dark:text-stone-100">
+                  Cancel Consignment
+                </h3>
+              </div>
+              <button
+                disabled={Boolean(cancellingOrderId)}
+                onClick={() => {
+                  setOrderToCancelModal(null);
+                  setCancelActionError(null);
+                }}
+                className="p-1 rounded-lg text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 cursor-pointer disabled:opacity-50"
+                title="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
+              <p>
+                Are you sure you want to cancel order <strong className="text-stone-900 dark:text-stone-100 font-mono">#{orderToCancelModal.orderNumber}</strong>?
+              </p>
+              <div className="p-3 bg-stone-50 dark:bg-stone-800/60 rounded-2xl border border-stone-100 dark:border-stone-800 space-y-1">
+                <div className="flex justify-between text-stone-700 dark:text-stone-300 font-medium">
+                  <span>Current Status:</span>
+                  <span className="font-bold capitalize text-amber-700 dark:text-amber-400">{orderToCancelModal.status.replace(/_/g, ' ')}</span>
+                </div>
+                <div className="flex justify-between text-stone-700 dark:text-stone-300">
+                  <span>Total Amount:</span>
+                  <span className="font-bold">Rs. {orderToCancelModal.total.toLocaleString()}</span>
+                </div>
+              </div>
+              <p className="text-[11px] text-stone-500">
+                Consignment fulfillment will be halted and reserved artisan leather inventory will be restored.
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-stone-700 dark:text-stone-300 block">
+                Reason for Cancellation
+              </label>
+              <select
+                disabled={Boolean(cancellingOrderId)}
+                value={cancelReasonText}
+                onChange={(e) => setCancelReasonText(e.target.value)}
+                className="w-full text-xs p-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none cursor-pointer"
+              >
+                <option value="Customer requested cancellation from dashboard">Changed my mind</option>
+                <option value="Ordered wrong item or variant">Ordered wrong item, size, or color</option>
+                <option value="Need to change shipping address or contact info">Need to update delivery address</option>
+                <option value="Delivery timeframe longer than expected">Delivery timeframe longer than expected</option>
+                <option value="Switching to a different payment method">Switching payment method</option>
+                <option value="Other reason">Other reason</option>
+              </select>
+            </div>
+
+            {cancelActionError && (
+              <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 rounded-xl text-xs text-rose-800 dark:text-rose-300 flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{cancelActionError}</span>
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                disabled={Boolean(cancellingOrderId)}
+                onClick={() => {
+                  setOrderToCancelModal(null);
+                  setCancelActionError(null);
+                }}
+                className="px-4 py-2.5 rounded-xl border border-stone-200 dark:border-stone-700 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer disabled:opacity-50"
+              >
+                Keep Order
+              </button>
+              <button
+                type="button"
+                disabled={Boolean(cancellingOrderId)}
+                onClick={handleConfirmCancel}
+                className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {cancellingOrderId && (
+                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                )}
+                <span>{cancellingOrderId ? 'Cancelling...' : 'Confirm Cancellation'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Add / Edit Address Modal */}
       {showAddressModal && (
@@ -2515,11 +2787,20 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                   </label>
                   <input
                     type="text"
+                    list="dashboard-pakistan-cities"
                     value={addrCity}
                     onChange={(e) => setAddrCity(e.target.value)}
+                    placeholder="Select or type city name"
                     required
                     className="w-full p-2.5 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl"
                   />
+                  <datalist id="dashboard-pakistan-cities">
+                    {PAKISTAN_CITY_SUGGESTIONS.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </datalist>
                 </div>
               </div>
 

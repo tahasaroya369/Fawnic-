@@ -402,6 +402,17 @@ export async function initializeNeonSchema(): Promise<boolean> {
           ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT DEFAULT '';
           ALTER TABLE users ADD COLUMN IF NOT EXISTS salt TEXT DEFAULT '';
 
+          -- Inventory transactions schema alignment
+          ALTER TABLE inventory_transactions ADD COLUMN IF NOT EXISTS product_name VARCHAR(255) DEFAULT '';
+          ALTER TABLE inventory_transactions ADD COLUMN IF NOT EXISTS sku VARCHAR(128) DEFAULT '';
+          ALTER TABLE inventory_transactions ADD COLUMN IF NOT EXISTS change INT DEFAULT 0;
+          ALTER TABLE inventory_transactions ADD COLUMN IF NOT EXISTS change_amount INT DEFAULT 0;
+          ALTER TABLE inventory_transactions ADD COLUMN IF NOT EXISTS admin_email VARCHAR(255) DEFAULT '';
+          ALTER TABLE inventory_transactions ADD COLUMN IF NOT EXISTS created_by VARCHAR(255) DEFAULT '';
+          ALTER TABLE inventory_transactions ADD COLUMN IF NOT EXISTS reference_id VARCHAR(128) DEFAULT '';
+          ALTER TABLE inventory_transactions ADD COLUMN IF NOT EXISTS notes TEXT DEFAULT '';
+          ALTER TABLE inventory_transactions ALTER COLUMN change_amount DROP NOT NULL;
+
           -- Essential Categories Seeding
           INSERT INTO categories (id, name, slug, icon, banner, description, featured, is_active, display_order, subcategories, created_at, updated_at)
           VALUES
@@ -977,6 +988,43 @@ export async function deleteCategoryInNeon(id: string): Promise<boolean> {
 // ORDERS OPERATIONS
 // =========================================================================
 
+export function rowToOrder(row: any): Order {
+  return {
+    id: row.id,
+    orderNumber: row.order_number,
+    customerId: row.customer_id || undefined,
+    customerName: row.customer_name,
+    customerEmail: row.customer_email,
+    customerPhone: row.customer_phone || '',
+    items: typeof row.items === 'string' ? JSON.parse(row.items) : (row.items || []),
+    shippingAddress: typeof row.shipping_address === 'string' ? JSON.parse(row.shipping_address) : (row.shipping_address || {}),
+    billingAddress: typeof row.billing_address === 'string' ? JSON.parse(row.billing_address) : (row.billing_address || {}),
+    status: row.status,
+    paymentMethod: row.payment_method || 'cod',
+    paymentStatus: row.payment_status || 'pending',
+    subtotal: Number(row.subtotal) || 0,
+    shippingFee: Number(row.shipping_cost) || 0,
+    discount: Number(row.discount) || 0,
+    total: Number(row.total) || 0,
+    couponCode: row.coupon_code || undefined,
+    notes: row.notes || undefined,
+    trackingNumber: row.tracking_number || undefined,
+    courier: row.courier || undefined,
+    courierName: row.courier_name || row.courier || undefined,
+    timeline: typeof row.timeline === 'string' ? JSON.parse(row.timeline) : (row.timeline || []),
+    trackingHistory: typeof row.tracking_history === 'string' ? JSON.parse(row.tracking_history) : (row.tracking_history || []),
+    paymentProof: row.payment_proof || undefined,
+    bankTxRef: row.bank_tx_ref || undefined,
+    internalNotes: row.internal_notes || undefined,
+    dispatchDate: row.dispatch_date || undefined,
+    deliveryDate: row.delivery_date || undefined,
+    expectedDelivery: row.expected_delivery || undefined,
+    cashbackAmount: Number(row.cashback_amount) || undefined,
+    createdAt: row.created_at ? new Date(row.created_at).toISOString() : new Date().toISOString(),
+    updatedAt: row.updated_at ? new Date(row.updated_at).toISOString() : undefined,
+  };
+}
+
 export async function getOrdersFromNeon(): Promise<Order[]> {
   const dbUrl = getNeonDatabaseUrl();
   if (!dbUrl) return [];
@@ -987,40 +1035,7 @@ export async function getOrdersFromNeon(): Promise<Order[]> {
     if (!pool) return [];
 
     const res = await pool.query('SELECT * FROM orders ORDER BY created_at DESC');
-    return (res.rows || []).map((row: any) => ({
-      id: row.id,
-      orderNumber: row.order_number,
-      customerId: row.customer_id || undefined,
-      customerName: row.customer_name,
-      customerEmail: row.customer_email,
-      customerPhone: row.customer_phone || '',
-      items: typeof row.items === 'string' ? JSON.parse(row.items) : (row.items || []),
-      shippingAddress: typeof row.shipping_address === 'string' ? JSON.parse(row.shipping_address) : (row.shipping_address || {}),
-      billingAddress: typeof row.billing_address === 'string' ? JSON.parse(row.billing_address) : (row.billing_address || {}),
-      status: row.status,
-      paymentMethod: row.payment_method || 'cod',
-      paymentStatus: row.payment_status || 'pending',
-      subtotal: Number(row.subtotal) || 0,
-      shippingFee: Number(row.shipping_cost) || 0,
-      discount: Number(row.discount) || 0,
-      total: Number(row.total) || 0,
-      couponCode: row.coupon_code || undefined,
-      notes: row.notes || undefined,
-      trackingNumber: row.tracking_number || undefined,
-      courier: row.courier || undefined,
-      courierName: row.courier_name || row.courier || undefined,
-      timeline: typeof row.timeline === 'string' ? JSON.parse(row.timeline) : (row.timeline || []),
-      trackingHistory: typeof row.tracking_history === 'string' ? JSON.parse(row.tracking_history) : (row.tracking_history || []),
-      paymentProof: row.payment_proof || undefined,
-      bankTxRef: row.bank_tx_ref || undefined,
-      internalNotes: row.internal_notes || undefined,
-      dispatchDate: row.dispatch_date || undefined,
-      deliveryDate: row.delivery_date || undefined,
-      expectedDelivery: row.expected_delivery || undefined,
-      cashbackAmount: Number(row.cashback_amount) || undefined,
-      createdAt: row.created_at ? new Date(row.created_at).toISOString() : new Date().toISOString(),
-      updatedAt: row.updated_at ? new Date(row.updated_at).toISOString() : undefined,
-    }));
+    return (res.rows || []).map(rowToOrder);
   } catch (err: any) {
     console.error('[Neon PostgreSQL] Error querying orders from Neon:', err.message);
     return [];
@@ -1191,6 +1206,223 @@ export async function deleteOrderInNeon(idOrNumber: string): Promise<boolean> {
   }
 }
 
+export async function cancelOrderInNeonTransaction(
+  idOrNumber: string,
+  userId: string | undefined,
+  userEmail: string | undefined,
+  isAdmin: boolean,
+  reason: string,
+  cancelledByName: string
+): Promise<{
+  success: boolean;
+  statusCode: number;
+  message?: string;
+  error?: string;
+  order?: Order;
+}> {
+  const dbUrl = getNeonDatabaseUrl();
+  if (!dbUrl) throw new Error('Neon database URL not configured');
+
+  await initializeNeonSchema();
+  const pool = getNeonPool();
+  if (!pool) throw new Error('Neon database pool unavailable');
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const res = await client.query(
+      'SELECT * FROM orders WHERE id = $1 OR order_number = $1 FOR UPDATE',
+      [idOrNumber]
+    );
+
+    if (!res.rows || res.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return { success: false, statusCode: 404, error: 'Order not found' };
+    }
+
+    const row = res.rows[0];
+
+    // Ownership check
+    const normalizedUserEmail = userEmail?.trim().toLowerCase();
+    const normalizedOrderEmail = (row.customer_email || '').trim().toLowerCase();
+    const isOwner =
+      isAdmin ||
+      (userId && row.customer_id === userId) ||
+      (Boolean(normalizedUserEmail) && Boolean(normalizedOrderEmail) && normalizedUserEmail === normalizedOrderEmail);
+
+    if (!isOwner) {
+      await client.query('ROLLBACK');
+      return {
+        success: false,
+        statusCode: 403,
+        error: 'Access denied: You can only cancel your own orders.',
+      };
+    }
+
+    const currentStatus = (row.status || '').toLowerCase().trim();
+
+    if (currentStatus === 'cancelled') {
+      await client.query('ROLLBACK');
+      return {
+        success: false,
+        statusCode: 400,
+        error: 'Order is already cancelled',
+        order: rowToOrder(row),
+      };
+    }
+
+    // 1. Packed: Cancellation NOT allowed
+    if (['packed', 'ready', 'ready_to_dispatch'].includes(currentStatus)) {
+      await client.query('ROLLBACK');
+      return {
+        success: false,
+        statusCode: 400,
+        error: 'Order cannot be cancelled because it has already been packed for dispatch. Once packing begins, cancellations cannot be accepted.',
+        order: rowToOrder(row),
+      };
+    }
+
+    // 2. Dispatched / Shipped / In Transit: Cancellation NOT allowed
+    if (
+      ['dispatched', 'shipped', 'in_transit'].includes(currentStatus) ||
+      row.dispatch_date
+    ) {
+      await client.query('ROLLBACK');
+      const formatted = row.status ? row.status.replace(/_/g, ' ') : 'dispatched';
+      return {
+        success: false,
+        statusCode: 400,
+        error: `Order cannot be cancelled because it has already been dispatched (${formatted}). Consignments cannot be cancelled while in transit with courier. You may request a 7-day return once delivered.`,
+        order: rowToOrder(row),
+      };
+    }
+
+    // 3. Out for delivery
+    if (currentStatus === 'out_for_delivery') {
+      await client.query('ROLLBACK');
+      return {
+        success: false,
+        statusCode: 400,
+        error: 'Order cannot be cancelled because it is out for delivery with courier.',
+        order: rowToOrder(row),
+      };
+    }
+
+    // 4. Delivered
+    if (['delivered', 'completed'].includes(currentStatus)) {
+      await client.query('ROLLBACK');
+      return {
+        success: false,
+        statusCode: 400,
+        error: 'Delivered orders cannot be cancelled. You may request a 7-day return from your customer dashboard.',
+        order: rowToOrder(row),
+      };
+    }
+
+    if (['return_requested', 'returned', 'refunded'].includes(currentStatus)) {
+      await client.query('ROLLBACK');
+      return {
+        success: false,
+        statusCode: 400,
+        error: `Order cannot be cancelled because it is in ${row.status.replace(/_/g, ' ')} state.`,
+        order: rowToOrder(row),
+      };
+    }
+
+    // Allowed statuses: Pending & Processing (and confirmed/new)
+    const ALLOWED = ['pending', 'processing', 'confirmed', 'new'];
+    if (!ALLOWED.includes(currentStatus)) {
+      await client.query('ROLLBACK');
+      return {
+        success: false,
+        statusCode: 400,
+        error: `Order cannot be cancelled in its current state (${row.status}).`,
+        order: rowToOrder(row),
+      };
+    }
+
+    // Append to timeline & tracking_history
+    const timeline = typeof row.timeline === 'string' ? JSON.parse(row.timeline) : (row.timeline || []);
+    const trackingHistory = typeof row.tracking_history === 'string' ? JSON.parse(row.tracking_history) : (row.tracking_history || []);
+    const items = typeof row.items === 'string' ? JSON.parse(row.items) : (row.items || []);
+
+    const timelineItem = {
+      status: 'cancelled',
+      timestamp: new Date().toISOString(),
+      updatedBy: cancelledByName,
+      note: reason || 'Cancelled by customer from dashboard',
+      location: 'FAWNIC Atelier, Karachi',
+    };
+    timeline.push(timelineItem);
+    trackingHistory.push(timelineItem);
+
+    await client.query(
+      `UPDATE orders SET
+        status = 'cancelled',
+        timeline = $1,
+        tracking_history = $2,
+        updated_at = NOW()
+       WHERE id = $3`,
+      [JSON.stringify(timeline), JSON.stringify(trackingHistory), row.id]
+    );
+
+    // Restore stock in Neon within this transaction
+    for (const it of items) {
+      if (!it.productId) continue;
+      const qty = Math.max(1, Number(it.quantity) || 1);
+      const prodRes = await client.query('SELECT * FROM products WHERE id = $1 FOR UPDATE', [it.productId]);
+      if (prodRes.rows && prodRes.rows.length > 0) {
+        const prod = prodRes.rows[0];
+        const oldStock = Number(prod.stock) || 0;
+        const newStock = oldStock + qty;
+        await client.query('UPDATE products SET stock = $1, updated_at = NOW() WHERE id = $2', [newStock, it.productId]);
+
+        const txnId = `txn_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+        await client.query(
+          `INSERT INTO inventory_transactions (id, product_id, product_name, sku, change, change_amount, previous_stock, new_stock, reason, admin_email, created_by, notes, reference_id, created_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW())`,
+          [
+            txnId,
+            it.productId,
+            prod.name || it.name || '',
+            prod.sku || it.sku || 'FWN-ART',
+            qty,
+            qty,
+            oldStock,
+            newStock,
+            'Order Cancelled',
+            normalizedUserEmail || 'customer@fawnic.pk',
+            cancelledByName,
+            `Restored from cancelled order #${row.order_number}`,
+            row.order_number,
+          ]
+        );
+      }
+    }
+
+    await client.query('COMMIT');
+
+    const updatedOrderRes = await pool.query('SELECT * FROM orders WHERE id = $1', [row.id]);
+    const finalOrder = updatedOrderRes.rows && updatedOrderRes.rows.length > 0
+      ? rowToOrder(updatedOrderRes.rows[0])
+      : { ...rowToOrder(row), status: 'cancelled' as const };
+
+    return {
+      success: true,
+      statusCode: 200,
+      message: 'Order successfully cancelled',
+      order: finalOrder,
+    };
+  } catch (err: any) {
+    await client.query('ROLLBACK');
+    console.error('[Neon PostgreSQL] Error during cancelOrderInNeonTransaction:', err);
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
 // =========================================================================
 // INVENTORY OPERATIONS
 // =========================================================================
@@ -1237,16 +1469,16 @@ export async function adjustProductStockInNeon(
       change: delta,
       previousStock,
       newStock,
-      reason: reason || 'Manual Adjustment',
+      reason: (reason || 'Manual Adjustment') as any,
       adminEmail: adminEmail || 'Admin',
       timestamp: new Date().toISOString(),
       notes: notes || undefined,
     };
 
     await client.query(
-      `INSERT INTO inventory_transactions (id, product_id, product_name, sku, change, previous_stock, new_stock, reason, admin_email, notes, created_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW())`,
-      [txn.id, txn.productId, txn.productName, txn.sku, txn.change, txn.previousStock, txn.newStock, txn.reason, txn.adminEmail, txn.notes || '']
+      `INSERT INTO inventory_transactions (id, product_id, product_name, sku, change, change_amount, previous_stock, new_stock, reason, admin_email, created_by, notes, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())`,
+      [txn.id, txn.productId, txn.productName, txn.sku, txn.change, txn.change, txn.previousStock, txn.newStock, txn.reason, txn.adminEmail, txn.adminEmail || 'Customer', txn.notes || '']
     );
 
     await client.query('COMMIT');
@@ -1633,8 +1865,8 @@ export async function insertCustomerQueryInNeon(q: CustomerQuery): Promise<Custo
 
   const values = [
     q.id,
-    q.ticketNumber || q.queryNumber,
-    q.queryNumber || q.ticketNumber,
+    q.queryNumber || (q as any).ticketNumber || '',
+    q.queryNumber || (q as any).ticketNumber || '',
     q.customerId || null,
     q.customerName,
     q.customerEmail,

@@ -1,9 +1,16 @@
 import express from 'express';
 import { getDb, saveDatabase, saveDatabaseAsync } from '../db.js';
-import { isNeonConfigured, getOrdersFromNeon, getNotificationsFromNeon } from '../storage/neon.js';
+import {
+  isNeonConfigured,
+  getOrdersFromNeon,
+  getNotificationsFromNeon,
+  updateOrderInNeon,
+  adjustProductStockInNeon,
+} from '../storage/neon.js';
 import { requireAuth, type AuthenticatedRequest } from '../middleware.js';
 import type { Address, NotificationItem } from '../../src/types.js';
-import { broadcastNotificationEvent } from '../websocket.js';
+import { broadcastNotificationEvent, broadcastOrderUpdate, broadcastProductEvent } from '../websocket.js';
+import { createOrderNotification } from '../orderNotificationHelper.js';
 
 const router = express.Router();
 
@@ -75,92 +82,34 @@ router.get('/orders/:id', requireAuth, async (req: AuthenticatedRequest, res) =>
   res.json(order);
 });
 
+import { cancelCustomerOrderCore } from '../services/orderCancellationService.js';
+
 // Cancel Order by Customer
-router.post('/orders/:id/cancel', requireAuth, (req: AuthenticatedRequest, res) => {
-  const { reason } = req.body;
-  const db = getDb();
-  const userId = req.user?.id;
-  const userEmail = req.user?.email?.toLowerCase();
-  const orderId = req.params.id;
-
-  const order = (db.orders || []).find(
-    (o) => o.id === orderId || o.orderNumber === orderId
-  );
-
-  if (!order) {
-    res.status(404).json({ error: 'Order not found' });
-    return;
-  }
-
-  const isOwner =
-    (userId && order.customerId === userId) ||
-    (userEmail && order.customerEmail && order.customerEmail.toLowerCase() === userEmail);
-
-  if (!isOwner) {
-    res.status(403).json({ error: 'Access denied to this order' });
-    return;
-  }
-
-  if (order.status === 'cancelled') {
-    res.status(400).json({ error: 'Order is already cancelled', order });
-    return;
-  }
-
-  if (['shipped', 'out_for_delivery', 'delivered', 'completed'].includes(order.status)) {
-    res.status(400).json({
-      error: `Order cannot be cancelled because it is already ${order.status.replace('_', ' ')}. You may request a return once delivered.`,
+router.post('/orders/:id/cancel', requireAuth, async (req: AuthenticatedRequest, res) => {
+  try {
+    const result = await cancelCustomerOrderCore({
+      orderId: req.params.id,
+      userId: req.user?.id,
+      userEmail: req.user?.email,
+      isAdmin: req.user?.role === 'admin',
+      reason: req.body?.reason,
+      cancelledByName: req.user?.name || req.user?.email,
     });
-    return;
-  }
 
-  order.status = 'cancelled';
-  order.updatedAt = new Date().toISOString();
-  if (!order.timeline) order.timeline = [];
-  order.timeline.push({
-    status: 'cancelled',
-    timestamp: new Date().toISOString(),
-    updatedBy: req.user?.name || req.user?.email || 'Customer',
-    note: reason || 'Cancelled by customer from dashboard',
-  });
-
-  // Restore inventory
-  for (const it of order.items || []) {
-    const prod = (db.products || []).find((p) => p.id === it.productId);
-    if (prod) {
-      prod.stock = (prod.stock || 0) + (it.quantity || 1);
-      if (prod.stock > 0) prod.stockStatus = 'in_stock';
-
-      if (!db.inventoryTransactions) db.inventoryTransactions = [];
-      db.inventoryTransactions.unshift({
-        id: `txn_rest_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-        productId: prod.id,
-        productName: prod.name,
-        sku: prod.sku,
-        change: it.quantity || 1,
-        previousStock: prod.stock - (it.quantity || 1),
-        newStock: prod.stock,
-        reason: 'Order Cancelled',
-        performedByName: req.user?.name || req.user?.email || 'Customer',
-        adminEmail: req.user?.email || 'customer@fawnic.pk',
-        timestamp: new Date().toISOString(),
-      });
+    if (!result.success) {
+      res.status(result.statusCode).json({ error: result.error, order: result.order });
+      return;
     }
+
+    res.status(result.statusCode).json({
+      success: true,
+      message: result.message || 'Order successfully cancelled',
+      order: result.order,
+    });
+  } catch (err: any) {
+    console.error('[Customer Order Cancel Error]', err);
+    res.status(500).json({ error: err.message || 'Failed to cancel order' });
   }
-
-  if (!db.auditLogs) db.auditLogs = [];
-  db.auditLogs.unshift({
-    id: `log_${Date.now()}`,
-    adminEmail: req.user?.email || 'Customer',
-    action: 'ORDER_CANCELLED_BY_CUSTOMER',
-    entityType: 'Order',
-    entityId: order.orderNumber,
-    details: `Customer cancelled order. Reason: ${reason || 'Not specified'}`,
-    timestamp: new Date().toISOString(),
-  });
-
-  saveDatabase();
-
-  res.json({ message: 'Order successfully cancelled', order });
 });
 
 // Request 7-Day Return by Customer

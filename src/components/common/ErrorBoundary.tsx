@@ -39,7 +39,7 @@ export class ErrorBoundary extends Component<Props, State> {
               Please refresh or check back in a moment while our atelier catalog finishes updating.
             </p>
             <button
-              onClick={() => this.setState({ hasError: false })}
+              onClick={() => this.setState({ hasError: false, error: undefined })}
               className="px-4 py-2 bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 text-xs font-semibold rounded-xl cursor-pointer hover:opacity-90 transition-opacity"
             >
               Try Again

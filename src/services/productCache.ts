@@ -89,12 +89,13 @@ if (typeof window !== 'undefined') {
     if (detail.action === 'updated') {
       if (detail.product && cachedProducts) {
         cachedProducts = cachedProducts.map((p) =>
-          p.id === detail.product.id ? { ...p, ...detail.product } : p
+          p && p.id === detail.product.id ? { ...p, ...detail.product } : p
         );
+        const slug = detail.product.slug;
         const cachedDetail =
-          productDetailCache.get(detail.product.slug) ||
-          productDetailCache.get(detail.product.id);
-        if (cachedDetail) {
+          (slug ? productDetailCache.get(slug) : null) ||
+          (detail.product.id ? productDetailCache.get(detail.product.id) : null);
+        if (cachedDetail && cachedDetail.product) {
           cachedDetail.product = { ...cachedDetail.product, ...detail.product };
         }
       } else {
@@ -108,18 +109,19 @@ if (typeof window !== 'undefined') {
       cachedProducts
     ) {
       cachedProducts = cachedProducts.map((p) =>
-        p.id === detail.productId ? { ...p, ...detail.product } : p
+        p && p.id === detail.productId ? { ...p, ...detail.product } : p
       );
+      const slug = detail.product.slug;
       const cachedDetail =
         productDetailCache.get(detail.productId) ||
-        productDetailCache.get(detail.product.slug);
-      if (cachedDetail) {
+        (slug ? productDetailCache.get(slug) : null);
+      if (cachedDetail && cachedDetail.product) {
         cachedDetail.product = { ...cachedDetail.product, ...detail.product };
       }
     } else if (detail.action === 'deleted') {
       const pid = detail.productId || detail.product?.id;
       if (pid && cachedProducts) {
-        cachedProducts = cachedProducts.filter((p) => p.id !== pid);
+        cachedProducts = cachedProducts.filter((p) => p && p.id !== pid);
       } else {
         cachedProducts = null;
       }
@@ -128,7 +130,7 @@ if (typeof window !== 'undefined') {
         productDetailCache.delete(detail.product.slug);
       }
     } else if (detail.action === 'created' && detail.product && cachedProducts) {
-      const exists = cachedProducts.some((p) => p.id === detail.product.id);
+      const exists = cachedProducts.some((p) => p && p.id === detail.product.id);
       if (!exists) {
         cachedProducts = [detail.product, ...cachedProducts];
       }

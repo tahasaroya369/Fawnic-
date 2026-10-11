@@ -825,6 +825,10 @@ router.put('/orders/:id/status', async (req: AuthenticatedRequest, res) => {
   await handleOrderTrackingUpdate(req, res);
 });
 
+router.post('/orders/:id/status', async (req: AuthenticatedRequest, res) => {
+  await handleOrderTrackingUpdate(req, res);
+});
+
 router.put('/orders/:id/tracking', async (req: AuthenticatedRequest, res) => {
   await handleOrderTrackingUpdate(req, res);
 });

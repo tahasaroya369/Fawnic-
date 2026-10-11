@@ -102,18 +102,18 @@ export const Shop: React.FC<ShopProps> = ({ onNavigate, onQuickView, initialCate
       if (!detail) return;
       if (detail.action === 'updated' && detail.product) {
         setProducts((prev) =>
-          prev.map((p) => (p.id === detail.product.id ? { ...p, ...detail.product } : p))
+          (prev || []).map((p) => (p && p.id === detail.product.id ? { ...p, ...detail.product } : p))
         );
       } else if (detail.action === 'inventory' && detail.productId && detail.product) {
         setProducts((prev) =>
-          prev.map((p) => (p.id === detail.productId ? { ...p, ...detail.product } : p))
+          (prev || []).map((p) => (p && p.id === detail.productId ? { ...p, ...detail.product } : p))
         );
       } else if (detail.action === 'deleted') {
         const pid = detail.productId || detail.product?.id;
         if (pid) {
-          setProducts((prev) => prev.filter((p) => p.id !== pid));
+          setProducts((prev) => (prev || []).filter((p) => p && p.id !== pid));
           const current = getCachedProducts();
-          if (current) setCachedProducts(current.filter((p) => p.id !== pid));
+          if (current) setCachedProducts(current.filter((p) => p && p.id !== pid));
         } else {
           loadData(false);
         }

@@ -2102,13 +2102,31 @@ export async function syncDatabaseFromRemote(): Promise<void> {
     // If Neon is configured, sync directly from authoritative relational tables
     if (isNeonConfigured()) {
       try {
-        neonProducts = await getProductsFromNeon();
-        neonCategories = await getCategoriesFromNeon();
-        neonOrders = await getOrdersFromNeon();
-        neonNotifications = await getNotificationsFromNeon();
-        neonCoupons = await getCouponsFromNeon();
-        neonQueries = await getCustomerQueriesFromNeon();
-        neonInvoices = await getInvoicesFromNeon();
+        const [
+          prodRes,
+          catRes,
+          ordRes,
+          notifRes,
+          coupRes,
+          queryRes,
+          invRes,
+        ] = await Promise.allSettled([
+          getProductsFromNeon(),
+          getCategoriesFromNeon(),
+          getOrdersFromNeon(),
+          getNotificationsFromNeon(),
+          getCouponsFromNeon(),
+          getCustomerQueriesFromNeon(),
+          getInvoicesFromNeon(),
+        ]);
+
+        if (prodRes.status === 'fulfilled') neonProducts = prodRes.value;
+        if (catRes.status === 'fulfilled') neonCategories = catRes.value;
+        if (ordRes.status === 'fulfilled') neonOrders = ordRes.value;
+        if (notifRes.status === 'fulfilled') neonNotifications = notifRes.value;
+        if (coupRes.status === 'fulfilled') neonCoupons = coupRes.value;
+        if (queryRes.status === 'fulfilled') neonQueries = queryRes.value;
+        if (invRes.status === 'fulfilled') neonInvoices = invRes.value;
 
         if (!db) db = loadDatabase();
         if (Array.isArray(neonProducts)) db.products = neonProducts;

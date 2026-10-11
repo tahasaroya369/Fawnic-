@@ -402,6 +402,7 @@ export interface BroadcastProductPayload {
   action: 'created' | 'updated' | 'deleted' | 'inventory';
   product?: any;
   productId?: string;
+  productIds?: string[];
   products?: any[];
 }
 

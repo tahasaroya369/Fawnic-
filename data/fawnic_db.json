@@ -89,297 +89,299 @@
       "createdAt": "2026-10-05T19:13:21.178Z",
       "updatedAt": "2026-10-05T19:16:14.583Z",
       "passwordHash": "74ecacee146ed1dcbf7eec1f97f84a6a7bb14798fd9b478cf2db76b2deaa1eb52a1eba40be42cbb536004f647dd4b33e1250b8fd1c0f305f93b858bf516177a1"
+    },
+    {
+      "id": "usr_1791575623453_plouq",
+      "name": "sufyan",
+      "role": "customer",
+      "salt": "6ffaaee78bafe260acc8d41b61511a3b",
+      "email": "tahasaroya@gmail.com",
+      "phone": "+92",
+      "createdAt": "2026-10-09T19:53:43.454Z",
+      "passwordHash": "6f8dc7a2c577e2018d05d32ce0da3ab01573929aa7fc66b4ceaae1c469d0a6f17e19a7e4c81ef19a1e762d94e6d3c9de982150bb306923eb628f798011bd8afb"
     }
   ],
-  "orders": [],
-  "coupons": [],
-  "queries": [
+  "orders": [
     {
-      "id": "qry_1791227668436_c5wf8",
-      "status": "replied",
-      "message": "hi how are you buddy",
-      "subject": "General Customer Inquiry",
-      "category": "General Question",
-      "messages": [
+      "id": "ord_1791663221383",
+      "orderNumber": "FWN-55148",
+      "customerId": "usr_1791575623453_plouq",
+      "customerName": "sufyan",
+      "customerEmail": "tahasaroya@gmail.com",
+      "customerPhone": "+920987654",
+      "items": [
         {
-          "id": "qmsg_1791227668436_1",
-          "isRead": false,
-          "message": "hi how are you buddy",
-          "queryId": "qry_1791227668436_c5wf8",
-          "senderId": "usr_1791227601178_d48dn",
-          "createdAt": "2026-10-05T19:14:28.436Z",
-          "senderName": "Taha Ibrar",
-          "senderRole": "customer"
-        },
-        {
-          "id": "qmsg_1791227742527_dqgj",
-          "isRead": false,
-          "message": "hi buddy i m good",
-          "queryId": "qry_1791227668436_c5wf8",
-          "senderId": "usr_admin_1",
-          "createdAt": "2026-10-05T19:15:42.527Z",
-          "senderName": "Ali Chishti",
-          "senderRole": "admin"
+          "sku": "FWN-0001-2",
+          "name": "Men Best Wallet For Events (Copy) (Copy)",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791483577163-whatsapp-image-2026-09-29-at-9-1_wngEb66Ko.jpg",
+          "price": 3800,
+          "total": 3800,
+          "quantity": 1,
+          "subtotal": 3800,
+          "productId": "fwn_prd_1791486063309_krg0",
+          "unitPrice": 3800,
+          "productName": "Men Best Wallet For Events (Copy) (Copy)",
+          "variantInfo": "Color: Brown",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791483577163-whatsapp-image-2026-09-29-at-9-1_wngEb66Ko.jpg",
+          "selectedColor": "Brown",
+          "selectedVariants": {
+            "Color": "Brown"
+          },
+          "selectedVariation": {
+            "id": "var_1791523681547_bbgg",
+            "sku": "FWN-0001-2",
+            "name": "Brown",
+            "type": "color",
+            "color": "Brown",
+            "image": "https://ik.imagekit.io/cdef76odq/products/1791483577163-whatsapp-image-2026-09-29-at-9-1_wngEb66Ko.jpg",
+            "order": 2,
+            "colorCode": "#78350f"
+          }
         }
       ],
-      "priority": "normal",
-      "createdAt": "2026-10-05T19:14:28.436Z",
-      "isDeleted": false,
-      "updatedAt": "2026-10-05T19:15:42.527Z",
-      "customerId": "usr_1791227601178_d48dn",
-      "isArchived": false,
-      "queryNumber": "FW-QRY-0004",
-      "customerName": "Taha Ibrar",
-      "auditTimeline": [
+      "shippingAddress": {
+        "id": "addr_1791702692723",
+        "city": "Lahore",
+        "phone": "+920987654",
+        "fullName": "sufyan",
+        "province": "Punjab",
+        "isDefault": false,
+        "postalCode": "75500",
+        "addressLine1": "79 X Block Housing Colony Sheikhupura",
+        "recipientName": "sufyan"
+      },
+      "billingAddress": {},
+      "status": "pending",
+      "paymentMethod": "cod",
+      "paymentStatus": "pending",
+      "subtotal": 3800,
+      "shippingFee": 250,
+      "discount": 0,
+      "total": 4050,
+      "notes": "Reset to pending for testing",
+      "timeline": [
         {
-          "id": "qaud_1791227668436_1",
-          "action": "Query submitted via Contact Us",
-          "details": "Category: General Question",
-          "queryId": "qry_1791227668436_c5wf8",
-          "actorName": "Taha Ibrar",
-          "actorRole": "customer",
-          "timestamp": "2026-10-05T19:14:28.436Z"
+          "note": "Order placed by customer via Cash on Delivery.",
+          "status": "pending",
+          "location": "Lahore, Pakistan",
+          "timestamp": "2026-10-10T20:13:41.384Z",
+          "updatedBy": "Customer"
         },
         {
-          "id": "qaud_1791227742527",
-          "action": "Staff reply sent by Ali Chishti",
-          "queryId": "qry_1791227668436_c5wf8",
-          "actorName": "Ali Chishti",
-          "actorRole": "admin",
-          "timestamp": "2026-10-05T19:15:42.527Z"
+          "note": "Test verification before final audit",
+          "status": "cancelled",
+          "location": "FAWNIC Atelier, Karachi",
+          "timestamp": "2026-10-11T14:13:21.863Z",
+          "updatedBy": "sufyan"
+        },
+        {
+          "note": "Packed for shipping",
+          "status": "packed",
+          "location": "FAWNIC Logistics Center, Karachi",
+          "timestamp": "2026-10-11T14:14:05.208Z",
+          "updatedBy": "Ali Chishti"
+        },
+        {
+          "note": "Reset to pending for testing",
+          "status": "pending",
+          "location": "FAWNIC Logistics Center, Karachi",
+          "timestamp": "2026-10-11T14:14:14.491Z",
+          "updatedBy": "Ali Chishti"
         }
       ],
-      "customerEmail": "tahasaroya369@gmail.com",
-      "customerPhone": "+92 3455005396",
-      "internalNotes": [],
-      "isReadByAdmin": true,
-      "isReadByCustomer": false
+      "trackingHistory": [
+        {
+          "note": "Order placed by customer via Cash on Delivery.",
+          "status": "pending",
+          "location": "Lahore, Pakistan",
+          "timestamp": "2026-10-10T20:13:41.384Z",
+          "updatedBy": "Customer"
+        },
+        {
+          "note": "Test verification before final audit",
+          "status": "cancelled",
+          "location": "FAWNIC Atelier, Karachi",
+          "timestamp": "2026-10-11T14:13:21.863Z",
+          "updatedBy": "sufyan"
+        },
+        {
+          "note": "Packed for shipping",
+          "status": "packed",
+          "location": "FAWNIC Logistics Center, Karachi",
+          "timestamp": "2026-10-11T14:14:05.208Z",
+          "updatedBy": "Ali Chishti"
+        },
+        {
+          "note": "Reset to pending for testing",
+          "status": "pending",
+          "location": "FAWNIC Logistics Center, Karachi",
+          "timestamp": "2026-10-11T14:14:14.491Z",
+          "updatedBy": "Ali Chishti"
+        }
+      ],
+      "createdAt": "2026-10-10T20:13:41.384Z",
+      "updatedAt": "2026-10-11T14:14:14.835Z"
     },
     {
-      "id": "qry_1789586817188_vrife",
-      "status": "replied",
-      "message": "kjbfkjekb jbfiubiufjkbe jhb uifiwqbb kjbfibiwbefbjn biubnfkjbjebife jbkjebkjwbkjfbkjwe  kbkijb fekjbkjn  jkbkjebfkjfbwknbjk jhb kbfkbkbkfe kj kj  fe kjwbnkj hkjfnkje fj bkjfbkjew nebfkjeb fikj evjhbeuf b wkjbnfjkbekjr fge",
-      "subject": "Order Process",
-      "category": "General Question",
-      "messages": [
+      "id": "ord_1791653294179",
+      "orderNumber": "FWN-57484",
+      "customerId": "usr_1791575623453_plouq",
+      "customerName": "sufyan",
+      "customerEmail": "tahasaroya@gmail.com",
+      "customerPhone": "+92876547654",
+      "items": [
         {
-          "id": "qmsg_1789586817188_1",
-          "isRead": false,
-          "message": "kjbfkjekb jbfiubiufjkbe jhb uifiwqbb kjbfibiwbefbjn biubnfkjbjebife jbkjebkjwbkjfbkjwe  kbkijb fekjbkjn  jkbkjebfkjfbwknbjk jhb kbfkbkbkfe kj kj  fe kjwbnkj hkjfnkje fj bkjfbkjew nebfkjeb fikj evjhbeuf b wkjbnfjkbekjr fge",
-          "queryId": "qry_1789586817188_vrife",
-          "senderId": "usr_1789586536928_tqjpi",
-          "createdAt": "2026-09-16T19:26:57.187Z",
-          "senderName": "Taha Saroya",
-          "senderRole": "customer"
-        },
-        {
-          "id": "qmsg_1789586846436_em4i",
-          "isRead": false,
-          "message": "hi",
-          "queryId": "qry_1789586817188_vrife",
-          "senderId": "usr_1789586536928_tqjpi",
-          "createdAt": "2026-09-16T19:27:26.436Z",
-          "senderName": "Taha Saroya",
-          "senderRole": "customer"
-        },
-        {
-          "id": "qmsg_1789586901446_2nn1",
-          "isRead": false,
-          "message": "yes",
-          "queryId": "qry_1789586817188_vrife",
-          "senderId": "usr_admin_1",
-          "createdAt": "2026-09-16T19:28:21.446Z",
-          "senderName": "Ali Chishti",
-          "senderRole": "admin"
-        },
-        {
-          "id": "qmsg_1789730734550_z4fu",
-          "isRead": false,
-          "message": "dtuyffuf",
-          "queryId": "qry_1789586817188_vrife",
-          "senderId": "usr_1789586536928_tqjpi",
-          "createdAt": "2026-09-18T11:25:34.550Z",
-          "senderName": "Taha Saroya",
-          "senderRole": "customer"
-        },
-        {
-          "id": "qmsg_1789731129165_eben",
-          "isRead": false,
-          "message": "bhut",
-          "queryId": "qry_1789586817188_vrife",
-          "senderId": "usr_admin_1",
-          "createdAt": "2026-09-18T11:32:09.165Z",
-          "senderName": "Ali Chishti",
-          "senderRole": "admin"
+          "sku": "FWN-7163",
+          "name": "premium leather",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "price": 4499,
+          "total": 4499,
+          "quantity": 1,
+          "subtotal": 4499,
+          "productId": "fwn_prd_1791571838415_6k8u",
+          "unitPrice": 4499,
+          "productName": "premium leather",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg"
         }
       ],
-      "priority": "normal",
-      "createdAt": "2026-09-16T19:26:57.187Z",
-      "isDeleted": false,
-      "updatedAt": "2026-09-18T11:32:09.165Z",
-      "customerId": "usr_1789586536928_tqjpi",
-      "isArchived": false,
-      "queryNumber": "FW-QRY-0003",
-      "customerName": "Taha Saroya",
-      "auditTimeline": [
+      "shippingAddress": {
+        "id": "addr_1791692765600",
+        "city": "Sheikhupura",
+        "phone": "+92876547654",
+        "fullName": "sufyan",
+        "province": "Punjab",
+        "isDefault": false,
+        "postalCode": "75500",
+        "addressLine1": "79 X Block Housing Colony Sheikhupura",
+        "recipientName": "sufyan"
+      },
+      "billingAddress": {},
+      "status": "cancelled",
+      "paymentMethod": "cod",
+      "paymentStatus": "pending",
+      "subtotal": 4499,
+      "shippingFee": 250,
+      "discount": 0,
+      "total": 4749,
+      "timeline": [
         {
-          "id": "qaud_1789586817188_1",
-          "action": "Query submitted via Contact Us",
-          "details": "Category: General Question",
-          "queryId": "qry_1789586817188_vrife",
-          "actorName": "Taha Saroya",
-          "actorRole": "customer",
-          "timestamp": "2026-09-16T19:26:57.187Z"
+          "note": "Order placed by customer via Cash on Delivery.",
+          "status": "pending",
+          "location": "Sheikhupura, Pakistan",
+          "timestamp": "2026-10-10T17:28:14.179Z",
+          "updatedBy": "Customer"
         },
         {
-          "id": "qaud_1789586846436",
-          "action": "Customer replied to conversation",
-          "queryId": "qry_1789586817188_vrife",
-          "actorName": "Taha Saroya",
-          "actorRole": "customer",
-          "timestamp": "2026-09-16T19:27:26.436Z"
+          "note": "Order status updated to \"processing\"",
+          "status": "processing",
+          "location": "FAWNIC Logistics Center, Karachi",
+          "timestamp": "2026-10-10T17:31:15.878Z",
+          "updatedBy": "Ali Chishti"
         },
         {
-          "id": "qaud_1789586901446",
-          "action": "Staff reply sent by Ali Chishti",
-          "queryId": "qry_1789586817188_vrife",
-          "actorName": "Ali Chishti",
-          "actorRole": "admin",
-          "timestamp": "2026-09-16T19:28:21.446Z"
+          "note": "Order status updated to \"packed\"",
+          "status": "packed",
+          "location": "FAWNIC Logistics Center, Karachi",
+          "timestamp": "2026-10-10T17:31:26.212Z",
+          "updatedBy": "Ali Chishti"
         },
         {
-          "id": "qaud_1789730734550",
-          "action": "Customer replied to conversation",
-          "queryId": "qry_1789586817188_vrife",
-          "actorName": "Taha Saroya",
-          "actorRole": "customer",
-          "timestamp": "2026-09-18T11:25:34.550Z"
+          "note": "Order status updated to \"confirmed\"",
+          "status": "confirmed",
+          "location": "FAWNIC Logistics Center, Karachi",
+          "timestamp": "2026-10-10T17:33:03.682Z",
+          "updatedBy": "Ali Chishti"
         },
         {
-          "id": "qaud_1789731129165",
-          "action": "Staff reply sent by Ali Chishti",
-          "queryId": "qry_1789586817188_vrife",
-          "actorName": "Ali Chishti",
-          "actorRole": "admin",
-          "timestamp": "2026-09-18T11:32:09.165Z"
+          "note": "Test confirmed cancel",
+          "status": "cancelled",
+          "location": "FAWNIC Atelier, Karachi",
+          "timestamp": "2026-10-11T14:13:43.634Z",
+          "updatedBy": "sufyan"
         }
       ],
-      "customerEmail": "tahahussainsaroya329@gmail.com",
-      "customerPhone": "+92 3440017711",
-      "internalNotes": [],
-      "isReadByAdmin": true,
-      "isReadByCustomer": false
-    },
-    {
-      "id": "qry_1789581116894_45g87",
-      "status": "replied",
-      "message": "**How to Order:**\n\n1. Apna naam aur contact number enter karein.\n2. Product ka naam aur quantity mention karein.\n3. Apna complete delivery address enter karein.\n4. Order details submit karein.\n5. Hamari team aap se confirmation ke liye contact karegi.",
-      "subject": "order process",
-      "category": "General Question",
-      "messages": [
+      "trackingHistory": [
         {
-          "id": "qmsg_1789581116894_1",
-          "isRead": false,
-          "message": "**How to Order:**\n\n1. Apna naam aur contact number enter karein.\n2. Product ka naam aur quantity mention karein.\n3. Apna complete delivery address enter karein.\n4. Order details submit karein.\n5. Hamari team aap se confirmation ke liye contact karegi.",
-          "queryId": "qry_1789581116894_45g87",
-          "createdAt": "2026-09-16T17:51:56.893Z",
-          "senderName": "Ali Chishti",
-          "senderRole": "customer"
+          "note": "Order placed by customer via Cash on Delivery.",
+          "status": "pending",
+          "location": "Sheikhupura, Pakistan",
+          "timestamp": "2026-10-10T17:28:14.179Z",
+          "updatedBy": "Customer"
         },
         {
-          "id": "qmsg_1789581231582_otm6",
-          "isRead": false,
-          "message": "We are pleased to offer a hassle-free 7-day exchange and return policy across Pakistan. Please ensure the article remains in original packaging with protective seals intact. Our concierge team can arrange reverse pickup or provide courier return details.",
-          "queryId": "qry_1789581116894_45g87",
-          "senderId": "usr_admin_1",
-          "createdAt": "2026-09-16T17:53:51.582Z",
-          "senderName": "Ali Chishti",
-          "senderRole": "admin"
-        }
-      ],
-      "priority": "normal",
-      "createdAt": "2026-09-16T17:51:56.893Z",
-      "isDeleted": false,
-      "updatedAt": "2026-09-16T17:53:51.582Z",
-      "isArchived": false,
-      "queryNumber": "FW-QRY-0002",
-      "customerName": "Ali Chishti",
-      "auditTimeline": [
-        {
-          "id": "qaud_1789581116894_1",
-          "action": "Query submitted via Contact Us",
-          "details": "Category: General Question",
-          "queryId": "qry_1789581116894_45g87",
-          "actorName": "Ali Chishti",
-          "actorRole": "customer",
-          "timestamp": "2026-09-16T17:51:56.893Z"
+          "note": "Order status updated to \"processing\"",
+          "status": "processing",
+          "location": "FAWNIC Logistics Center, Karachi",
+          "timestamp": "2026-10-10T17:31:15.878Z",
+          "updatedBy": "Ali Chishti"
         },
         {
-          "id": "qaud_1789581231582",
-          "action": "Staff reply sent by Ali Chishti",
-          "queryId": "qry_1789581116894_45g87",
-          "actorName": "Ali Chishti",
-          "actorRole": "admin",
-          "timestamp": "2026-09-16T17:53:51.582Z"
-        }
-      ],
-      "customerEmail": "aliahaba340@gmail.com",
-      "customerPhone": "03455005396",
-      "internalNotes": [],
-      "isReadByAdmin": true,
-      "isReadByCustomer": false
-    },
-    {
-      "id": "qry_1789580684752_7o1va",
-      "status": "new",
-      "message": "Could you please confirm if express delivery is available for leather briefcases to Lahore?",
-      "subject": "Delivery timeline to Lahore",
-      "category": "Shipping",
-      "messages": [
-        {
-          "id": "qmsg_1789580684752_1",
-          "isRead": false,
-          "message": "Could you please confirm if express delivery is available for leather briefcases to Lahore?",
-          "queryId": "qry_1789580684752_7o1va",
-          "createdAt": "2026-09-16T17:44:44.752Z",
-          "senderName": "Hassan Raza",
-          "senderRole": "customer"
-        }
-      ],
-      "priority": "normal",
-      "createdAt": "2026-09-16T17:44:44.752Z",
-      "isDeleted": true,
-      "updatedAt": "2026-09-16T17:46:38.559Z",
-      "isArchived": false,
-      "orderNumber": "FW-9821",
-      "queryNumber": "FW-QRY-0001",
-      "customerName": "Hassan Raza",
-      "auditTimeline": [
-        {
-          "id": "qaud_1789580684752_1",
-          "action": "Query submitted via Contact Us",
-          "details": "Category: Shipping",
-          "queryId": "qry_1789580684752_7o1va",
-          "actorName": "Hassan Raza",
-          "actorRole": "customer",
-          "timestamp": "2026-09-16T17:44:44.752Z"
+          "note": "Order status updated to \"packed\"",
+          "status": "packed",
+          "location": "FAWNIC Logistics Center, Karachi",
+          "timestamp": "2026-10-10T17:31:26.212Z",
+          "updatedBy": "Ali Chishti"
         },
         {
-          "id": "qaud_1789580798559",
-          "action": "Query deleted by administrator",
-          "queryId": "qry_1789580684752_7o1va",
-          "actorName": "Ali Chishti",
-          "actorRole": "admin",
-          "timestamp": "2026-09-16T17:46:38.559Z"
+          "note": "Order status updated to \"confirmed\"",
+          "status": "confirmed",
+          "location": "FAWNIC Logistics Center, Karachi",
+          "timestamp": "2026-10-10T17:33:03.682Z",
+          "updatedBy": "Ali Chishti"
+        },
+        {
+          "note": "Test confirmed cancel",
+          "status": "cancelled",
+          "location": "FAWNIC Atelier, Karachi",
+          "timestamp": "2026-10-11T14:13:43.634Z",
+          "updatedBy": "sufyan"
         }
       ],
-      "customerEmail": "hassan.raza@example.com",
-      "customerPhone": "03001234567",
-      "internalNotes": [],
-      "isReadByAdmin": false,
-      "isReadByCustomer": true
+      "createdAt": "2026-10-10T17:28:14.179Z",
+      "updatedAt": "2026-10-11T14:13:43.302Z"
     }
   ],
+  "coupons": [
+    {
+      "id": "cpn_3",
+      "code": "LUXURY20",
+      "type": "percent",
+      "value": 20,
+      "minOrderAmount": 8000,
+      "maxDiscount": 3000,
+      "usageLimit": 100,
+      "usedCount": 15,
+      "perUserLimit": 1,
+      "isActive": true,
+      "expiresAt": "2026-12-31T23:59:59.000Z"
+    },
+    {
+      "id": "cpn_2",
+      "code": "FIRSTORDER",
+      "type": "fixed",
+      "value": 500,
+      "minOrderAmount": 4000,
+      "usageLimit": 1000,
+      "usedCount": 78,
+      "perUserLimit": 1,
+      "isActive": true,
+      "expiresAt": "2026-12-31T23:59:59.000Z"
+    },
+    {
+      "id": "cpn_1",
+      "code": "FAWNIC10",
+      "type": "percent",
+      "value": 10,
+      "minOrderAmount": 3500,
+      "maxDiscount": 1500,
+      "usageLimit": 500,
+      "usedCount": 42,
+      "perUserLimit": 1,
+      "isActive": true,
+      "expiresAt": "2026-12-31T23:59:59.000Z"
+    }
+  ],
+  "queries": [],
   "reviews": [
     {
       "id": "rev_01",
@@ -438,40 +440,1284 @@
       "verifiedPurchase": true
     }
   ],
-  "_version": 246,
+  "_version": 1097,
   "invoices": [
     {
-      "id": "inv_1791024519138",
+      "id": "inv_1791663221384",
+      "invoiceNumber": "FW-INV-0035",
+      "type": "order",
+      "orderId": "ord_1791663221383",
+      "orderNumber": "FWN-55148",
+      "customerName": "sufyan",
+      "customerEmail": "tahasaroya@gmail.com",
+      "customerPhone": "+920987654",
+      "customerAddress": "79 X Block Housing Colony Sheikhupura, Lahore, Punjab, 75500",
       "items": [
         {
-          "sku": "FWN-APX-02",
-          "name": "The Apex Slim Front-Pocket Wallet",
-          "image": "https://images.unsplash.com/photo-1559563458-527698bf5295?w=1000&auto=format&fit=crop&q=85",
-          "price": 3450,
+          "sku": "FWN-0001-2",
+          "name": "Men Best Wallet For Events (Copy) (Copy)",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791483577163-whatsapp-image-2026-09-29-at-9-1_wngEb66Ko.jpg",
+          "price": 3800,
           "quantity": 1,
-          "subtotal": 3450,
-          "productId": "fwn_wlt_02",
-          "unitPrice": 3450,
-          "productName": "The Apex Slim Front-Pocket Wallet",
-          "productImage": "https://images.unsplash.com/photo-1559563458-527698bf5295?w=1000&auto=format&fit=crop&q=85"
+          "subtotal": 3800,
+          "productId": "fwn_prd_1791486063309_krg0",
+          "unitPrice": 3800,
+          "productName": "Men Best Wallet For Events (Copy) (Copy)",
+          "variantInfo": "Color: Brown",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791483577163-whatsapp-image-2026-09-29-at-9-1_wngEb66Ko.jpg",
+          "selectedColor": "Color: Brown"
         }
       ],
-      "total": 3700,
-      "status": "issued",
-      "orderId": "ord_1791024519138",
-      "discount": 0,
-      "subtotal": 3450,
-      "createdAt": "2026-10-03T10:48:39.138Z",
-      "orderDate": "2026-10-03T10:48:39.138Z",
-      "orderNumber": "FWN-81513",
+      "subtotal": 3800,
       "shippingFee": 250,
-      "customerName": "Standard Customer",
-      "customerEmail": "standard@fawnic.pk",
-      "customerPhone": "03009876543",
-      "invoiceNumber": "FW-INV-0003",
+      "discount": 0,
+      "tax": 0,
+      "total": 4050,
       "paymentMethod": "Cash on Delivery (COD)",
       "paymentStatus": "pending",
-      "customerAddress": "Lahore, Punjab"
+      "orderDate": "2026-10-10T20:13:41.384Z",
+      "createdAt": "2026-10-10T20:13:41.384Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791653294180",
+      "invoiceNumber": "FW-INV-0034",
+      "type": "order",
+      "orderId": "ord_1791653294179",
+      "orderNumber": "FWN-57484",
+      "customerName": "sufyan",
+      "customerEmail": "tahasaroya@gmail.com",
+      "customerPhone": "+92876547654",
+      "customerAddress": "79 X Block Housing Colony Sheikhupura, Sheikhupura, Punjab, 75500",
+      "items": [
+        {
+          "sku": "FWN-7163",
+          "name": "premium leather",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "price": 4499,
+          "quantity": 1,
+          "subtotal": 4499,
+          "productId": "fwn_prd_1791571838415_6k8u",
+          "unitPrice": 4499,
+          "productName": "premium leather",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg"
+        }
+      ],
+      "subtotal": 4499,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4749,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-10T17:28:14.179Z",
+      "createdAt": "2026-10-10T17:28:14.180Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791652636923",
+      "invoiceNumber": "FW-INV-0033",
+      "type": "order",
+      "orderId": "ord_1791652636923",
+      "orderNumber": "FWN-98312",
+      "customerName": "Taha Test E",
+      "customerEmail": "tahasaroya@gmail.com",
+      "customerPhone": "+92 300 1234567",
+      "customerAddress": "Atelier Suites 12, Karachi, Sindh, 75500",
+      "items": [
+        {
+          "sku": "FWN-7163",
+          "name": "premium leather",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "price": 4499,
+          "quantity": 1,
+          "subtotal": 4499,
+          "productId": "fwn_prd_1791571838415_6k8u",
+          "unitPrice": 4499,
+          "productName": "premium leather",
+          "variantInfo": "Color: Default",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "selectedColor": "Color: Default"
+        }
+      ],
+      "subtotal": 4499,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4749,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-10T17:17:16.923Z",
+      "createdAt": "2026-10-10T17:17:16.923Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791652628987",
+      "invoiceNumber": "FW-INV-0032",
+      "type": "order",
+      "orderId": "ord_1791652628987",
+      "orderNumber": "FWN-84318",
+      "customerName": "Ayesha Test D",
+      "customerEmail": "ayesha@example.com",
+      "customerPhone": "+92 300 1234567",
+      "customerAddress": "Atelier Suites 12, Karachi, Sindh, 75500",
+      "items": [
+        {
+          "sku": "FWN-7163",
+          "name": "premium leather",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "price": 4499,
+          "quantity": 1,
+          "subtotal": 4499,
+          "productId": "fwn_prd_1791571838415_6k8u",
+          "unitPrice": 4499,
+          "productName": "premium leather",
+          "variantInfo": "Color: Default",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "selectedColor": "Color: Default"
+        }
+      ],
+      "subtotal": 4499,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4749,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-10T17:17:08.987Z",
+      "createdAt": "2026-10-10T17:17:08.987Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791652618599",
+      "invoiceNumber": "FW-INV-0031",
+      "type": "order",
+      "orderId": "ord_1791652618599",
+      "orderNumber": "FWN-92980",
+      "customerName": "Taha Test C",
+      "customerEmail": "tahasaroya@gmail.com",
+      "customerPhone": "+92 300 1234567",
+      "customerAddress": "Atelier Suites 12, Karachi, Sindh, 75500",
+      "items": [
+        {
+          "sku": "FWN-7163",
+          "name": "premium leather",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "price": 4499,
+          "quantity": 1,
+          "subtotal": 4499,
+          "productId": "fwn_prd_1791571838415_6k8u",
+          "unitPrice": 4499,
+          "productName": "premium leather",
+          "variantInfo": "Color: Default",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "selectedColor": "Color: Default"
+        }
+      ],
+      "subtotal": 4499,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4749,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-10T17:16:58.599Z",
+      "createdAt": "2026-10-10T17:16:58.599Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791652609007",
+      "invoiceNumber": "FW-INV-0030",
+      "type": "order",
+      "orderId": "ord_1791652609007",
+      "orderNumber": "FWN-99625",
+      "customerName": "Taha Test B",
+      "customerEmail": "tahasaroya@gmail.com",
+      "customerPhone": "+92 300 1234567",
+      "customerAddress": "Atelier Suites 12, Karachi, Sindh, 75500",
+      "items": [
+        {
+          "sku": "FWN-7163",
+          "name": "premium leather",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "price": 4499,
+          "quantity": 1,
+          "subtotal": 4499,
+          "productId": "fwn_prd_1791571838415_6k8u",
+          "unitPrice": 4499,
+          "productName": "premium leather",
+          "variantInfo": "Color: Default",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "selectedColor": "Color: Default"
+        }
+      ],
+      "subtotal": 4499,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4749,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-10T17:16:49.007Z",
+      "createdAt": "2026-10-10T17:16:49.007Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791652594328",
+      "invoiceNumber": "FW-INV-0029",
+      "type": "order",
+      "orderId": "ord_1791652594328",
+      "orderNumber": "FWN-72086",
+      "customerName": "Taha Test A",
+      "customerEmail": "tahasaroya@gmail.com",
+      "customerPhone": "+92 300 1234567",
+      "customerAddress": "Atelier Suites 12, Karachi, Sindh, 75500",
+      "items": [
+        {
+          "sku": "FWN-7163",
+          "name": "premium leather",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "price": 4499,
+          "quantity": 1,
+          "subtotal": 4499,
+          "productId": "fwn_prd_1791571838415_6k8u",
+          "unitPrice": 4499,
+          "productName": "premium leather",
+          "variantInfo": "Color: Default",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "selectedColor": "Color: Default"
+        }
+      ],
+      "subtotal": 4499,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4749,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-10T17:16:34.328Z",
+      "createdAt": "2026-10-10T17:16:34.328Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791652550093",
+      "invoiceNumber": "FW-INV-0028",
+      "type": "order",
+      "orderId": "ord_1791652550093",
+      "orderNumber": "FWN-67764",
+      "customerName": "Ayesha Test D",
+      "customerEmail": "ayesha@example.com",
+      "customerPhone": "+92 300 1234567",
+      "customerAddress": "Atelier Suites 12, Karachi, Sindh, 75500",
+      "items": [
+        {
+          "sku": "FWN-7163",
+          "name": "premium leather",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "price": 4499,
+          "quantity": 1,
+          "subtotal": 4499,
+          "productId": "fwn_prd_1791571838415_6k8u",
+          "unitPrice": 4499,
+          "productName": "premium leather",
+          "variantInfo": "Color: Default",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "selectedColor": "Color: Default"
+        }
+      ],
+      "subtotal": 4499,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4749,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-10T17:15:50.093Z",
+      "createdAt": "2026-10-10T17:15:50.093Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791652539909",
+      "invoiceNumber": "FW-INV-0027",
+      "type": "order",
+      "orderId": "ord_1791652539909",
+      "orderNumber": "FWN-96695",
+      "customerName": "Taha Test C",
+      "customerEmail": "tahasaroya@gmail.com",
+      "customerPhone": "+92 300 1234567",
+      "customerAddress": "Atelier Suites 12, Karachi, Sindh, 75500",
+      "items": [
+        {
+          "sku": "FWN-7163",
+          "name": "premium leather",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "price": 4499,
+          "quantity": 1,
+          "subtotal": 4499,
+          "productId": "fwn_prd_1791571838415_6k8u",
+          "unitPrice": 4499,
+          "productName": "premium leather",
+          "variantInfo": "Color: Default",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "selectedColor": "Color: Default"
+        }
+      ],
+      "subtotal": 4499,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4749,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-10T17:15:39.909Z",
+      "createdAt": "2026-10-10T17:15:39.909Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791652530604",
+      "invoiceNumber": "FW-INV-0026",
+      "type": "order",
+      "orderId": "ord_1791652530604",
+      "orderNumber": "FWN-85523",
+      "customerName": "Taha Test B",
+      "customerEmail": "tahasaroya@gmail.com",
+      "customerPhone": "+92 300 1234567",
+      "customerAddress": "Atelier Suites 12, Karachi, Sindh, 75500",
+      "items": [
+        {
+          "sku": "FWN-7163",
+          "name": "premium leather",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "price": 4499,
+          "quantity": 1,
+          "subtotal": 4499,
+          "productId": "fwn_prd_1791571838415_6k8u",
+          "unitPrice": 4499,
+          "productName": "premium leather",
+          "variantInfo": "Color: Default",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "selectedColor": "Color: Default"
+        }
+      ],
+      "subtotal": 4499,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4749,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-10T17:15:30.604Z",
+      "createdAt": "2026-10-10T17:15:30.604Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791652520364",
+      "invoiceNumber": "FW-INV-0025",
+      "type": "order",
+      "orderId": "ord_1791652520364",
+      "orderNumber": "FWN-53998",
+      "customerName": "Taha Test A",
+      "customerEmail": "tahasaroya@gmail.com",
+      "customerPhone": "+92 300 1234567",
+      "customerAddress": "Atelier Suites 12, Karachi, Sindh, 75500",
+      "items": [
+        {
+          "sku": "FWN-7163",
+          "name": "premium leather",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "price": 4499,
+          "quantity": 1,
+          "subtotal": 4499,
+          "productId": "fwn_prd_1791571838415_6k8u",
+          "unitPrice": 4499,
+          "productName": "premium leather",
+          "variantInfo": "Color: Default",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "selectedColor": "Color: Default"
+        }
+      ],
+      "subtotal": 4499,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4749,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-10T17:15:20.364Z",
+      "createdAt": "2026-10-10T17:15:20.364Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791652494212",
+      "invoiceNumber": "FW-INV-0024",
+      "type": "order",
+      "orderId": "ord_1791652494212",
+      "orderNumber": "FWN-65151",
+      "customerName": "Ayesha Test",
+      "customerEmail": "ayesha@example.com",
+      "customerPhone": "+92 300 9876543",
+      "customerAddress": "Clifton Block 4, Karachi, Sindh, 75500",
+      "items": [
+        {
+          "sku": "FWN-7163",
+          "name": "premium leather",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "price": 4499,
+          "quantity": 1,
+          "subtotal": 4499,
+          "productId": "fwn_prd_1791571838415_6k8u",
+          "unitPrice": 4499,
+          "productName": "premium leather",
+          "variantInfo": "Color: Default",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "selectedColor": "Color: Default"
+        }
+      ],
+      "subtotal": 4499,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4749,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-10T17:14:54.212Z",
+      "createdAt": "2026-10-10T17:14:54.212Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791652475094",
+      "invoiceNumber": "FW-INV-0023",
+      "type": "order",
+      "orderId": "ord_1791652475094",
+      "orderNumber": "FWN-61510",
+      "customerName": "Taha Test C",
+      "customerEmail": "tahasaroya@gmail.com",
+      "customerPhone": "+92 300 1234567",
+      "customerAddress": "Atelier Suites 12, Karachi, Sindh, 75500",
+      "items": [
+        {
+          "sku": "FWN-7163",
+          "name": "premium leather",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "price": 4499,
+          "quantity": 1,
+          "subtotal": 4499,
+          "productId": "fwn_prd_1791571838415_6k8u",
+          "unitPrice": 4499,
+          "productName": "premium leather",
+          "variantInfo": "Color: Default",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "selectedColor": "Color: Default"
+        }
+      ],
+      "subtotal": 4499,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4749,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-10T17:14:35.094Z",
+      "createdAt": "2026-10-10T17:14:35.094Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791652466079",
+      "invoiceNumber": "FW-INV-0022",
+      "type": "order",
+      "orderId": "ord_1791652466079",
+      "orderNumber": "FWN-19921",
+      "customerName": "Taha Test B",
+      "customerEmail": "tahasaroya@gmail.com",
+      "customerPhone": "+92 300 1234567",
+      "customerAddress": "Atelier Suites 12, Karachi, Sindh, 75500",
+      "items": [
+        {
+          "sku": "FWN-7163",
+          "name": "premium leather",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "price": 4499,
+          "quantity": 1,
+          "subtotal": 4499,
+          "productId": "fwn_prd_1791571838415_6k8u",
+          "unitPrice": 4499,
+          "productName": "premium leather",
+          "variantInfo": "Color: Default",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "selectedColor": "Color: Default"
+        }
+      ],
+      "subtotal": 4499,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4749,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-10T17:14:26.079Z",
+      "createdAt": "2026-10-10T17:14:26.079Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791652455862",
+      "invoiceNumber": "FW-INV-0021",
+      "type": "order",
+      "orderId": "ord_1791652455862",
+      "orderNumber": "FWN-40351",
+      "customerName": "Taha Test A",
+      "customerEmail": "tahasaroya@gmail.com",
+      "customerPhone": "+92 300 1234567",
+      "customerAddress": "Atelier Suites 12, Karachi, Sindh, 75500",
+      "items": [
+        {
+          "sku": "FWN-7163",
+          "name": "premium leather",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "price": 4499,
+          "quantity": 1,
+          "subtotal": 4499,
+          "productId": "fwn_prd_1791571838415_6k8u",
+          "unitPrice": 4499,
+          "productName": "premium leather",
+          "variantInfo": "Color: Default",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "selectedColor": "Color: Default"
+        }
+      ],
+      "subtotal": 4499,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4749,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-10T17:14:15.862Z",
+      "createdAt": "2026-10-10T17:14:15.862Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791652431959",
+      "invoiceNumber": "FW-INV-0020",
+      "type": "order",
+      "orderId": "ord_1791652431959",
+      "orderNumber": "FWN-10717",
+      "customerName": "Taha Test A",
+      "customerEmail": "tahasaroya@gmail.com",
+      "customerPhone": "+92 300 1234567",
+      "customerAddress": "Atelier Suites 12, Karachi, Sindh, 75500",
+      "items": [
+        {
+          "sku": "FWN-7163",
+          "name": "premium leather",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "price": 4499,
+          "quantity": 1,
+          "subtotal": 4499,
+          "productId": "fwn_prd_1791571838415_6k8u",
+          "unitPrice": 4499,
+          "productName": "premium leather",
+          "variantInfo": "Color: Default",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "selectedColor": "Color: Default"
+        }
+      ],
+      "subtotal": 4499,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4749,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-10T17:13:51.959Z",
+      "createdAt": "2026-10-10T17:13:51.959Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791652329537",
+      "invoiceNumber": "FW-INV-0019",
+      "type": "order",
+      "orderId": "ord_1791652329537",
+      "orderNumber": "FWN-52199",
+      "customerName": "sufyan",
+      "customerEmail": "tahasaroya@gmail.com",
+      "customerPhone": "+92 300 1234567",
+      "customerAddress": "Test Address 123, Karachi, Sindh, 75500",
+      "items": [
+        {
+          "sku": "FWN-7557",
+          "name": "Men Best Wallet For Events (Copy) (Copy)",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791483556667-whatsapp-image-2026-09-29-at-9-1_QQcMGiPjyH.jpg",
+          "price": 3800,
+          "quantity": 1,
+          "subtotal": 3800,
+          "productId": "fwn_prd_1791486063309_krg0",
+          "unitPrice": 3800,
+          "productName": "Men Best Wallet For Events (Copy) (Copy)",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791483556667-whatsapp-image-2026-09-29-at-9-1_QQcMGiPjyH.jpg"
+        }
+      ],
+      "subtotal": 3800,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4050,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-10T17:12:09.537Z",
+      "createdAt": "2026-10-10T17:12:09.537Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791652320730",
+      "invoiceNumber": "FW-INV-0018",
+      "type": "order",
+      "orderId": "ord_1791652320730",
+      "orderNumber": "FWN-46678",
+      "customerName": "sufyan",
+      "customerEmail": "tahasaroya@gmail.com",
+      "customerPhone": "+92 300 1234567",
+      "customerAddress": "Test Address 123, Karachi, Sindh, 75500",
+      "items": [
+        {
+          "sku": "FWN-7557",
+          "name": "Men Best Wallet For Events (Copy) (Copy)",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791483556667-whatsapp-image-2026-09-29-at-9-1_QQcMGiPjyH.jpg",
+          "price": 3800,
+          "quantity": 1,
+          "subtotal": 3800,
+          "productId": "fwn_prd_1791486063309_krg0",
+          "unitPrice": 3800,
+          "productName": "Men Best Wallet For Events (Copy) (Copy)",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791483556667-whatsapp-image-2026-09-29-at-9-1_QQcMGiPjyH.jpg"
+        }
+      ],
+      "subtotal": 3800,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4050,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-10T17:12:00.730Z",
+      "createdAt": "2026-10-10T17:12:00.730Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791652313017",
+      "invoiceNumber": "FW-INV-0017",
+      "type": "order",
+      "orderId": "ord_1791652313017",
+      "orderNumber": "FWN-41357",
+      "customerName": "sufyan",
+      "customerEmail": "tahasaroya@gmail.com",
+      "customerPhone": "+92 300 1234567",
+      "customerAddress": "Test Address 123, Karachi, Sindh, 75500",
+      "items": [
+        {
+          "sku": "FWN-7557",
+          "name": "Men Best Wallet For Events (Copy) (Copy)",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791483556667-whatsapp-image-2026-09-29-at-9-1_QQcMGiPjyH.jpg",
+          "price": 3800,
+          "quantity": 1,
+          "subtotal": 3800,
+          "productId": "fwn_prd_1791486063309_krg0",
+          "unitPrice": 3800,
+          "productName": "Men Best Wallet For Events (Copy) (Copy)",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791483556667-whatsapp-image-2026-09-29-at-9-1_QQcMGiPjyH.jpg"
+        }
+      ],
+      "subtotal": 3800,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4050,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-10T17:11:53.017Z",
+      "createdAt": "2026-10-10T17:11:53.017Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791652304343",
+      "invoiceNumber": "FW-INV-0016",
+      "type": "order",
+      "orderId": "ord_1791652304343",
+      "orderNumber": "FWN-68543",
+      "customerName": "sufyan",
+      "customerEmail": "tahasaroya@gmail.com",
+      "customerPhone": "+92 300 1234567",
+      "customerAddress": "Test Address 123, Karachi, Sindh, 75500",
+      "items": [
+        {
+          "sku": "FWN-7557",
+          "name": "Men Best Wallet For Events (Copy) (Copy)",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791483556667-whatsapp-image-2026-09-29-at-9-1_QQcMGiPjyH.jpg",
+          "price": 3800,
+          "quantity": 1,
+          "subtotal": 3800,
+          "productId": "fwn_prd_1791486063309_krg0",
+          "unitPrice": 3800,
+          "productName": "Men Best Wallet For Events (Copy) (Copy)",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791483556667-whatsapp-image-2026-09-29-at-9-1_QQcMGiPjyH.jpg"
+        }
+      ],
+      "subtotal": 3800,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4050,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-10T17:11:44.343Z",
+      "createdAt": "2026-10-10T17:11:44.343Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791652292707",
+      "invoiceNumber": "FW-INV-0015",
+      "type": "order",
+      "orderId": "ord_1791652292706",
+      "orderNumber": "FWN-30092",
+      "customerName": "sufyan",
+      "customerEmail": "tahasaroya@gmail.com",
+      "customerPhone": "+92 300 1234567",
+      "customerAddress": "Test Address 123, Karachi, Sindh, 75500",
+      "items": [
+        {
+          "sku": "FWN-7557",
+          "name": "Men Best Wallet For Events (Copy) (Copy)",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791483556667-whatsapp-image-2026-09-29-at-9-1_QQcMGiPjyH.jpg",
+          "price": 3800,
+          "quantity": 1,
+          "subtotal": 3800,
+          "productId": "fwn_prd_1791486063309_krg0",
+          "unitPrice": 3800,
+          "productName": "Men Best Wallet For Events (Copy) (Copy)",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791483556667-whatsapp-image-2026-09-29-at-9-1_QQcMGiPjyH.jpg"
+        }
+      ],
+      "subtotal": 3800,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4050,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-10T17:11:32.706Z",
+      "createdAt": "2026-10-10T17:11:32.707Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791652240842",
+      "invoiceNumber": "FW-INV-0014",
+      "type": "order",
+      "orderId": "ord_1791652240842",
+      "orderNumber": "FWN-32330",
+      "customerName": "sufyan",
+      "customerEmail": "tahasaroya@gmail.com",
+      "customerPhone": "+92 300 1234567",
+      "customerAddress": "Test Address 123, Karachi, Sindh, 75500",
+      "items": [
+        {
+          "sku": "FWN-7557",
+          "name": "Men Best Wallet For Events (Copy) (Copy)",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791483556667-whatsapp-image-2026-09-29-at-9-1_QQcMGiPjyH.jpg",
+          "price": 3800,
+          "quantity": 1,
+          "subtotal": 3800,
+          "productId": "fwn_prd_1791486063309_krg0",
+          "unitPrice": 3800,
+          "productName": "Men Best Wallet For Events (Copy) (Copy)",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791483556667-whatsapp-image-2026-09-29-at-9-1_QQcMGiPjyH.jpg"
+        }
+      ],
+      "subtotal": 3800,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4050,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-10T17:10:40.842Z",
+      "createdAt": "2026-10-10T17:10:40.842Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791652230988",
+      "invoiceNumber": "FW-INV-0013",
+      "type": "order",
+      "orderId": "ord_1791652230987",
+      "orderNumber": "FWN-45453",
+      "customerName": "sufyan",
+      "customerEmail": "tahasaroya@gmail.com",
+      "customerPhone": "+92 300 1234567",
+      "customerAddress": "Test Address 123, Karachi, Sindh, 75500",
+      "items": [
+        {
+          "sku": "FWN-7557",
+          "name": "Men Best Wallet For Events (Copy) (Copy)",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791483556667-whatsapp-image-2026-09-29-at-9-1_QQcMGiPjyH.jpg",
+          "price": 3800,
+          "quantity": 1,
+          "subtotal": 3800,
+          "productId": "fwn_prd_1791486063309_krg0",
+          "unitPrice": 3800,
+          "productName": "Men Best Wallet For Events (Copy) (Copy)",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791483556667-whatsapp-image-2026-09-29-at-9-1_QQcMGiPjyH.jpg"
+        }
+      ],
+      "subtotal": 3800,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4050,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-10T17:10:30.988Z",
+      "createdAt": "2026-10-10T17:10:30.988Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791640538261",
+      "invoiceNumber": "FW-INV-0012",
+      "type": "order",
+      "orderId": "ord_1791640538260",
+      "orderNumber": "FWN-46370",
+      "customerName": "sufyan",
+      "customerEmail": "tahasaroya@gmail.com",
+      "customerPhone": "+927865876587569",
+      "customerAddress": "79 X Block Housing Colony Sheikhupura, Sheikhupura, Punjab, 75500",
+      "items": [
+        {
+          "sku": "FWN-0001-2",
+          "name": "Men Best Wallet For Events (Copy) (Copy)",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791483577163-whatsapp-image-2026-09-29-at-9-1_wngEb66Ko.jpg",
+          "price": 3800,
+          "quantity": 1,
+          "subtotal": 3800,
+          "productId": "fwn_prd_1791486063309_krg0",
+          "unitPrice": 3800,
+          "productName": "Men Best Wallet For Events (Copy) (Copy)",
+          "variantInfo": "Color: Brown",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791483577163-whatsapp-image-2026-09-29-at-9-1_wngEb66Ko.jpg",
+          "selectedColor": "Color: Brown"
+        }
+      ],
+      "subtotal": 3800,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4050,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-10T13:55:38.260Z",
+      "createdAt": "2026-10-10T13:55:38.261Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791575691263",
+      "invoiceNumber": "FW-INV-0011",
+      "type": "order",
+      "orderId": "ord_1791575691263",
+      "orderNumber": "FWN-20341",
+      "customerName": "sufyan",
+      "customerEmail": "tahasaroya@gmail.com",
+      "customerPhone": "+92",
+      "customerAddress": "lda, Lahore, Punjab, 75500",
+      "items": [
+        {
+          "sku": "FWN-0001-1",
+          "name": "Men Best Wallet For Events (Copy) (Copy)",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791483556667-whatsapp-image-2026-09-29-at-9-1_QQcMGiPjyH.jpg",
+          "price": 3800,
+          "quantity": 1,
+          "subtotal": 3800,
+          "productId": "fwn_prd_1791486063309_krg0",
+          "unitPrice": 3800,
+          "productName": "Men Best Wallet For Events (Copy) (Copy)",
+          "variantInfo": "Color: Grey",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791483556667-whatsapp-image-2026-09-29-at-9-1_QQcMGiPjyH.jpg",
+          "selectedColor": "Color: Grey"
+        }
+      ],
+      "subtotal": 3800,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4050,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-09T19:54:51.263Z",
+      "createdAt": "2026-10-09T19:54:51.263Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791574729720",
+      "invoiceNumber": "FW-INV-0010",
+      "type": "order",
+      "orderId": "ord_1791574729720",
+      "orderNumber": "FWN-41663",
+      "customerName": "Taha Saroya",
+      "customerEmail": "tahahussainsaroya329@gmail.com",
+      "customerPhone": "+92 3440017711",
+      "customerAddress": "79 X Block Housing Colony Sheikhupura, Sheikhupura, Punjab, 75500",
+      "items": [
+        {
+          "sku": "FWN-7163",
+          "name": "premium leather",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "price": 4499,
+          "quantity": 1,
+          "subtotal": 4499,
+          "productId": "fwn_prd_1791571838415_6k8u",
+          "unitPrice": 4499,
+          "productName": "premium leather",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg"
+        }
+      ],
+      "subtotal": 4499,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4749,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-09T19:38:49.720Z",
+      "createdAt": "2026-10-09T19:38:49.721Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791573761542",
+      "invoiceNumber": "FW-INV-0009",
+      "type": "order",
+      "orderId": "ord_1791573761542",
+      "orderNumber": "FWN-98614",
+      "customerName": "Test Customer",
+      "customerEmail": "customer@test.com",
+      "customerPhone": "03001234567",
+      "customerAddress": "Main Street House 1, Lahore, Punjab, 54000",
+      "items": [
+        {
+          "sku": "FWN-7163",
+          "name": "premium leather",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "price": 4499,
+          "quantity": 1,
+          "subtotal": 4499,
+          "productId": "fwn_prd_1791571838415_6k8u",
+          "unitPrice": 4499,
+          "productName": "premium leather",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg"
+        }
+      ],
+      "subtotal": 4499,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4749,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-09T19:22:41.542Z",
+      "createdAt": "2026-10-09T19:22:41.542Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791573598251",
+      "invoiceNumber": "FW-INV-0008",
+      "type": "order",
+      "orderId": "ord_1791573598251",
+      "orderNumber": "FWN-51657",
+      "customerName": "Taha Ibrar",
+      "customerEmail": "tahasaroya369@gmail.com",
+      "customerPhone": "+92 300 1234567",
+      "customerAddress": "Main Gulberg, Lahore, Punjab, 54000",
+      "items": [
+        {
+          "sku": "FWN-7163",
+          "name": "premium leather",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "price": 4499,
+          "quantity": 1,
+          "subtotal": 4499,
+          "productId": "fwn_prd_1791571838415_6k8u",
+          "unitPrice": 4499,
+          "productName": "premium leather",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg"
+        }
+      ],
+      "subtotal": 4499,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4749,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-09T19:19:58.251Z",
+      "createdAt": "2026-10-09T19:19:58.251Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791573585247",
+      "invoiceNumber": "FW-INV-0007",
+      "type": "order",
+      "orderId": "ord_1791573585247",
+      "orderNumber": "FWN-93156",
+      "customerName": "Taha Ibrar",
+      "customerEmail": "tahasaroya369@gmail.com",
+      "customerPhone": "+92 300 1234567",
+      "customerAddress": "Main Bazaar, Near Clock Tower, Daska, Punjab, 51010",
+      "items": [
+        {
+          "sku": "FWN-7163",
+          "name": "premium leather",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "price": 4499,
+          "quantity": 1,
+          "subtotal": 4499,
+          "productId": "fwn_prd_1791571838415_6k8u",
+          "unitPrice": 4499,
+          "productName": "premium leather",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg"
+        }
+      ],
+      "subtotal": 4499,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4749,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-09T19:19:45.247Z",
+      "createdAt": "2026-10-09T19:19:45.247Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791573519938",
+      "invoiceNumber": "FW-INV-0006",
+      "type": "order",
+      "orderId": "ord_1791573519938",
+      "orderNumber": "FWN-98122",
+      "customerName": "Taha Ibrar",
+      "customerEmail": "tahasaroya369@gmail.com",
+      "customerPhone": "+92 300 1234567",
+      "customerAddress": "Main Gulberg, Lahore, Punjab, 54000",
+      "items": [
+        {
+          "sku": "FWN-7163",
+          "name": "premium leather",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "price": 4499,
+          "quantity": 1,
+          "subtotal": 4499,
+          "productId": "fwn_prd_1791571838415_6k8u",
+          "unitPrice": 4499,
+          "productName": "premium leather",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg"
+        }
+      ],
+      "subtotal": 4499,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4749,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-09T19:18:39.938Z",
+      "createdAt": "2026-10-09T19:18:39.938Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791573508945",
+      "invoiceNumber": "FW-INV-0005",
+      "type": "order",
+      "orderId": "ord_1791573508945",
+      "orderNumber": "FWN-51016",
+      "customerName": "Taha Ibrar",
+      "customerEmail": "tahasaroya369@gmail.com",
+      "customerPhone": "+92 300 1234567",
+      "customerAddress": "Main Bazaar, Near Clock Tower, Daska, Punjab, 51010",
+      "items": [
+        {
+          "sku": "FWN-7163",
+          "name": "premium leather",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "price": 4499,
+          "quantity": 1,
+          "subtotal": 4499,
+          "productId": "fwn_prd_1791571838415_6k8u",
+          "unitPrice": 4499,
+          "productName": "premium leather",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg"
+        }
+      ],
+      "subtotal": 4499,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4749,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-09T19:18:28.945Z",
+      "createdAt": "2026-10-09T19:18:28.945Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791573420432",
+      "invoiceNumber": "FW-INV-0004",
+      "type": "order",
+      "orderId": "ord_1791573420432",
+      "orderNumber": "FWN-69562",
+      "customerName": "Taha Ibrar",
+      "customerEmail": "tahasaroya369@gmail.com",
+      "customerPhone": "+92 300 1234567",
+      "customerAddress": "Main Bazaar, Near Clock Tower, Daska, Punjab, 51010",
+      "items": [
+        {
+          "sku": "FWN-7163",
+          "name": "premium leather",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+          "price": 4499,
+          "quantity": 1,
+          "subtotal": 4499,
+          "productId": "fwn_prd_1791571838415_6k8u",
+          "unitPrice": 4499,
+          "productName": "premium leather",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg"
+        }
+      ],
+      "subtotal": 4499,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4749,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-09T19:17:00.432Z",
+      "createdAt": "2026-10-09T19:17:00.432Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791526091323",
+      "invoiceNumber": "FW-INV-0003",
+      "type": "order",
+      "orderId": "ord_1791526091323",
+      "orderNumber": "FWN-95255",
+      "customerName": "Taha Saroya",
+      "customerEmail": "tahahussainsaroya329@gmail.com",
+      "customerPhone": "+92 3440017711",
+      "customerAddress": "Lahore, Punjab",
+      "items": [
+        {
+          "sku": "FWN-0001-1",
+          "name": "Men Best Wallet For Events (Copy) (Copy)",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791483556667-whatsapp-image-2026-09-29-at-9-1_QQcMGiPjyH.jpg",
+          "price": 3800,
+          "quantity": 1,
+          "subtotal": 3800,
+          "productId": "fwn_prd_1791486063309_krg0",
+          "unitPrice": 3800,
+          "productName": "Men Best Wallet For Events (Copy) (Copy)",
+          "variantInfo": "Color: Grey",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791483556667-whatsapp-image-2026-09-29-at-9-1_QQcMGiPjyH.jpg",
+          "selectedColor": "Color: Grey"
+        }
+      ],
+      "subtotal": 3800,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4050,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-09T06:08:11.323Z",
+      "createdAt": "2026-10-09T06:08:11.324Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791503190767",
+      "invoiceNumber": "FW-INV-0002",
+      "type": "order",
+      "orderId": "ord_1791503190767",
+      "orderNumber": "FWN-79992",
+      "customerName": "Taha Saroya",
+      "customerEmail": "tahahussainsaroya329@gmail.com",
+      "customerPhone": "+92",
+      "customerAddress": "Lahore, Punjab",
+      "items": [
+        {
+          "sku": "FWN-7557",
+          "name": "Men Best Wallet For Events (Copy) (Copy)",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791483556667-whatsapp-image-2026-09-29-at-9-1_QQcMGiPjyH.jpg",
+          "price": 3800,
+          "quantity": 1,
+          "subtotal": 3800,
+          "productId": "fwn_prd_1791486063309_krg0",
+          "unitPrice": 3800,
+          "productName": "Men Best Wallet For Events (Copy) (Copy)",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791483556667-whatsapp-image-2026-09-29-at-9-1_QQcMGiPjyH.jpg"
+        },
+        {
+          "sku": "FWN-0001-1",
+          "name": "Men Best Wallet For Events (Copy) (Copy)",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791483556667-whatsapp-image-2026-09-29-at-9-1_QQcMGiPjyH.jpg",
+          "price": 3800,
+          "quantity": 1,
+          "subtotal": 3800,
+          "productId": "fwn_prd_1791486063309_krg0",
+          "unitPrice": 3800,
+          "productName": "Men Best Wallet For Events (Copy) (Copy)",
+          "variantInfo": "Color: Grey",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791483556667-whatsapp-image-2026-09-29-at-9-1_QQcMGiPjyH.jpg",
+          "selectedColor": "Color: Grey"
+        }
+      ],
+      "subtotal": 7600,
+      "shippingFee": 0,
+      "discount": 0,
+      "tax": 0,
+      "total": 7600,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-08T23:46:30.767Z",
+      "createdAt": "2026-10-08T23:46:30.768Z",
+      "status": "issued"
+    },
+    {
+      "id": "inv_1791499582357",
+      "invoiceNumber": "FW-INV-0001",
+      "type": "order",
+      "orderId": "ord_1791499582357",
+      "orderNumber": "FWN-17504",
+      "customerName": "Taha Saroya",
+      "customerEmail": "tahahussainsaroya329@gmail.com",
+      "customerPhone": "+92 3440017711",
+      "customerAddress": "Karachi, Sindh",
+      "items": [
+        {
+          "sku": "FWN-0001-1",
+          "name": "Men Best Wallet For Events (Copy) (Copy)",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791483556667-whatsapp-image-2026-09-29-at-9-1_QQcMGiPjyH.jpg",
+          "price": 3800,
+          "quantity": 1,
+          "subtotal": 3800,
+          "productId": "fwn_prd_1791486063309_krg0",
+          "unitPrice": 3800,
+          "productName": "Men Best Wallet For Events (Copy) (Copy)",
+          "variantInfo": "Color: Grey",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791483556667-whatsapp-image-2026-09-29-at-9-1_QQcMGiPjyH.jpg",
+          "selectedColor": "Color: Grey"
+        }
+      ],
+      "subtotal": 3800,
+      "shippingFee": 250,
+      "discount": 0,
+      "tax": 0,
+      "total": 4050,
+      "paymentMethod": "Cash on Delivery (COD)",
+      "paymentStatus": "pending",
+      "orderDate": "2026-10-08T22:46:22.357Z",
+      "createdAt": "2026-10-08T22:46:22.357Z",
+      "status": "issued"
     }
   ],
   "policies": [
@@ -506,960 +1752,116 @@
   ],
   "products": [
     {
-      "id": "fwn_wtc_03",
-      "name": "The Royal Dress Automatic Ultra-Thin 39mm",
-      "slug": "royal-dress-automatic-ultra-thin-39mm",
-      "sku": "FWN-WTC-03",
-      "description": "The pinnacle of bespoke dress watch elegance. Measuring just 8.9mm in height, this timepiece slides effortlessly beneath tailored French cuffs. Features thermally blued feuille hands, an applied Breguet-style numeral layout, and an exhibition rotor engraved with the FAWNIC crest.",
-      "shortDescription": "Ultra-slim 8.9mm profile with sunburst guilloché dial, blued hands, and alligator-embossed full-grain strap.",
-      "categoryId": "cat_watches",
-      "categoryName": "Premium Watches",
-      "subcategoryId": "Dress Watches",
-      "subcategoryName": "Dress Watches",
-      "subcategory": "Dress Watches",
-      "regularPrice": 33000,
-      "salePrice": 29800,
-      "costPrice": 15000,
-      "stock": 9,
-      "lowStockThreshold": 3,
-      "stockStatus": "in_stock",
-      "leatherType": "Embossed Italian Calfskin Strap",
-      "mainImage": "/assets/images/hero_luxury_watch_1790447781834.jpg",
-      "images": [
-        "/assets/images/hero_luxury_watch_1790447781834.jpg",
-        "/assets/images/card_luxury_watch_1790447819632.jpg"
-      ],
-      "features": [
-        "Ultra-thin automatic caliber measuring only 3.9mm thick",
-        "Radial sunburst dial with micro-guilloché center medallion",
-        "Thermally heat-blued steel hands with diamond-cut faceted hour markers",
-        "Hand-stitched leather strap with signed deployant butterfly clasp"
-      ],
-      "tags": [
-        "watch",
-        "dress",
-        "ultra-thin",
-        "guilloche",
-        "automatic"
-      ],
-      "variations": [],
-      "variants": [],
-      "specifications": {
-        "Lug Width": "20mm",
-        "Case Diameter": "39mm",
-        "Case Thickness": "8.9mm",
-        "Water Resistance": "50 Meters / 5 ATM"
-      },
-      "isFeatured": true,
-      "isBestSeller": false,
-      "isNewArrival": true,
-      "hasVariations": false,
-      "status": "published",
-      "brand": "FAWNIC Atelier",
-      "rating": 5,
-      "reviewCount": 16,
-      "createdAt": "2026-02-15T10:00:00.000Z",
-      "updatedAt": "2026-10-07T16:52:15.565Z"
-    },
-    {
-      "id": "fwn_acc_02",
-      "name": "The Handcrafted Leather Valet Catchall Tray",
-      "slug": "handcrafted-leather-valet-catchall-tray",
-      "sku": "FWN-VLT-02",
-      "description": "A bedside and desk staple. Crafted from thick 8oz vegetable-tanned bridle leather with hand-burnished edges and solid brass corner snaps. Perfect for your watch, keys, coins, and everyday carry items.",
-      "shortDescription": "Solid brass corner snaps fold flat for travel or snap up into a nightstand EDC organizer.",
-      "categoryId": "cat_accessories",
-      "categoryName": "Leather Accessories",
-      "subcategoryId": "Valet Trays",
-      "subcategoryName": "Valet Trays",
-      "subcategory": "Valet Trays",
-      "regularPrice": 3400,
-      "salePrice": 2750,
-      "costPrice": 1100,
-      "stock": 40,
-      "lowStockThreshold": 8,
-      "stockStatus": "in_stock",
-      "leatherType": "8oz English Bridle Cowhide",
-      "mainImage": "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=1000&auto=format&fit=crop&q=85",
-      "images": [
-        "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=1000&auto=format&fit=crop&q=85"
-      ],
-      "features": [
-        "Heavy 8oz thick hide maintains rigid shape",
-        "Four solid brass snaps for instant assembly or flat travel packing",
-        "Embossed Fawnic crest in center"
-      ],
-      "tags": [
-        "valet tray",
-        "organizer",
-        "edc",
-        "leather"
-      ],
-      "variations": [],
-      "variants": [],
-      "specifications": {
-        "Flat Dimensions": "22 cm x 22 cm",
-        "Formed Tray Dimensions": "16 cm x 16 cm x 4 cm deep"
-      },
-      "isFeatured": false,
-      "isBestSeller": false,
-      "isNewArrival": true,
-      "hasVariations": false,
-      "status": "published",
-      "brand": "FAWNIC",
-      "rating": 4.8,
-      "reviewCount": 12,
-      "createdAt": "2026-02-12T16:00:00.000Z",
-      "updatedAt": "2026-10-07T16:52:15.370Z"
-    },
-    {
-      "id": "fwn_wlt_04",
-      "name": "The Armour RFID Tactical Bifold Wallet",
-      "slug": "armour-rfid-tactical-bifold-wallet",
-      "sku": "FWN-ARM-04",
-      "description": "A blend of rugged durability and executive refinement. Features reinforced corners, matte gunmetal emblem, and internal ballistic nylon reinforcement for extreme durability.",
-      "shortDescription": "Reinforced ballistic leather construction with quick-action thumb ejection and card lock.",
+      "id": "fwn_prd_1791571838415_6k8u",
+      "name": "premium leather",
+      "slug": "premium-leather-mv1bm5sf-144",
+      "sku": "FWN-7163",
+      "description": "",
+      "shortDescription": "",
       "categoryId": "cat_wallets",
-      "categoryName": "Men's Leather Wallets",
-      "subcategoryId": "RFID Wallets",
-      "subcategoryName": "RFID Wallets",
-      "subcategory": "RFID Wallets",
-      "regularPrice": 6500,
-      "salePrice": 5200,
-      "costPrice": 2600,
-      "stock": 35,
-      "lowStockThreshold": 6,
+      "categoryName": "Men's Wallets",
+      "regularPrice": 4999,
+      "salePrice": 4499,
+      "costPrice": 2200,
+      "stock": 7,
+      "lowStockThreshold": 1,
       "stockStatus": "in_stock",
-      "leatherType": "Top-Grain Waxed Cowhide",
-      "mainImage": "/assets/images/card_mens_wallet_1790447793950.jpg",
+      "leatherType": "Full-Grain Cowhide",
+      "mainImage": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
       "images": [
-        "/assets/images/card_mens_wallet_1790447793950.jpg",
-        "/assets/images/hero_mens_wallet_1790447762128.jpg"
+        "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+        "https://ik.imagekit.io/cdef76odq/products/1791571749989-whatsapp-image-2026-09-29-at-9-1_lHx8ku-HR.jpg",
+        "https://ik.imagekit.io/cdef76odq/products/1791571761019-whatsapp-image-2026-09-29-at-9-1_FaQI0zRbs.jpg",
+        "https://ik.imagekit.io/cdef76odq/products/1791571773862-whatsapp-image-2026-09-29-at-9-1_d4lx-XuPI.jpg"
       ],
-      "features": [
-        "Full 360-degree electromagnetic RFID blocking",
-        "Quick-slide thumb thumb window for national CNIC / driver license",
-        "Triple-stitched stress points"
-      ],
+      "features": [],
       "tags": [
-        "tactical",
-        "rfid",
-        "wallet",
-        "durable"
-      ],
-      "variations": [],
-      "variants": [],
-      "specifications": {
-        "Weight": "78 grams",
-        "Capacity": "10 cards + 15 banknotes",
-        "Dimensions": "11 cm x 8.8 cm x 1.3 cm"
-      },
-      "isFeatured": false,
-      "isBestSeller": false,
-      "isNewArrival": true,
-      "hasVariations": false,
-      "status": "published",
-      "brand": "FAWNIC",
-      "rating": 4.7,
-      "reviewCount": 22,
-      "createdAt": "2026-02-10T10:00:00.000Z",
-      "updatedAt": "2026-10-07T16:52:14.842Z"
-    },
-    {
-      "id": "fwn_crd_02",
-      "name": "The Accordion Expandable Leather Card Case",
-      "slug": "accordion-expandable-leather-card-case",
-      "sku": "FWN-ACC-CRD",
-      "description": "Ideal for executives and professionals. Opens like an accordion to reveal multiple organized compartments for business cards, credit cards, and folded currency notes.",
-      "shortDescription": "Gusseted accordion design with solid brass snap button holding up to 15 business or credit cards.",
-      "categoryId": "cat_cardholders",
-      "categoryName": "Card Holders",
-      "subcategoryId": "Accordion Cases",
-      "subcategoryName": "Accordion Cases",
-      "subcategory": "Accordion Cases",
-      "regularPrice": 3600,
-      "salePrice": 2950,
-      "costPrice": 1300,
-      "stock": 35,
-      "lowStockThreshold": 6,
-      "stockStatus": "in_stock",
-      "leatherType": "Top-Grain Waxed Leather",
-      "mainImage": "https://images.unsplash.com/photo-1544816155-12df9643f363?w=1000&auto=format&fit=crop&q=85",
-      "images": [
-        "https://images.unsplash.com/photo-1544816155-12df9643f363?w=1000&auto=format&fit=crop&q=85"
-      ],
-      "features": [
-        "Expandable fan-out gussets hold up to 15 cards",
-        "Reinforced magnetic snap closure",
-        "Divided slots for business cards and credit cards"
-      ],
-      "tags": [
-        "accordion",
-        "business cards",
-        "case",
-        "leather"
-      ],
-      "variations": [],
-      "variants": [],
-      "specifications": {
-        "Capacity": "15-20 standard cards",
-        "Dimensions": "10.5 cm x 7.5 cm x 1.8 cm"
-      },
-      "isFeatured": false,
-      "isBestSeller": false,
-      "isNewArrival": true,
-      "hasVariations": false,
-      "status": "published",
-      "brand": "FAWNIC",
-      "rating": 4.8,
-      "reviewCount": 14,
-      "createdAt": "2026-02-08T09:00:00.000Z",
-      "updatedAt": "2026-10-07T16:52:15.178Z"
-    },
-    {
-      "id": "fwn_blt_03",
-      "name": "The Raw Edge Casual Harness Leather Belt",
-      "slug": "raw-edge-casual-harness-leather-belt",
-      "sku": "FWN-CAS-03",
-      "description": "Built for denim, chinos, and casual boots. Cut wider at 40mm from uncorrected rough-out pull-up leather that scuffs, heals, and shows character with every wear.",
-      "shortDescription": "40mm wide heavy-duty denim belt made from unlined vintage pull-up leather.",
-      "categoryId": "cat_belts",
-      "categoryName": "Leather Belts",
-      "subcategoryId": "Casual Harness Belts",
-      "subcategoryName": "Casual Harness Belts",
-      "subcategory": "Casual Harness Belts",
-      "regularPrice": 4950,
-      "salePrice": 4150,
-      "costPrice": 2000,
-      "stock": 30,
-      "lowStockThreshold": 6,
-      "stockStatus": "in_stock",
-      "leatherType": "Heavy 10oz Vegetable Tanned Harness Hide",
-      "mainImage": "/assets/images/hero_mens_belt_1790447772143.jpg",
-      "images": [
-        "/assets/images/hero_mens_belt_1790447772143.jpg",
-        "/assets/images/card_mens_belt_1790447805889.jpg"
-      ],
-      "features": [
-        "Heavy 40mm width matches denim loops perfectly",
-        "Raw edge hand-buffed with saddle soap",
-        "Matte antique roller buckle prevents leather crease marks"
-      ],
-      "tags": [
-        "casual",
-        "denim",
-        "belt",
-        "vintage",
-        "harness"
-      ],
-      "variations": [],
-      "variants": [
-        {
-          "id": "var_blt3_size",
-          "name": "Waist Size (Inches)",
-          "options": [
-            {
-              "label": "32 inches",
-              "stock": 8
-            },
-            {
-              "label": "34 inches",
-              "stock": 10
-            },
-            {
-              "label": "36 inches",
-              "stock": 8
-            },
-            {
-              "label": "38 inches",
-              "stock": 4
-            }
-          ]
-        }
-      ],
-      "specifications": {
-        "Width": "40 mm (1.57 inches)",
-        "Buckle": "Antiqued Steel Roller Buckle",
-        "Thickness": "4.2 mm (10 oz weight)"
-      },
-      "isFeatured": false,
-      "isBestSeller": false,
-      "isNewArrival": false,
-      "hasVariations": false,
-      "status": "published",
-      "brand": "FAWNIC",
-      "rating": 4.9,
-      "reviewCount": 19,
-      "createdAt": "2026-02-05T15:00:00.000Z",
-      "updatedAt": "2026-10-07T16:52:15.040Z"
-    },
-    {
-      "id": "fwn_wlt_03",
-      "name": "The Royal Continental Long Wallet",
-      "slug": "royal-continental-long-wallet",
-      "sku": "FWN-RYL-03",
-      "description": "Crafted for distinguished business travel and formal occasions. Fits cleanly into suit jacket breast pockets without folding banknotes. Features 16 dedicated card slots, two full-length currency sleeves, a zippered receipt compartment, and dedicated passport slot.",
-      "shortDescription": "Prestigious breast-pocket wallet holding 16 cards, unfolded cash, and travel documents.",
-      "categoryId": "cat_wallets",
-      "categoryName": "Men's Leather Wallets",
-      "subcategoryId": "Long Continental",
-      "subcategoryName": "Long Continental",
-      "subcategory": "Long Continental",
-      "regularPrice": 7800,
-      "salePrice": 6800,
-      "costPrice": 3400,
-      "stock": 25,
-      "lowStockThreshold": 5,
-      "stockStatus": "in_stock",
-      "leatherType": "Full-Grain Pull-Up Harness Leather",
-      "mainImage": "/assets/images/hero_mens_wallet_1790447762128.jpg",
-      "images": [
-        "/assets/images/hero_mens_wallet_1790447762128.jpg",
-        "/assets/images/card_mens_wallet_1790447793950.jpg"
-      ],
-      "features": [
-        "16 individual card slots",
-        "Full-length cash compartment (no folding needed)",
-        "Antique brass YKK zipper compartment",
-        "Fits standard passport and boarding passes"
-      ],
-      "tags": [
-        "long wallet",
-        "continental",
-        "executive",
-        "suit"
-      ],
-      "variations": [],
-      "variants": [
-        {
-          "id": "var_ryl_color",
-          "name": "Leather Color",
-          "options": [
-            {
-              "label": "Deep Havana Brown",
-              "stock": 15
-            },
-            {
-              "label": "Classic Black",
-              "stock": 10
-            }
-          ]
-        }
-      ],
-      "specifications": {
-        "Weight": "130 grams",
-        "Dimensions": "19 cm x 9.5 cm x 1.8 cm",
-        "Leather Grade": "Full-Grain Vegetable-Tanned Oiled Leather"
-      },
-      "isFeatured": false,
-      "isBestSeller": false,
-      "isNewArrival": true,
-      "hasVariations": false,
-      "status": "published",
-      "brand": "FAWNIC",
-      "rating": 5,
-      "reviewCount": 16,
-      "createdAt": "2026-02-01T14:00:00.000Z",
-      "updatedAt": "2026-10-07T16:52:14.777Z"
-    },
-    {
-      "id": "fwn_wtc_02",
-      "name": "The Heritage Field Mechanical 38mm",
-      "slug": "heritage-field-mechanical-38mm",
-      "sku": "FWN-WTC-02",
-      "description": "A tribute to classical field instruments. Features a robust bead-blasted 316L case, high-contrast matte dial, and anti-magnetic inner shield. The hand-wound mechanical caliber delivers authentic tactile feedback during morning winding, complemented by an 8oz harness leather strap with solid buckle.",
-      "shortDescription": "Military-inspired manual wind caliber with vintage radium-tone Super-LumiNova markers and saddle-stitched bridle strap.",
-      "categoryId": "cat_watches",
-      "categoryName": "Premium Watches",
-      "subcategoryId": "Field Timepieces",
-      "subcategoryName": "Field Timepieces",
-      "subcategory": "Field Timepieces",
-      "regularPrice": 21500,
-      "salePrice": 18900,
-      "costPrice": 9500,
-      "stock": 18,
-      "lowStockThreshold": 5,
-      "stockStatus": "in_stock",
-      "leatherType": "8oz Harness Steerhide Strap",
-      "mainImage": "/assets/images/card_luxury_watch_1790447819632.jpg",
-      "images": [
-        "/assets/images/card_luxury_watch_1790447819632.jpg",
-        "/assets/images/hero_luxury_watch_1790447781834.jpg"
-      ],
-      "features": [
-        "Manual-wind 21,600 VPH caliber with tactile winding action",
-        "Vintage Old Radium Swiss Super-LumiNova on hands and numerals",
-        "Box-section sapphire crystal with internal anti-glare treatment",
-        "Solid screw-down caseback engraved with individual atelier serial number"
-      ],
-      "tags": [
-        "watch",
-        "mechanical",
-        "field",
-        "military",
-        "heritage"
-      ],
-      "variations": [],
-      "variants": [],
-      "specifications": {
-        "Lug Width": "20mm",
-        "Case Diameter": "38mm",
-        "Case Thickness": "10.2mm",
-        "Water Resistance": "100 Meters / 10 ATM"
-      },
-      "isFeatured": true,
-      "isBestSeller": false,
-      "isNewArrival": true,
-      "hasVariations": false,
-      "status": "published",
-      "brand": "FAWNIC Atelier",
-      "rating": 4.8,
-      "reviewCount": 19,
-      "createdAt": "2026-02-01T10:00:00.000Z",
-      "updatedAt": "2026-10-07T16:52:15.500Z"
-    },
-    {
-      "id": "fwn_blt_02",
-      "name": "The Dual-Tone Reversible Executive Belt",
-      "slug": "dual-tone-reversible-executive-belt",
-      "sku": "FWN-REV-02",
-      "description": "Two luxury belts in one. Precision spring-loaded rotation buckle allows instant transformation between midnight black formal dress and rich chestnut business casual.",
-      "shortDescription": "Innovative rotating buckle design offering Jet Black on one side and Rich Chestnut on the other.",
-      "categoryId": "cat_belts",
-      "categoryName": "Leather Belts",
-      "subcategoryId": "Reversible Belts",
-      "subcategoryName": "Reversible Belts",
-      "subcategory": "Reversible Belts",
-      "regularPrice": 6200,
-      "salePrice": 5250,
-      "costPrice": 2500,
-      "stock": 40,
-      "lowStockThreshold": 8,
-      "stockStatus": "in_stock",
-      "leatherType": "Top-Grain Double-Sided Nappa Leather",
-      "mainImage": "/assets/images/card_mens_belt_1790447805889.jpg",
-      "images": [
-        "/assets/images/card_mens_belt_1790447805889.jpg",
-        "/assets/images/hero_mens_belt_1790447772143.jpg"
-      ],
-      "features": [
-        "Dual-sided: Jet Black and Chestnut Brown",
-        "360-degree swivel mechanical buckle",
-        "Reinforced feather-edge perimeter stitching"
-      ],
-      "tags": [
-        "reversible",
-        "belt",
-        "dual-tone",
-        "black",
-        "brown"
-      ],
-      "variations": [],
-      "variants": [
-        {
-          "id": "var_blt2_size",
-          "name": "Waist Size (Inches)",
-          "options": [
-            {
-              "label": "32 inches",
-              "stock": 10
-            },
-            {
-              "label": "34 inches",
-              "stock": 12
-            },
-            {
-              "label": "36 inches",
-              "stock": 10
-            },
-            {
-              "label": "38 inches",
-              "stock": 8
-            }
-          ]
-        }
-      ],
-      "specifications": {
-        "Width": "33 mm",
-        "Buckle": "Satin Zinc-Alloy with Gunmetal PVD Coating"
-      },
-      "isFeatured": true,
-      "isBestSeller": false,
-      "isNewArrival": true,
-      "hasVariations": false,
-      "status": "published",
-      "brand": "FAWNIC",
-      "rating": 4.8,
-      "reviewCount": 31,
-      "createdAt": "2026-01-25T11:00:00.000Z",
-      "updatedAt": "2026-10-07T16:52:14.974Z"
-    },
-    {
-      "id": "fwn_crd_01",
-      "name": "The Minimalist Hand-Stitched Card Sleeve",
-      "slug": "minimalist-hand-stitched-card-sleeve",
-      "sku": "FWN-CRD-01",
-      "description": "An ode to traditional hand-craftsmanship. Every sleeve is cut by hand and saddle-stitched using two needles and braided beeswax linen thread. Holds 4 to 6 credit cards comfortably while practically disappearing inside any suit or trouser pocket.",
-      "shortDescription": "Hand-waxed linen saddle stitching across 3 precision card pockets and central cash fold.",
-      "categoryId": "cat_cardholders",
-      "categoryName": "Card Holders",
-      "subcategoryId": "Minimalist Sleeves",
-      "subcategoryName": "Minimalist Sleeves",
-      "subcategory": "Minimalist Sleeves",
-      "regularPrice": 2800,
-      "salePrice": 2250,
-      "costPrice": 900,
-      "stock": 50,
-      "lowStockThreshold": 10,
-      "stockStatus": "in_stock",
-      "leatherType": "Full-Grain Italian Pueblo Leather",
-      "mainImage": "https://images.unsplash.com/photo-1559563458-527698bf5295?w=1000&auto=format&fit=crop&q=85",
-      "images": [
-        "https://images.unsplash.com/photo-1559563458-527698bf5295?w=1000&auto=format&fit=crop&q=85"
-      ],
-      "features": [
-        "100% Traditional hand-stitched with waxed linen thread",
-        "3 Card slots + central cash folded pocket",
-        "Smooth rounded corners prevent pocket wear"
-      ],
-      "tags": [
-        "card holder",
-        "minimalist",
-        "saddle stitch",
-        "sleeve"
-      ],
-      "variations": [],
-      "variants": [
-        {
-          "id": "var_crd1_color",
-          "name": "Color Tone",
-          "options": [
-            {
-              "label": "Saddle Tan",
-              "stock": 20
-            },
-            {
-              "label": "Dark Chocolate",
-              "stock": 15
-            },
-            {
-              "label": "Navy Indigo",
-              "stock": 15
-            }
-          ]
-        }
-      ],
-      "specifications": {
-        "Weight": "28 grams",
-        "Dimensions": "10 cm x 7 cm x 0.4 cm"
-      },
-      "isFeatured": true,
-      "isBestSeller": true,
-      "isNewArrival": false,
-      "hasVariations": false,
-      "status": "published",
-      "brand": "FAWNIC",
-      "rating": 4.9,
-      "reviewCount": 25,
-      "createdAt": "2026-01-18T10:00:00.000Z",
-      "updatedAt": "2026-10-07T16:52:15.104Z"
-    },
-    {
-      "id": "fwn_wlt_02",
-      "name": "The Apex Slim Front-Pocket Wallet",
-      "slug": "apex-slim-front-pocket-wallet",
-      "sku": "FWN-APX-02",
-      "description": "Engineered for the discerning minimalist who rejects pocket bulge. The Apex maintains a razor-thin 0.7cm footprint while effortlessly carrying up to 7 cards and folded bills. Equipped with a textured leather pull-strap that fans out your secondary cards in an instant, and a front quick-access slot for your everyday transit or payment card.",
-      "shortDescription": "Ultra-thin silhouette designed for seamless front pocket carry with quick-pull card strap.",
-      "categoryId": "cat_wallets",
-      "categoryName": "Men's Leather Wallets",
-      "subcategoryId": "Slim Front-Pocket",
-      "subcategoryName": "Slim Front-Pocket",
-      "subcategory": "Slim Front-Pocket",
-      "regularPrice": 4200,
-      "salePrice": 3450,
-      "costPrice": 1600,
-      "stock": 60,
-      "lowStockThreshold": 10,
-      "stockStatus": "in_stock",
-      "leatherType": "Top-Grain Nappa Leather",
-      "mainImage": "/assets/images/card_mens_wallet_1790447793950.jpg",
-      "images": [
-        "/assets/images/card_mens_wallet_1790447793950.jpg",
-        "/assets/images/hero_mens_wallet_1790447762128.jpg"
-      ],
-      "features": [
-        "Only 7mm thick when empty",
-        "Quick-draw pull strap for rapid card access",
-        "Integrated RFID shielding protects all internal slots",
-        "Beveled edges with matching tonal saddle stitching"
-      ],
-      "tags": [
-        "slim",
-        "wallet",
-        "minimalist",
-        "front-pocket"
-      ],
-      "variations": [],
-      "variants": [
-        {
-          "id": "var_apx_color",
-          "name": "Leather Color",
-          "options": [
-            {
-              "label": "Saddle Tan",
-              "stock": 25
-            },
-            {
-              "label": "Obsidian Black",
-              "stock": 25
-            },
-            {
-              "label": "British Racing Green",
-              "stock": 10
-            }
-          ]
-        }
-      ],
-      "specifications": {
-        "Weight": "42 grams",
-        "Capacity": "5-8 cards plus folded cash",
-        "Dimensions": "10.2 cm x 7.6 cm x 0.7 cm",
-        "Leather Grade": "Full-Grain Top-Grade Nappa"
-      },
-      "careInstructions": "Buff gently with a soft microfiber cloth. Store in dust bag when traveling.",
-      "isFeatured": true,
-      "isBestSeller": true,
-      "isNewArrival": false,
-      "hasVariations": false,
-      "status": "published",
-      "brand": "FAWNIC",
-      "rating": 4.8,
-      "reviewCount": 29,
-      "createdAt": "2026-01-15T12:00:00.000Z",
-      "updatedAt": "2026-10-07T16:52:14.712Z"
-    },
-    {
-      "id": "fwn_wtc_01",
-      "name": "The Sovereign Automatic Chronograph 41mm",
-      "slug": "sovereign-automatic-chronograph-41mm",
-      "sku": "FWN-WTC-01",
-      "description": "Engineered for connoisseurs of fine mechanical horology. The Sovereign Automatic features an exhibition sapphire caseback revealing the decorated rotor and balance wheel. Hand-finished surgical 316L stainless steel case with dual-finish satin brushing and mirror-polished bevels. Fitted with a custom full-grain Italian calfskin strap crafted in our atelier.",
-      "shortDescription": "High-beat 28,800 VPH mechanical movement, anti-reflective double-domed sapphire crystal, and vegetable-tanned leather strap.",
-      "categoryId": "cat_watches",
-      "categoryName": "Premium Watches",
-      "subcategoryId": "Automatic Chronographs",
-      "subcategoryName": "Automatic Chronographs",
-      "subcategory": "Automatic Chronographs",
-      "regularPrice": 28500,
-      "salePrice": 24500,
-      "costPrice": 12000,
-      "stock": 14,
-      "lowStockThreshold": 4,
-      "stockStatus": "in_stock",
-      "leatherType": "Italian Full-Grain Calfskin Strap",
-      "mainImage": "/assets/images/hero_luxury_watch_1790447781834.jpg",
-      "images": [
-        "/assets/images/hero_luxury_watch_1790447781834.jpg",
-        "/assets/images/card_luxury_watch_1790447819632.jpg"
-      ],
-      "features": [
-        "28,800 VPH High-Beat Caliber with 42-hour power reserve",
-        "Scratch-resistant double-domed sapphire crystal with 5-layer anti-reflective coating",
-        "Solid 316L surgical-grade stainless steel case with exhibition glass back",
-        "Interchangeable quick-release FAWNIC handcrafted leather strap"
-      ],
-      "tags": [
-        "watch",
-        "automatic",
-        "horology",
-        "chronograph",
-        "sapphire",
+        "leather",
         "luxury"
       ],
       "variations": [],
       "variants": [],
-      "specifications": {
-        "Lug Width": "20mm",
-        "Case Diameter": "41mm",
-        "Case Thickness": "11.8mm",
-        "Water Resistance": "100 Meters / 10 ATM"
-      },
+      "specifications": {},
       "isFeatured": true,
       "isBestSeller": true,
-      "isNewArrival": false,
-      "hasVariations": false,
-      "status": "published",
-      "brand": "FAWNIC Atelier",
-      "rating": 4.9,
-      "reviewCount": 24,
-      "createdAt": "2026-01-12T10:00:00.000Z",
-      "updatedAt": "2026-10-07T16:52:15.435Z"
-    },
-    {
-      "id": "fwn_blt_01",
-      "name": "The Artisan Solid Brass Full-Grain Formal Belt",
-      "slug": "artisan-solid-brass-full-grain-formal-belt",
-      "sku": "FWN-BLT-01",
-      "description": "The definitive formal belt crafted without filler, cardboard, or synthetic bonded backing. Cut directly from dense 3.8mm thick vegetable-tanned steerhide. Each belt is hand-edged, burnished with natural carnauba wax, and anchored by a hand-polished solid brass buckle secured by Chicago screws for easy buckle swapping.",
-      "shortDescription": "35mm dress belt cut from continuous 9oz full-grain steerhide with solid forged brass hardware.",
-      "categoryId": "cat_belts",
-      "categoryName": "Leather Belts",
-      "subcategoryId": "Formal Dress Belts",
-      "subcategoryName": "Formal Dress Belts",
-      "subcategory": "Formal Dress Belts",
-      "regularPrice": 5500,
-      "salePrice": 4650,
-      "costPrice": 2200,
-      "stock": 55,
-      "lowStockThreshold": 10,
-      "stockStatus": "in_stock",
-      "leatherType": "9oz Full-Grain Steerhide",
-      "mainImage": "/assets/images/hero_mens_belt_1790447772143.jpg",
-      "images": [
-        "/assets/images/hero_mens_belt_1790447772143.jpg",
-        "/assets/images/card_mens_belt_1790447805889.jpg"
-      ],
-      "features": [
-        "Cut from single continuous slab of 9oz full-grain steerhide",
-        "Solid forged brass hardware with micro-brushed finish",
-        "Removable Chicago screw construction allows custom buckle swapping",
-        "5 precision teardrop holes spaced 1 inch apart",
-        "Beveled edge profile hand-burnished with natural carnauba wax"
-      ],
-      "tags": [
-        "belt",
-        "formal",
-        "brass",
-        "leather",
-        "steerhide"
-      ],
-      "variations": [],
-      "variants": [
-        {
-          "id": "var_blt1_size",
-          "name": "Waist Size (Inches)",
-          "options": [
-            {
-              "label": "30 inches",
-              "stock": 8
-            },
-            {
-              "label": "32 inches",
-              "stock": 12
-            },
-            {
-              "label": "34 inches",
-              "stock": 15
-            },
-            {
-              "label": "36 inches",
-              "stock": 10
-            },
-            {
-              "label": "38 inches",
-              "stock": 6
-            },
-            {
-              "label": "40 inches",
-              "stock": 4
-            }
-          ]
-        },
-        {
-          "id": "var_blt1_color",
-          "name": "Leather & Hardware",
-          "options": [
-            {
-              "label": "Jet Black (Brushed Nickel Buckle)",
-              "stock": 25
-            },
-            {
-              "label": "Cognac Amber (Antique Brass Buckle)",
-              "stock": 20
-            },
-            {
-              "label": "Cordovan Deep Red (Solid Brass Buckle)",
-              "stock": 10
-            }
-          ]
-        }
-      ],
-      "specifications": {
-        "Width": "35 mm (1.38 inches) - Standard Formal Dress Width",
-        "Buckle": "100% Solid Forged Brass (Lead-Free)",
-        "Thickness": "3.8 mm (9 oz weight)",
-        "Leather Type": "Full-Grain English Bridle Steerhide"
-      },
-      "careInstructions": "Condition with neatsfoot or mink oil once yearly. Wipe buckle with dry cotton.",
-      "isFeatured": true,
-      "isBestSeller": true,
-      "isNewArrival": false,
-      "hasVariations": false,
-      "status": "published",
-      "brand": "FAWNIC",
-      "rating": 4.9,
-      "reviewCount": 44,
-      "createdAt": "2026-01-12T09:00:00.000Z",
-      "updatedAt": "2026-10-07T16:52:14.908Z"
-    },
-    {
-      "id": "fwn_wlt_01",
-      "name": "The Sovereign Executive Bifold Wallet",
-      "slug": "sovereign-executive-bifold-wallet",
-      "sku": "FWN-SOV-01",
-      "description": "A timeless cornerstone of the Fawnic collection. The Sovereign is cut from dense 1.2mm vegetable-tanned cowhide that begins with a rich satin sheen and deepens into a magnificent vintage patina with daily use. Features eight hand-creased card slots, two hidden multi-purpose pockets, and a divided full-length cash compartment lined with durable Japanese cotton twill. Integrated with military-grade copper-nickel RFID blocking mesh to protect your contactless debit cards and biometric IDs.",
-      "shortDescription": "Handcrafted from full-grain vegetable-tanned Italian cowhide with hand-burnished edges, 8 card slots, and RFID defense.",
-      "categoryId": "cat_wallets",
-      "categoryName": "Men's Leather Wallets",
-      "subcategoryId": "Bifold Wallets",
-      "subcategoryName": "Bifold Wallets",
-      "subcategory": "Bifold Wallets",
-      "regularPrice": 5200,
-      "salePrice": 4450,
-      "costPrice": 2200,
-      "stock": 45,
-      "lowStockThreshold": 8,
-      "stockStatus": "in_stock",
-      "leatherType": "Full-Grain Italian Vegetable-Tanned Cowhide",
-      "mainImage": "/assets/images/hero_mens_wallet_1790447762128.jpg",
-      "images": [
-        "/assets/images/hero_mens_wallet_1790447762128.jpg",
-        "/assets/images/card_mens_wallet_1790447793950.jpg"
-      ],
-      "features": [
-        "Cut from 100% Full-Grain Vegetable-Tanned Cowhide",
-        "Certified 13.56 MHz RFID signal blocking layer",
-        "8 precision-beveled card slots + 2 hidden compartments",
-        "Dual-section currency divider fits Pakistani Rupee banknotes cleanly",
-        "Hand-waxed beeswax edge burnishing for lifelong durability"
-      ],
-      "tags": [
-        "bifold",
-        "wallet",
-        "rfid",
-        "leather",
-        "luxury",
-        "cognac"
-      ],
-      "variations": [],
-      "variants": [
-        {
-          "id": "var_sov_color",
-          "name": "Leather Color",
-          "options": [
-            {
-              "label": "Vintage Cognac",
-              "stock": 20
-            },
-            {
-              "label": "Midnight Onyx Black",
-              "stock": 15
-            },
-            {
-              "label": "Mahogany Brown",
-              "stock": 10
-            }
-          ]
-        }
-      ],
-      "specifications": {
-        "Origin": "Handcrafted in Fawnic Atelier, Pakistan",
-        "Weight": "85 grams",
-        "Dimensions": "11.5 cm x 9.2 cm x 1.4 cm",
-        "Leather Grade": "Full-Grain Vegetable-Tanned Cowhide (Grade A)",
-        "Hardware / Lining": "German bonded nylon thread, Japanese cotton twill lining"
-      },
-      "careInstructions": "Apply organic leather balm once every 6 months. Avoid prolonged water exposure. If wet, let dry naturally away from direct heat.",
-      "isFeatured": true,
-      "isBestSeller": true,
-      "isNewArrival": false,
-      "hasVariations": false,
-      "status": "published",
-      "brand": "FAWNIC",
-      "rating": 4.9,
-      "reviewCount": 38,
-      "createdAt": "2026-01-10T10:00:00.000Z",
-      "updatedAt": "2026-10-07T16:52:14.646Z"
-    },
-    {
-      "id": "fwn_acc_01",
-      "name": "The Fawnic Heirloom Gift Ensemble (Wallet + Belt + Card Sleeve)",
-      "slug": "fawnic-heirloom-gift-ensemble",
-      "sku": "FWN-GFT-01",
-      "description": "Curated for milestone celebrations, weddings, and executive appreciation. Includes our flagship Sovereign Bifold Wallet, the Artisan Solid Brass Formal Belt, and a matching Hand-Stitched Card Sleeve, all cut from color-matched full-grain Italian leather hides. Encased in a bespoke gold-stamped velvet-lined rigid presentation box with custom Fawnic authenticity certificate.",
-      "shortDescription": "The pinnacle luxury gift set presented in a gold-embossed matte wooden presentation box.",
-      "categoryId": "cat_accessories",
-      "categoryName": "Leather Accessories",
-      "subcategoryId": "Heirloom Gift Sets",
-      "subcategoryName": "Heirloom Gift Sets",
-      "subcategory": "Heirloom Gift Sets",
-      "regularPrice": 14500,
-      "salePrice": 11800,
-      "costPrice": 5500,
-      "stock": 20,
-      "lowStockThreshold": 4,
-      "stockStatus": "in_stock",
-      "leatherType": "Matched Full-Grain Italian Hide",
-      "mainImage": "https://images.unsplash.com/photo-1544816155-12df9643f363?w=1000&auto=format&fit=crop&q=85",
-      "images": [
-        "https://images.unsplash.com/photo-1544816155-12df9643f363?w=1000&auto=format&fit=crop&q=85",
-        "https://images.unsplash.com/photo-1627123424574-724758594e93?w=1000&auto=format&fit=crop&q=85",
-        "https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=1000&auto=format&fit=crop&q=85"
-      ],
-      "features": [
-        "Includes Sovereign Bifold Wallet + Artisan Belt + Minimalist Card Sleeve",
-        "Color-matched from identical full-grain leather hides",
-        "Presented in gold-foiled rigid wooden gift chest with velvet lining",
-        "Includes handwritten calligraphy gift card on request"
-      ],
-      "tags": [
-        "gift set",
-        "heirloom",
-        "wallet and belt",
-        "luxury gift",
-        "wedding"
-      ],
-      "variations": [],
-      "variants": [
-        {
-          "id": "var_gft_size",
-          "name": "Belt Size in Set",
-          "options": [
-            {
-              "label": "32 Waist Belt",
-              "stock": 6
-            },
-            {
-              "label": "34 Waist Belt",
-              "stock": 8
-            },
-            {
-              "label": "36 Waist Belt",
-              "stock": 6
-            }
-          ]
-        }
-      ],
-      "specifications": {
-        "Guarantee": "Fawnic Lifetime Craftsmanship Guarantee",
-        "Box Dimensions": "32 cm x 24 cm x 8 cm",
-        "Total Set Weight": "680 grams"
-      },
-      "isFeatured": true,
-      "isBestSeller": true,
-      "isNewArrival": false,
+      "isNewArrival": true,
       "hasVariations": false,
       "status": "published",
       "brand": "FAWNIC",
       "rating": 5,
-      "reviewCount": 18,
-      "createdAt": "2026-01-05T12:00:00.000Z",
-      "updatedAt": "2026-10-07T16:52:15.306Z"
+      "reviewCount": 0,
+      "createdAt": "2026-10-09T18:50:38.415Z",
+      "updatedAt": "2026-10-11T14:13:43.302Z"
+    },
+    {
+      "id": "fwn_prd_1791486063309_krg0",
+      "name": "Men Best Wallet For Events (Copy) (Copy)",
+      "slug": "men-best-wallet-for-events-muzvehe8-335-copy-muzwiylk-copy-muzwjpal",
+      "sku": "FWN-7557",
+      "description": "<div style=\"font-family:Arial,Helvetica,sans-serif; color:#222; line-height:1.7;\">\n\n  <h2 style=\"font-size:28px; margin-bottom:12px; color:#111;\">\n    Premium Crocodile-Texture Leather Wallet\n  </h2>\n\n  <p style=\"font-size:16px; color:#555; margin-bottom:22px;\">\n    Crafted for the modern gentleman, this premium leather wallet combines\n    sophisticated design, practical everyday functionality, and a distinctive\n    crocodile-texture finish.\n  </p>\n\n  <div style=\"border-left:4px solid #222; padding:14px 18px; margin:20px 0; background:#f7f7f7;\">\n    <strong style=\"color:#111;\">Timeless. Refined. Made for Everyday Luxury.</strong>\n    <p style=\"margin:6px 0 0; color:#666;\">\n      A statement accessory designed to complement both formal and casual styles.\n    </p>\n  </div>\n\n  <h3 style=\"font-size:21px; color:#111; margin-top:28px;\">\n    Premium Design\n  </h3>\n\n  <p style=\"color:#555;\">\n    Featuring a rich crocodile-inspired texture and a carefully finished\n    silhouette, this wallet delivers a premium appearance without compromising\n    everyday practicality. The subtle FAWNIC branding adds an elegant signature\n    touch.\n  </p>\n\n  <h3 style=\"font-size:21px; color:#111; margin-top:28px;\">\n    Built for Everyday Use\n  </h3>\n\n  <p style=\"color:#555;\">\n    Designed to keep your essential cards and cash organized while maintaining\n    a clean and compact profile. Its versatile design makes it an ideal\n    companion for work, business meetings, travel, dinners, and everyday use.\n  </p>\n\n  <ul style=\"padding-left:22px; color:#555;\">\n    <li style=\"margin-bottom:8px;\">Premium crocodile-texture finish</li>\n    <li style=\"margin-bottom:8px;\">Elegant FAWNIC signature branding</li>\n    <li style=\"margin-bottom:8px;\">Compact and practical everyday design</li>\n    <li style=\"margin-bottom:8px;\">Suitable for formal and casual styling</li>\n    <li style=\"margin-bottom:8px;\">Designed for the modern gentleman</li>\n  </ul>\n\n  <div style=\"margin-top:28px; padding:20px; border:1px solid #e2e2e2; border-radius:10px;\">\n    <h3 style=\"margin-top:0; font-size:20px; color:#111;\">\n      The FAWNIC Standard\n    </h3>\n    <p style=\"margin-bottom:0; color:#666;\">\n      Every FAWNIC piece is designed with attention to detail, refined aesthetics,\n      and everyday functionality. This wallet brings that philosophy into a\n      timeless accessory made to elevate your everyday carry.\n    </p>\n  </div>\n\n</div>",
+      "shortDescription": "Featuring a rich crocodile-inspired texture and a carefully finished silhouette",
+      "categoryId": "cat_wallets",
+      "categoryName": "Men's Wallets",
+      "regularPrice": 4500,
+      "salePrice": 3800,
+      "costPrice": 2200,
+      "stock": 6,
+      "lowStockThreshold": 2,
+      "stockStatus": "in_stock",
+      "leatherType": "Full-Grain Cowhide",
+      "mainImage": "https://ik.imagekit.io/cdef76odq/products/1791483556667-whatsapp-image-2026-09-29-at-9-1_QQcMGiPjyH.jpg",
+      "images": [
+        "https://ik.imagekit.io/cdef76odq/products/1791483556667-whatsapp-image-2026-09-29-at-9-1_QQcMGiPjyH.jpg",
+        "https://ik.imagekit.io/cdef76odq/products/1791483574424-whatsapp-image-2026-09-29-at-9-1_1NdO4XnvR.jpg",
+        "https://ik.imagekit.io/cdef76odq/products/1791483577163-whatsapp-image-2026-09-29-at-9-1_wngEb66Ko.jpg",
+        "https://ik.imagekit.io/cdef76odq/products/1791483579764-whatsapp-image-2026-09-29-at-9-1_i23-vXgK_7.jpg",
+        "https://ik.imagekit.io/cdef76odq/products/1791483582570-whatsapp-image-2026-09-29-at-9-1_QL-ET5RGJ.jpg",
+        "https://ik.imagekit.io/cdef76odq/products/1791483585053-whatsapp-image-2026-09-29-at-1-1_cqfZK7u-U.jpg"
+      ],
+      "features": [],
+      "tags": [
+        "leather",
+        "luxury"
+      ],
+      "variations": [
+        {
+          "id": "var_1791523657122_zn67",
+          "sku": "FWN-0001-1",
+          "name": "Grey",
+          "type": "color",
+          "color": "Grey",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791483556667-whatsapp-image-2026-09-29-at-9-1_QQcMGiPjyH.jpg",
+          "order": 1,
+          "colorCode": "#969696"
+        },
+        {
+          "id": "var_1791523681547_bbgg",
+          "sku": "FWN-0001-2",
+          "name": "Brown",
+          "type": "color",
+          "color": "Brown",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791483577163-whatsapp-image-2026-09-29-at-9-1_wngEb66Ko.jpg",
+          "order": 2,
+          "colorCode": "#78350f"
+        }
+      ],
+      "variants": [],
+      "specifications": {},
+      "isFeatured": true,
+      "isBestSeller": true,
+      "isNewArrival": true,
+      "hasVariations": true,
+      "status": "published",
+      "brand": "FAWNIC",
+      "rating": 5,
+      "reviewCount": 0,
+      "createdAt": "2026-10-08T19:01:03.309Z",
+      "updatedAt": "2026-10-11T14:13:21.530Z"
     }
   ],
   "settings": {
     "logoUrl": "https://i.postimg.cc/d391qxwY/Whats-App-Image-2026-09-11-at-11-39-40-AM.jpg",
+    "tagline": "Bespoke Handcrafted Full-Grain Leather Atelier",
     "bankIban": "PK20MEZN0028020115438839",
     "bankName": "Meezan Bank",
     "currency": "PKR",
@@ -1467,15 +1869,31 @@
     "bankBranch": "DHA Phase 5, Lahore",
     "codEnabled": true,
     "faviconUrl": "https://i.postimg.cc/d391qxwY/Whats-App-Image-2026-09-11-at-11-39-40-AM.jpg",
+    "seoSettings": {
+      "enabled": true,
+      "sitemap": true,
+      "productSeo": true,
+      "indexProducts": true,
+      "productSchema": true
+    },
+    "socialLinks": {
+      "tiktok": "https://tiktok.com/@fawnic",
+      "facebook": "https://facebook.com/fawnic.pk",
+      "instagram": "https://instagram.com/fawnic.pk"
+    },
     "supportEmail": "fawnic01@gmail.com",
     "supportPhone": "03711661611",
+    "invoicePrefix": "INV-",
     "officeAddress": "DHA Phase 5, Lahore, Pakistan",
+    "bankBranchCode": "Islamic Banking Branch",
+    "maintenanceMode": false,
     "supportWhatsApp": "03711661611",
     "bankAccountTitle": "ALI AHAB MUKARRAM",
     "bankAccountNumber": "28020115438839",
     "bankTransferEnabled": true,
     "standardShippingFee": 250,
     "freeShippingThreshold": 5000,
+    "bankPaymentInstructions": "Transfer the exact order total via mobile banking app, ATM, or internet banking. After making the transfer, enter your transaction reference number or upload your payment receipt below.",
     "bankPaymentProofRequired": true,
     "estimatedDeliveryKarachi": "12 - 24 Hours",
     "estimatedDeliveryNationwide": "2 - 3 Business Days",
@@ -1493,7 +1911,7 @@
       "fwn_blt_03"
     ]
   },
-  "_updatedAt": "2026-10-07T16:52:15.668Z",
+  "_updatedAt": "2026-10-11T14:14:24.051Z",
   "categories": [
     {
       "id": "cat_wallets",
@@ -1619,66 +2037,33 @@
     "isAnnouncementEnabled": true,
     "featuredCategoriesEnabled": true
   },
-  "teamMembers": [
+  "teamMembers": [],
+  "customerNotes": {},
+  "notifications": [
     {
-      "id": "tm_1789242178578",
-      "name": "Taha Saroya",
-      "role": "manager",
-      "salt": "ca56134e41ebc0ea51655b3f03097429",
-      "email": "tahasaroya369@gmail.com",
-      "phone": "+92 3455005396",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
-      "status": "active",
-      "createdAt": "2026-09-12T19:42:58.578Z",
-      "lastLogin": "2026-09-12T19:44:49.652Z",
-      "permissions": {
-        "pages": [
-          "dashboard",
-          "orders",
-          "products",
-          "inventory",
-          "coupons",
-          "invoices",
-          "crm",
-          "categories",
-          "analytics"
-        ],
-        "actions": {
-          "staff": {
-            "edit": false,
-            "view": false,
-            "create": false,
-            "delete": false,
-            "manage_permissions": false
-          },
-          "orders": {
-            "edit": true,
-            "view": true,
-            "cancel": false,
-            "delete": false
-          },
-          "invoices": {
-            "edit": false,
-            "view": true,
-            "create": false,
-            "delete": false,
-            "download": true
-          },
-          "products": {
-            "add": true,
-            "edit": true,
-            "view": true,
-            "delete": false,
-            "publish": true,
-            "unpublish": false
-          }
-        }
-      },
-      "passwordHash": "60aba12abfa14f7d77e62dbfd31b9d703ea39bec988a1ff0d5288cb6c7500f91bbe311fb54b44a2956637dd6ca383135275c5504817b69842431ae30ed7622b3"
+      "id": "notif_ord_ord_1791653294179_confirmed_1791728064046",
+      "title": "Order Confirmed",
+      "message": "Your order #FWN-57484 has been confirmed. Our leather artisans are preparing your selection.",
+      "type": "Order Update",
+      "link": "/track/FWN-57484",
+      "buttonText": "TRACK CONSIGNMENT",
+      "audience": "specific",
+      "targetUserIds": [
+        "usr_1791575623453_plouq"
+      ],
+      "targetUserNames": [
+        "sufyan"
+      ],
+      "status": "published",
+      "publishedAt": "2026-10-11T14:14:24.046Z",
+      "createdAt": "2026-10-11T14:14:24.046Z",
+      "updatedAt": "2026-10-11T14:14:24.046Z",
+      "createdBy": "Atelier Order System",
+      "orderId": "ord_1791653294179",
+      "orderNumber": "FWN-57484",
+      "orderStatus": "confirmed"
     }
   ],
-  "customerNotes": {},
-  "notifications": [],
   "invoiceSettings": {
     "ntn": "",
     "email": "fawnic01@gmail.com",
@@ -1700,6 +2085,857 @@
     }
   ],
   "inventoryTransactions": [
+    {
+      "id": "txn_1791663221384_449",
+      "sku": "FWN-0001-2",
+      "notes": "Consignment order FWN-55148",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 5,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-10T20:13:41.384Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-55148",
+      "previousStock": 6
+    },
+    {
+      "id": "txn_1791653294180_730",
+      "sku": "FWN-7163",
+      "notes": "Consignment order FWN-57484",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 6,
+      "productId": "fwn_prd_1791571838415_6k8u",
+      "timestamp": "2026-10-10T17:28:14.180Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "premium leather",
+      "referenceId": "FWN-57484",
+      "previousStock": 7
+    },
+    {
+      "id": "txn_1791652636923_342",
+      "sku": "FWN-7163",
+      "notes": "Consignment order FWN-98312",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 6,
+      "productId": "fwn_prd_1791571838415_6k8u",
+      "timestamp": "2026-10-10T17:17:16.923Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "premium leather",
+      "referenceId": "FWN-98312",
+      "previousStock": 7
+    },
+    {
+      "id": "txn_1791652628987_250",
+      "sku": "FWN-7163",
+      "notes": "Consignment order FWN-84318",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 7,
+      "productId": "fwn_prd_1791571838415_6k8u",
+      "timestamp": "2026-10-10T17:17:08.987Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "premium leather",
+      "referenceId": "FWN-84318",
+      "previousStock": 8
+    },
+    {
+      "id": "txn_1791652618599_994",
+      "sku": "FWN-7163",
+      "notes": "Consignment order FWN-92980",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 8,
+      "productId": "fwn_prd_1791571838415_6k8u",
+      "timestamp": "2026-10-10T17:16:58.599Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "premium leather",
+      "referenceId": "FWN-92980",
+      "previousStock": 9
+    },
+    {
+      "id": "txn_1791652609007_673",
+      "sku": "FWN-7163",
+      "notes": "Consignment order FWN-99625",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 9,
+      "productId": "fwn_prd_1791571838415_6k8u",
+      "timestamp": "2026-10-10T17:16:49.007Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "premium leather",
+      "referenceId": "FWN-99625",
+      "previousStock": 10
+    },
+    {
+      "id": "txn_1791652594328_720",
+      "sku": "FWN-7163",
+      "notes": "Consignment order FWN-72086",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 9,
+      "productId": "fwn_prd_1791571838415_6k8u",
+      "timestamp": "2026-10-10T17:16:34.328Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "premium leather",
+      "referenceId": "FWN-72086",
+      "previousStock": 10
+    },
+    {
+      "id": "txn_1791652550093_591",
+      "sku": "FWN-7163",
+      "notes": "Consignment order FWN-67764",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 0,
+      "productId": "fwn_prd_1791571838415_6k8u",
+      "timestamp": "2026-10-10T17:15:50.093Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "premium leather",
+      "referenceId": "FWN-67764",
+      "previousStock": 1
+    },
+    {
+      "id": "txn_1791652539909_175",
+      "sku": "FWN-7163",
+      "notes": "Consignment order FWN-96695",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 1,
+      "productId": "fwn_prd_1791571838415_6k8u",
+      "timestamp": "2026-10-10T17:15:39.909Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "premium leather",
+      "referenceId": "FWN-96695",
+      "previousStock": 2
+    },
+    {
+      "id": "txn_1791652530604_995",
+      "sku": "FWN-7163",
+      "notes": "Consignment order FWN-85523",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 2,
+      "productId": "fwn_prd_1791571838415_6k8u",
+      "timestamp": "2026-10-10T17:15:30.604Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "premium leather",
+      "referenceId": "FWN-85523",
+      "previousStock": 3
+    },
+    {
+      "id": "txn_1791652520364_954",
+      "sku": "FWN-7163",
+      "notes": "Consignment order FWN-53998",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 2,
+      "productId": "fwn_prd_1791571838415_6k8u",
+      "timestamp": "2026-10-10T17:15:20.364Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "premium leather",
+      "referenceId": "FWN-53998",
+      "previousStock": 3
+    },
+    {
+      "id": "txn_1791652494212_115",
+      "sku": "FWN-7163",
+      "notes": "Consignment order FWN-65151",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 3,
+      "productId": "fwn_prd_1791571838415_6k8u",
+      "timestamp": "2026-10-10T17:14:54.212Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "premium leather",
+      "referenceId": "FWN-65151",
+      "previousStock": 4
+    },
+    {
+      "id": "txn_1791652475094_335",
+      "sku": "FWN-7163",
+      "notes": "Consignment order FWN-61510",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 4,
+      "productId": "fwn_prd_1791571838415_6k8u",
+      "timestamp": "2026-10-10T17:14:35.094Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "premium leather",
+      "referenceId": "FWN-61510",
+      "previousStock": 5
+    },
+    {
+      "id": "txn_1791652466079_636",
+      "sku": "FWN-7163",
+      "notes": "Consignment order FWN-19921",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 5,
+      "productId": "fwn_prd_1791571838415_6k8u",
+      "timestamp": "2026-10-10T17:14:26.079Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "premium leather",
+      "referenceId": "FWN-19921",
+      "previousStock": 6
+    },
+    {
+      "id": "txn_1791652455862_447",
+      "sku": "FWN-7163",
+      "notes": "Consignment order FWN-40351",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 5,
+      "productId": "fwn_prd_1791571838415_6k8u",
+      "timestamp": "2026-10-10T17:14:15.862Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "premium leather",
+      "referenceId": "FWN-40351",
+      "previousStock": 6
+    },
+    {
+      "id": "txn_1791652431959_469",
+      "sku": "FWN-7163",
+      "notes": "Consignment order FWN-10717",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 6,
+      "productId": "fwn_prd_1791571838415_6k8u",
+      "timestamp": "2026-10-10T17:13:51.959Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "premium leather",
+      "referenceId": "FWN-10717",
+      "previousStock": 7
+    },
+    {
+      "id": "txn_1791652329537_372",
+      "sku": "FWN-7557",
+      "notes": "Consignment order FWN-52199",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 5,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-10T17:12:09.537Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-52199",
+      "previousStock": 6
+    },
+    {
+      "id": "txn_1791652320730_546",
+      "sku": "FWN-7557",
+      "notes": "Consignment order FWN-46678",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 6,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-10T17:12:00.730Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-46678",
+      "previousStock": 7
+    },
+    {
+      "id": "txn_1791652313017_931",
+      "sku": "FWN-7557",
+      "notes": "Consignment order FWN-41357",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 7,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-10T17:11:53.017Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-41357",
+      "previousStock": 8
+    },
+    {
+      "id": "txn_1791652304344_931",
+      "sku": "FWN-7557",
+      "notes": "Consignment order FWN-68543",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 8,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-10T17:11:44.344Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-68543",
+      "previousStock": 9
+    },
+    {
+      "id": "txn_1791652292707_434",
+      "sku": "FWN-7557",
+      "notes": "Consignment order FWN-30092",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 8,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-10T17:11:32.707Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-30092",
+      "previousStock": 9
+    },
+    {
+      "id": "txn_1791652240842_186",
+      "sku": "FWN-7557",
+      "notes": "Consignment order FWN-32330",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 8,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-10T17:10:40.842Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-32330",
+      "previousStock": 9
+    },
+    {
+      "id": "txn_1791652230988_520",
+      "sku": "FWN-7557",
+      "notes": "Consignment order FWN-45453",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 8,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-10T17:10:30.988Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-45453",
+      "previousStock": 9
+    },
+    {
+      "id": "txn_1791640681127_215",
+      "sku": "FWN-0001-1",
+      "notes": "Consignment order FWN-24921",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 7,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-10T13:58:01.127Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-24921",
+      "previousStock": 8
+    },
+    {
+      "id": "txn_1791640538261_860",
+      "sku": "FWN-0001-2",
+      "notes": "Consignment order FWN-46370",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 8,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-10T13:55:38.261Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-46370",
+      "previousStock": 9
+    },
+    {
+      "id": "txn_1791574729721_354",
+      "sku": "FWN-7163",
+      "notes": "Consignment order FWN-41663",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 7,
+      "productId": "fwn_prd_1791571838415_6k8u",
+      "timestamp": "2026-10-09T19:38:49.721Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "premium leather",
+      "referenceId": "FWN-41663",
+      "previousStock": 8
+    },
+    {
+      "id": "txn_1791573761542_525",
+      "sku": "FWN-7163",
+      "notes": "Consignment order FWN-98614",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 8,
+      "productId": "fwn_prd_1791571838415_6k8u",
+      "timestamp": "2026-10-09T19:22:41.542Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "premium leather",
+      "referenceId": "FWN-98614",
+      "previousStock": 9
+    },
+    {
+      "id": "txn_1791573598251_107",
+      "sku": "FWN-7163",
+      "notes": "Consignment order FWN-51657",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 8,
+      "productId": "fwn_prd_1791571838415_6k8u",
+      "timestamp": "2026-10-09T19:19:58.251Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "premium leather",
+      "referenceId": "FWN-51657",
+      "previousStock": 9
+    },
+    {
+      "id": "txn_rest_1791573593063_vlzc",
+      "sku": "FWN-7163",
+      "change": 1,
+      "reason": "Order Cancelled",
+      "newStock": 9,
+      "productId": "fwn_prd_1791571838415_6k8u",
+      "timestamp": "2026-10-09T19:19:53.063Z",
+      "adminEmail": "tahasaroya369@gmail.com",
+      "productName": "premium leather",
+      "previousStock": 8,
+      "performedByName": "Taha Ibrar"
+    },
+    {
+      "id": "txn_1791573585247_366",
+      "sku": "FWN-7163",
+      "notes": "Consignment order FWN-93156",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 8,
+      "productId": "fwn_prd_1791571838415_6k8u",
+      "timestamp": "2026-10-09T19:19:45.247Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "premium leather",
+      "referenceId": "FWN-93156",
+      "previousStock": 9
+    },
+    {
+      "id": "txn_rest_1791573524063_2hht",
+      "sku": "FWN-7163",
+      "change": 1,
+      "reason": "Order Cancelled",
+      "newStock": 9,
+      "productId": "fwn_prd_1791571838415_6k8u",
+      "timestamp": "2026-10-09T19:18:44.063Z",
+      "adminEmail": "tahasaroya369@gmail.com",
+      "productName": "premium leather",
+      "previousStock": 8,
+      "performedByName": "Taha Ibrar"
+    },
+    {
+      "id": "txn_1791573519938_887",
+      "sku": "FWN-7163",
+      "notes": "Consignment order FWN-98122",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 8,
+      "productId": "fwn_prd_1791571838415_6k8u",
+      "timestamp": "2026-10-09T19:18:39.938Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "premium leather",
+      "referenceId": "FWN-98122",
+      "previousStock": 9
+    },
+    {
+      "id": "txn_rest_1791573514902_klnk",
+      "sku": "FWN-7163",
+      "change": 1,
+      "reason": "Order Cancelled",
+      "newStock": 9,
+      "productId": "fwn_prd_1791571838415_6k8u",
+      "timestamp": "2026-10-09T19:18:34.902Z",
+      "adminEmail": "tahasaroya369@gmail.com",
+      "productName": "premium leather",
+      "previousStock": 8,
+      "performedByName": "Taha Ibrar"
+    },
+    {
+      "id": "txn_1791573508945_65",
+      "sku": "FWN-7163",
+      "notes": "Consignment order FWN-51016",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 8,
+      "productId": "fwn_prd_1791571838415_6k8u",
+      "timestamp": "2026-10-09T19:18:28.945Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "premium leather",
+      "referenceId": "FWN-51016",
+      "previousStock": 9
+    },
+    {
+      "id": "txn_1791573457596_650",
+      "sku": "FWN-7163",
+      "notes": "Consignment order FWN-13712",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 8,
+      "productId": "fwn_prd_1791571838415_6k8u",
+      "timestamp": "2026-10-09T19:17:37.596Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "premium leather",
+      "referenceId": "FWN-13712",
+      "previousStock": 9
+    },
+    {
+      "id": "txn_1791573420432_853",
+      "sku": "FWN-7163",
+      "notes": "Consignment order FWN-69562",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 9,
+      "productId": "fwn_prd_1791571838415_6k8u",
+      "timestamp": "2026-10-09T19:17:00.432Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "premium leather",
+      "referenceId": "FWN-69562",
+      "previousStock": 10
+    },
+    {
+      "id": "txn_1791571944614_919",
+      "sku": "FWN-7163",
+      "notes": "Consignment order FWN-44789",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 9,
+      "productId": "fwn_prd_1791571838415_6k8u",
+      "timestamp": "2026-10-09T18:52:24.614Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "premium leather",
+      "referenceId": "FWN-44789",
+      "previousStock": 10
+    },
+    {
+      "id": "txn_1791571944614_408",
+      "sku": "FWN-0001-2",
+      "notes": "Consignment order FWN-44789",
+      "change": -2,
+      "reason": "Order Placed",
+      "newStock": 7,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-09T18:52:24.614Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-44789",
+      "previousStock": 9
+    },
+    {
+      "id": "txn_1791571944614_291",
+      "sku": "FWN-0001-1",
+      "notes": "Consignment order FWN-44789",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 7,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-09T18:52:24.614Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-44789",
+      "previousStock": 8
+    },
+    {
+      "id": "txn_1791571340958_986",
+      "sku": "FWN-0001-2",
+      "notes": "Consignment order FWN-36853",
+      "change": -2,
+      "reason": "Order Placed",
+      "newStock": 7,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-09T18:42:20.958Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-36853",
+      "previousStock": 9
+    },
+    {
+      "id": "txn_1791571340957_565",
+      "sku": "FWN-0001-1",
+      "notes": "Consignment order FWN-36853",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 7,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-09T18:42:20.957Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-36853",
+      "previousStock": 8
+    },
+    {
+      "id": "txn_1791526668710_880",
+      "sku": "FWN-0001-1",
+      "notes": "Consignment order FWN-28679",
+      "change": -3,
+      "reason": "Order Placed",
+      "newStock": 7,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-09T06:17:48.710Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-28679",
+      "previousStock": 10
+    },
+    {
+      "id": "txn_1791526091324_715",
+      "sku": "FWN-0001-1",
+      "notes": "Consignment order FWN-95255",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 9,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-09T06:08:11.324Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-95255",
+      "previousStock": 10
+    },
+    {
+      "id": "txn_1791524872757_296",
+      "sku": "FWN-0001-1",
+      "notes": "Consignment order FWN-50140",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 9,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-09T05:47:52.757Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-50140",
+      "previousStock": 10
+    },
+    {
+      "id": "txn_1791505966783_954",
+      "sku": "FWN-0001-1",
+      "notes": "Consignment order FWN-58825",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 9,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-09T00:32:46.783Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-58825",
+      "previousStock": 10
+    },
+    {
+      "id": "txn_1791503190768_307",
+      "sku": "FWN-0001-1",
+      "notes": "Consignment order FWN-79992",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 8,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-08T23:46:30.768Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-79992",
+      "previousStock": 9
+    },
+    {
+      "id": "txn_1791503190768_762",
+      "sku": "FWN-7557",
+      "notes": "Consignment order FWN-79992",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 8,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-08T23:46:30.768Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-79992",
+      "previousStock": 9
+    },
+    {
+      "id": "txn_1791502669162_696",
+      "sku": "FWN-0001-1",
+      "notes": "Consignment order FWN-90507",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 8,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-08T23:37:49.162Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-90507",
+      "previousStock": 9
+    },
+    {
+      "id": "txn_1791502669162_244",
+      "sku": "FWN-7557",
+      "notes": "Consignment order FWN-90507",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 8,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-08T23:37:49.162Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-90507",
+      "previousStock": 9
+    },
+    {
+      "id": "txn_1791502467444_117",
+      "sku": "FWN-0001-1",
+      "notes": "Consignment order FWN-87578",
+      "change": -3,
+      "reason": "Order Placed",
+      "newStock": 7,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-08T23:34:27.444Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-87578",
+      "previousStock": 10
+    },
+    {
+      "id": "txn_1791499582357_776",
+      "sku": "FWN-0001-1",
+      "notes": "Consignment order FWN-17504",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 9,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-08T22:46:22.357Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-17504",
+      "previousStock": 10
+    },
+    {
+      "id": "txn_1791499446701_493",
+      "sku": "FWN-0001-1",
+      "notes": "Consignment order FWN-27428",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 9,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-08T22:44:06.701Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-27428",
+      "previousStock": 10
+    },
+    {
+      "id": "txn_rest_1791498195125_5j5n",
+      "sku": "FWN-7557",
+      "notes": "Restored from cancelled order #FWN-17309",
+      "change": 1,
+      "reason": "Order Cancelled",
+      "newStock": 11,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-08T22:23:15.125Z",
+      "adminEmail": "alichishtia111@gmail.com",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-17309",
+      "previousStock": 10
+    },
+    {
+      "id": "txn_1791497875822_352",
+      "sku": "FWN-0001-1",
+      "notes": "Consignment order FWN-26458",
+      "change": -2,
+      "reason": "Order Placed",
+      "newStock": 8,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-08T22:17:55.822Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-26458",
+      "previousStock": 10
+    },
+    {
+      "id": "txn_1791493098957_373",
+      "sku": "FWN-0001-1",
+      "notes": "Consignment order FWN-34496",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 9,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-08T20:58:18.957Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-34496",
+      "previousStock": 10
+    },
+    {
+      "id": "txn_1791492924143_810",
+      "sku": "FWN-0001-1",
+      "notes": "Consignment order FWN-17309",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 9,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-08T20:55:24.143Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-17309",
+      "previousStock": 10
+    },
+    {
+      "id": "txn_1791492532362_774",
+      "sku": "FWN-0001-1",
+      "notes": "Consignment order FWN-30986",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 9,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-08T20:48:52.362Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-30986",
+      "previousStock": 10
+    },
+    {
+      "id": "txn_1791487942338_436",
+      "sku": "FWN-0001-1",
+      "notes": "Consignment order FWN-34424",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 9,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-08T19:32:22.338Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-34424",
+      "previousStock": 10
+    },
+    {
+      "id": "txn_1791487637439_398",
+      "sku": "FWN-0001-1",
+      "notes": "Consignment order FWN-24505",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 9,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-08T19:27:17.439Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-24505",
+      "previousStock": 10
+    },
+    {
+      "id": "txn_1791487148297_346",
+      "sku": "FWN-0001-1",
+      "notes": "Consignment order FWN-75162",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 9,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-08T19:19:08.297Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-75162",
+      "previousStock": 10
+    },
+    {
+      "id": "txn_1791487068687_652",
+      "sku": "FWN-0001-1",
+      "notes": "Consignment order FWN-96724",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 9,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-08T19:17:48.687Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-96724",
+      "previousStock": 10
+    },
     {
       "id": "txn_1791024519138_716",
       "sku": "FWN-APX-02",
@@ -1741,6 +2977,359 @@
       "productName": "The Sovereign Executive Bifold Wallet",
       "referenceId": "FWN-26814",
       "previousStock": 50
+    }
+  ],
+  "_syncEvents": [
+    {
+      "type": "order:updated",
+      "action": "updated",
+      "order": {
+        "id": "ord_1791653294179",
+        "orderNumber": "FWN-57484",
+        "customerId": "usr_1791575623453_plouq",
+        "customerName": "sufyan",
+        "customerEmail": "tahasaroya@gmail.com",
+        "customerPhone": "+92876547654",
+        "items": [
+          {
+            "sku": "FWN-7163",
+            "name": "premium leather",
+            "image": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
+            "price": 4499,
+            "total": 4499,
+            "quantity": 1,
+            "subtotal": 4499,
+            "productId": "fwn_prd_1791571838415_6k8u",
+            "unitPrice": 4499,
+            "productName": "premium leather",
+            "productImage": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg"
+          }
+        ],
+        "shippingAddress": {
+          "id": "addr_1791692765600",
+          "city": "Sheikhupura",
+          "phone": "+92876547654",
+          "fullName": "sufyan",
+          "province": "Punjab",
+          "isDefault": false,
+          "postalCode": "75500",
+          "addressLine1": "79 X Block Housing Colony Sheikhupura",
+          "recipientName": "sufyan"
+        },
+        "billingAddress": {},
+        "status": "confirmed",
+        "paymentMethod": "cod",
+        "paymentStatus": "pending",
+        "subtotal": 4499,
+        "shippingFee": 250,
+        "discount": 0,
+        "total": 4749,
+        "notes": "Reset to confirmed",
+        "timeline": [
+          {
+            "note": "Order placed by customer via Cash on Delivery.",
+            "status": "pending",
+            "location": "Sheikhupura, Pakistan",
+            "timestamp": "2026-10-10T17:28:14.179Z",
+            "updatedBy": "Customer"
+          },
+          {
+            "note": "Order status updated to \"processing\"",
+            "status": "processing",
+            "location": "FAWNIC Logistics Center, Karachi",
+            "timestamp": "2026-10-10T17:31:15.878Z",
+            "updatedBy": "Ali Chishti"
+          },
+          {
+            "note": "Order status updated to \"packed\"",
+            "status": "packed",
+            "location": "FAWNIC Logistics Center, Karachi",
+            "timestamp": "2026-10-10T17:31:26.212Z",
+            "updatedBy": "Ali Chishti"
+          },
+          {
+            "note": "Order status updated to \"confirmed\"",
+            "status": "confirmed",
+            "location": "FAWNIC Logistics Center, Karachi",
+            "timestamp": "2026-10-10T17:33:03.682Z",
+            "updatedBy": "Ali Chishti"
+          },
+          {
+            "note": "Test confirmed cancel",
+            "status": "cancelled",
+            "location": "FAWNIC Atelier, Karachi",
+            "timestamp": "2026-10-11T14:13:43.634Z",
+            "updatedBy": "sufyan"
+          },
+          {
+            "status": "confirmed",
+            "timestamp": "2026-10-11T14:14:23.585Z",
+            "updatedBy": "Ali Chishti",
+            "note": "Reset to confirmed",
+            "location": "FAWNIC Logistics Center, Karachi"
+          }
+        ],
+        "trackingHistory": [
+          {
+            "note": "Order placed by customer via Cash on Delivery.",
+            "status": "pending",
+            "location": "Sheikhupura, Pakistan",
+            "timestamp": "2026-10-10T17:28:14.179Z",
+            "updatedBy": "Customer"
+          },
+          {
+            "note": "Order status updated to \"processing\"",
+            "status": "processing",
+            "location": "FAWNIC Logistics Center, Karachi",
+            "timestamp": "2026-10-10T17:31:15.878Z",
+            "updatedBy": "Ali Chishti"
+          },
+          {
+            "note": "Order status updated to \"packed\"",
+            "status": "packed",
+            "location": "FAWNIC Logistics Center, Karachi",
+            "timestamp": "2026-10-10T17:31:26.212Z",
+            "updatedBy": "Ali Chishti"
+          },
+          {
+            "note": "Order status updated to \"confirmed\"",
+            "status": "confirmed",
+            "location": "FAWNIC Logistics Center, Karachi",
+            "timestamp": "2026-10-10T17:33:03.682Z",
+            "updatedBy": "Ali Chishti"
+          },
+          {
+            "note": "Test confirmed cancel",
+            "status": "cancelled",
+            "location": "FAWNIC Atelier, Karachi",
+            "timestamp": "2026-10-11T14:13:43.634Z",
+            "updatedBy": "sufyan"
+          },
+          {
+            "status": "confirmed",
+            "timestamp": "2026-10-11T14:14:23.585Z",
+            "updatedBy": "Ali Chishti",
+            "note": "Reset to confirmed",
+            "location": "FAWNIC Logistics Center, Karachi"
+          }
+        ],
+        "createdAt": "2026-10-10T17:28:14.179Z",
+        "updatedAt": "2026-10-11T14:14:23.585Z"
+      },
+      "orderId": "ord_1791653294179",
+      "orderNumber": "FWN-57484",
+      "status": "confirmed",
+      "id": "evt_1791728064049_o3f0o",
+      "timestamp": 1791728064049
+    },
+    {
+      "type": "notification:new",
+      "action": "created",
+      "notification": {
+        "id": "notif_ord_ord_1791653294179_confirmed_1791728064046",
+        "title": "Order Confirmed",
+        "message": "Your order #FWN-57484 has been confirmed. Our leather artisans are preparing your selection.",
+        "type": "Order Update",
+        "link": "/track/FWN-57484",
+        "buttonText": "TRACK CONSIGNMENT",
+        "audience": "specific",
+        "targetUserIds": [
+          "usr_1791575623453_plouq"
+        ],
+        "targetUserNames": [
+          "sufyan"
+        ],
+        "status": "published",
+        "publishedAt": "2026-10-11T14:14:24.046Z",
+        "createdAt": "2026-10-11T14:14:24.046Z",
+        "updatedAt": "2026-10-11T14:14:24.046Z",
+        "createdBy": "Atelier Order System",
+        "orderId": "ord_1791653294179",
+        "orderNumber": "FWN-57484",
+        "orderStatus": "confirmed"
+      },
+      "notificationId": "notif_ord_ord_1791653294179_confirmed_1791728064046",
+      "id": "evt_1791728064048_mdps4",
+      "timestamp": 1791728064048
+    },
+    {
+      "type": "order:updated",
+      "action": "updated",
+      "order": {
+        "id": "ord_1791663221383",
+        "orderNumber": "FWN-55148",
+        "customerId": "usr_1791575623453_plouq",
+        "customerName": "sufyan",
+        "customerEmail": "tahasaroya@gmail.com",
+        "customerPhone": "+920987654",
+        "items": [
+          {
+            "sku": "FWN-0001-2",
+            "name": "Men Best Wallet For Events (Copy) (Copy)",
+            "image": "https://ik.imagekit.io/cdef76odq/products/1791483577163-whatsapp-image-2026-09-29-at-9-1_wngEb66Ko.jpg",
+            "price": 3800,
+            "total": 3800,
+            "quantity": 1,
+            "subtotal": 3800,
+            "productId": "fwn_prd_1791486063309_krg0",
+            "unitPrice": 3800,
+            "productName": "Men Best Wallet For Events (Copy) (Copy)",
+            "variantInfo": "Color: Brown",
+            "productImage": "https://ik.imagekit.io/cdef76odq/products/1791483577163-whatsapp-image-2026-09-29-at-9-1_wngEb66Ko.jpg",
+            "selectedColor": "Brown",
+            "selectedVariants": {
+              "Color": "Brown"
+            },
+            "selectedVariation": {
+              "id": "var_1791523681547_bbgg",
+              "sku": "FWN-0001-2",
+              "name": "Brown",
+              "type": "color",
+              "color": "Brown",
+              "image": "https://ik.imagekit.io/cdef76odq/products/1791483577163-whatsapp-image-2026-09-29-at-9-1_wngEb66Ko.jpg",
+              "order": 2,
+              "colorCode": "#78350f"
+            }
+          }
+        ],
+        "shippingAddress": {
+          "id": "addr_1791702692723",
+          "city": "Lahore",
+          "phone": "+920987654",
+          "fullName": "sufyan",
+          "province": "Punjab",
+          "isDefault": false,
+          "postalCode": "75500",
+          "addressLine1": "79 X Block Housing Colony Sheikhupura",
+          "recipientName": "sufyan"
+        },
+        "billingAddress": {},
+        "status": "pending",
+        "paymentMethod": "cod",
+        "paymentStatus": "pending",
+        "subtotal": 3800,
+        "shippingFee": 250,
+        "discount": 0,
+        "total": 4050,
+        "notes": "Reset to pending for testing",
+        "timeline": [
+          {
+            "note": "Order placed by customer via Cash on Delivery.",
+            "status": "pending",
+            "location": "Lahore, Pakistan",
+            "timestamp": "2026-10-10T20:13:41.384Z",
+            "updatedBy": "Customer"
+          },
+          {
+            "note": "Test verification before final audit",
+            "status": "cancelled",
+            "location": "FAWNIC Atelier, Karachi",
+            "timestamp": "2026-10-11T14:13:21.863Z",
+            "updatedBy": "sufyan"
+          },
+          {
+            "note": "Packed for shipping",
+            "status": "packed",
+            "location": "FAWNIC Logistics Center, Karachi",
+            "timestamp": "2026-10-11T14:14:05.208Z",
+            "updatedBy": "Ali Chishti"
+          },
+          {
+            "status": "pending",
+            "timestamp": "2026-10-11T14:14:14.491Z",
+            "updatedBy": "Ali Chishti",
+            "note": "Reset to pending for testing",
+            "location": "FAWNIC Logistics Center, Karachi"
+          }
+        ],
+        "trackingHistory": [
+          {
+            "note": "Order placed by customer via Cash on Delivery.",
+            "status": "pending",
+            "location": "Lahore, Pakistan",
+            "timestamp": "2026-10-10T20:13:41.384Z",
+            "updatedBy": "Customer"
+          },
+          {
+            "note": "Test verification before final audit",
+            "status": "cancelled",
+            "location": "FAWNIC Atelier, Karachi",
+            "timestamp": "2026-10-11T14:13:21.863Z",
+            "updatedBy": "sufyan"
+          },
+          {
+            "note": "Packed for shipping",
+            "status": "packed",
+            "location": "FAWNIC Logistics Center, Karachi",
+            "timestamp": "2026-10-11T14:14:05.208Z",
+            "updatedBy": "Ali Chishti"
+          },
+          {
+            "status": "pending",
+            "timestamp": "2026-10-11T14:14:14.491Z",
+            "updatedBy": "Ali Chishti",
+            "note": "Reset to pending for testing",
+            "location": "FAWNIC Logistics Center, Karachi"
+          }
+        ],
+        "createdAt": "2026-10-10T20:13:41.384Z",
+        "updatedAt": "2026-10-11T14:14:14.491Z"
+      },
+      "orderId": "ord_1791663221383",
+      "orderNumber": "FWN-55148",
+      "status": "pending",
+      "id": "evt_1791728054966_zzljk",
+      "timestamp": 1791728054966
+    },
+    {
+      "type": "notification:new",
+      "action": "created",
+      "notification": {
+        "id": "notif_ord_ord_1791663221383_pending_1791728054963",
+        "title": "Order Placed Successfully",
+        "message": "Your bespoke leather order #FWN-55148 for Rs. 4,050 has been received and logged in our atelier.",
+        "type": "Order Update",
+        "link": "/track/FWN-55148",
+        "buttonText": "TRACK CONSIGNMENT",
+        "audience": "specific",
+        "targetUserIds": [
+          "usr_1791575623453_plouq"
+        ],
+        "targetUserNames": [
+          "sufyan"
+        ],
+        "status": "published",
+        "publishedAt": "2026-10-11T14:14:14.963Z",
+        "createdAt": "2026-10-11T14:14:14.963Z",
+        "updatedAt": "2026-10-11T14:14:14.963Z",
+        "createdBy": "Atelier Order System",
+        "orderId": "ord_1791663221383",
+        "orderNumber": "FWN-55148",
+        "orderStatus": "pending"
+      },
+      "notificationId": "notif_ord_ord_1791663221383_pending_1791728054963",
+      "id": "evt_1791728054965_jd4jl",
+      "timestamp": 1791728054965
+    }
+  ],
+  "auditLogs": [
+    {
+      "id": "log_1791728064051",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "ORDER_TRACKING_UPDATED",
+      "entityType": "Order",
+      "entityId": "FWN-57484",
+      "details": "Tracking updated. Status: \"confirmed\", Tracking #: \"None\", Courier: \"None\"",
+      "timestamp": "2026-10-11T14:14:24.051Z"
+    },
+    {
+      "id": "log_1791728054968",
+      "adminEmail": "alichishtia111@gmail.com",
+      "action": "ORDER_TRACKING_UPDATED",
+      "entityType": "Order",
+      "entityId": "FWN-55148",
+      "details": "Tracking updated. Status: \"pending\", Tracking #: \"None\", Courier: \"None\"",
+      "timestamp": "2026-10-11T14:14:14.968Z"
     }
   ]
 }

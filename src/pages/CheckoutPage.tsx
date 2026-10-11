@@ -39,13 +39,51 @@ const PAKISTAN_PROVINCES = [
 
 const MAJOR_CITIES: Record<string, string[]> = {
   Sindh: ['Karachi', 'Hyderabad', 'Sukkur', 'Larkana', 'Mirpur Khas', 'Nawabshah'],
-  Punjab: ['Lahore', 'Faisalabad', 'Rawalpindi', 'Multan', 'Gujranwala', 'Sialkot', 'Bahawalpur', 'Sargodha'],
+  Punjab: ['Lahore', 'Faisalabad', 'Rawalpindi', 'Multan', 'Gujranwala', 'Sialkot', 'Bahawalpur', 'Sargodha', 'Gujrat', 'Sahiwal'],
   'Khyber Pakhtunkhwa': ['Peshawar', 'Mardan', 'Abbottabad', 'Swat', 'Dera Ismail Khan'],
   Balochistan: ['Quetta', 'Gwadar', 'Hub', 'Turbat'],
   'Islamabad Capital Territory': ['Islamabad'],
   'Azad Jammu & Kashmir': ['Muzaffarabad', 'Mirpur'],
   'Gilgit-Baltistan': ['Gilgit', 'Skardu'],
 };
+
+// Comprehensive Pakistani city suggestions ensuring all mandatory cities are present
+const PAKISTAN_CITY_SUGGESTIONS = [
+  'Karachi',
+  'Lahore',
+  'Islamabad',
+  'Rawalpindi',
+  'Faisalabad',
+  'Multan',
+  'Peshawar',
+  'Quetta',
+  'Hyderabad',
+  'Sialkot',
+  'Gujranwala',
+  'Sukkur',
+  'Bahawalpur',
+  'Sargodha',
+  'Abbottabad',
+  'Mardan',
+  'Swat',
+  'Gwadar',
+  'Muzaffarabad',
+  'Mirpur',
+  'Gilgit',
+  'Skardu',
+  'Larkana',
+  'Gujrat',
+  'Sahiwal',
+  'Rahim Yar Khan',
+  'Jhang',
+  'Kasur',
+  'Okara',
+  'Wah Cantt',
+  'Dera Ghazi Khan',
+  'Mirpur Khas',
+  'Nawabshah',
+  'Jhelum',
+];
 
 export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
   const { items, subtotal, shippingFee, discountAmount, couponCode, total, clearCart } = useCart();
@@ -82,6 +120,15 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
       checkShoppingAuth(false, onNavigate, { action: 'checkout', returnRoute: 'checkout' });
     }
   }, [token, user, onNavigate]);
+
+  // Sync authenticated user info into address fields once loaded
+  useEffect(() => {
+    if (user) {
+      if (!fullName && user.name) setFullName(user.name);
+      if (!email && user.email) setEmail(user.email);
+      if ((!phone || phone === '+92 ') && user.phone) setPhone(user.phone);
+    }
+  }, [user]);
 
   // Dynamic Store & Payment Settings
   const [storeSettings, setStoreSettings] = useState<{
@@ -164,13 +211,13 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
     }
   }, [token]);
 
-  // Update city options when province changes
+  // Suggest default city only if city is completely empty
   useEffect(() => {
-    const citiesInProvince = MAJOR_CITIES[province] || ['Karachi'];
-    if (!citiesInProvince.includes(city)) {
+    if (!city || !city.trim()) {
+      const citiesInProvince = MAJOR_CITIES[province] || ['Karachi'];
       setCity(citiesInProvince[0]);
     }
-  }, [province, city]);
+  }, [province]);
 
   if (items.length === 0) {
     return (
@@ -194,10 +241,11 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
   // Multi-vendor package separation
   const packagesByVendor = items.reduce<Record<string, { vendorName: string; items: typeof items }>>(
     (acc, item) => {
-      const vId = item.product.vendorId;
+      const vId = item.product?.vendorId || 'fawnic_atelier';
+      const vName = item.product?.vendorStoreName || 'FAWNIC Atelier';
       if (!acc[vId]) {
         acc[vId] = {
-          vendorName: item.product.vendorStoreName,
+          vendorName: vName,
           items: [],
         };
       }
@@ -238,6 +286,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
 
   const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return; // Prevent duplicate concurrent submissions
     setErrorMsg(null);
 
     let finalAddress: Address;
@@ -247,28 +296,39 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
         setErrorMsg('Please select a valid delivery address.');
         return;
       }
-      finalAddress = found;
+      finalAddress = {
+        ...found,
+        fullName: found.fullName || found.recipientName || fullName.trim() || user?.name || '',
+        recipientName: found.recipientName || found.fullName || fullName.trim() || user?.name || '',
+        phone: found.phone || phone.trim() || user?.phone || '',
+        city: (found.city || city).trim(),
+        province: (found.province || province).trim(),
+      };
     } else {
-      if (!fullName.trim() || !phone.trim() || !addressLine1.trim() || !city.trim()) {
-        setErrorMsg('Please complete all required address fields.');
+      const resolvedCustomerName = (fullName.trim() || user?.name || '').trim();
+      const resolvedCustomerPhone = (phone.trim() || user?.phone || '').trim();
+      const resolvedCity = city.trim();
+      if (!resolvedCustomerName || !resolvedCustomerPhone || !addressLine1.trim() || !resolvedCity) {
+        setErrorMsg('Please complete all required address fields including your name, phone, address, and city.');
         return;
       }
       finalAddress = {
         id: `addr_${Date.now()}`,
-        fullName: fullName.trim(),
-        phone: phone.trim(),
+        fullName: resolvedCustomerName,
+        recipientName: resolvedCustomerName,
+        phone: resolvedCustomerPhone,
         addressLine1: addressLine1.trim(),
         addressLine2: addressLine2.trim() || undefined,
         landmark: landmark.trim() || undefined,
-        city: city.trim(),
+        city: resolvedCity,
         province: province.trim(),
         postalCode: postalCode.trim() || '00000',
         isDefault: false,
       };
     }
 
-    const finalEmail = (token ? user?.email : email) || '';
-    if (!finalEmail.trim()) {
+    const finalEmail = (email.trim() || user?.email || '').trim();
+    if (!finalEmail) {
       setErrorMsg('Please provide a valid contact email address.');
       return;
     }
@@ -294,13 +354,14 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
-          customerName: finalAddress.fullName,
-          customerEmail: finalEmail.trim().toLowerCase(),
-          customerPhone: finalAddress.phone,
+          customerName: finalAddress.fullName || finalAddress.recipientName || user?.name || fullName,
+          customerEmail: finalEmail.toLowerCase(),
+          customerPhone: finalAddress.phone || user?.phone || phone,
           shippingAddress: finalAddress,
           items: items.map((i) => ({
             productId: i.productId,
-            quantity: i.quantity,
+            productName: i.product?.name || (i as any).productName,
+            quantity: Math.max(1, i.quantity || 1),
             selectedVariants: i.selectedVariants,
             selectedVariation: i.selectedVariation,
             selectedColor:
@@ -322,13 +383,26 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
           cashbackAmount: isOnlineEligible ? cashbackAmount : 0,
           cashbackPercentage: isOnlineEligible ? 7 : 0,
           notes: orderNotes ? `${orderNotes}${bankTxRef ? ` | Bank Ref: ${bankTxRef}` : ''}` : bankTxRef ? `Bank Ref: ${bankTxRef}` : undefined,
-          guestEmail: !token ? finalEmail.trim() : undefined,
+          guestEmail: !token ? finalEmail : undefined,
         }),
       });
 
-      const data = await res.json();
+      let data: any;
+      const contentType = res.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        throw new Error(text || 'Server returned an unexpected response. Please try again.');
+      }
+
       if (!res.ok) {
-        setErrorMsg(data.error || 'Failed to submit order. Please check your details.');
+        setErrorMsg(data.error || data.message || 'Failed to submit order. Please verify your details.');
+        return;
+      }
+
+      if (!data || !data.order) {
+        setErrorMsg('Order confirmation was not received. Please check your order history.');
         return;
       }
 
@@ -342,7 +416,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
       clearCart();
       onNavigate('order-success', data.order);
     } catch (err: any) {
-      setErrorMsg(err.message || 'Network error occurred during checkout');
+      setErrorMsg(err.message || 'Network error occurred during checkout. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -502,17 +576,23 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
                     <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1">
                       City *
                     </label>
-                    <select
+                    <input
+                      type="text"
+                      list="pakistan-cities"
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
-                      className="w-full text-xs p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:outline-none cursor-pointer"
-                    >
-                      {(MAJOR_CITIES[province] || [city]).map((c) => (
+                      placeholder="Select or type city name"
+                      required
+                      autoComplete="address-level2"
+                      className="w-full text-xs p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:border-zinc-900"
+                    />
+                    <datalist id="pakistan-cities">
+                      {Array.from(new Set([...(MAJOR_CITIES[province] || []), ...PAKISTAN_CITY_SUGGESTIONS])).map((c) => (
                         <option key={c} value={c}>
                           {c}
                         </option>
                       ))}
-                    </select>
+                    </datalist>
                   </div>
                 </div>
 
@@ -922,7 +1002,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
                   {pkg.items.map((it) => (
                     <div key={it.id} className="py-1 border-b border-zinc-200/50 dark:border-zinc-700/50 last:border-b-0 space-y-0.5">
                       <div className="flex justify-between text-xs text-zinc-600 dark:text-zinc-400">
-                        <span className="font-medium text-zinc-900 dark:text-zinc-100 truncate max-w-[170px]">{it.quantity}x {it.product.name}</span>
+                        <span className="font-medium text-zinc-900 dark:text-zinc-100 truncate max-w-[170px]">{it.quantity}x {it.product?.name || (it as any).productName || 'Leather Article'}</span>
                         <span className="font-semibold text-zinc-900 dark:text-zinc-100">
                           Rs. {(it.unitPrice * it.quantity).toLocaleString()}
                         </span>
@@ -938,7 +1018,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
                         </p>
                       )}
                       <p className="text-[10px] text-zinc-400 font-mono">
-                        SKU: {it.selectedVariation?.sku || it.product.sku}
+                        SKU: {it.selectedVariation?.sku || it.product?.sku || 'FWN-ART'}
                       </p>
                     </div>
                   ))}
@@ -1003,7 +1083,11 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
               disabled={isSubmitting || (paymentMethod === 'bank_transfer' && (!bankTxRef.trim() || !paymentProof))}
               className="w-full py-4 bg-zinc-900 hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-950 font-bold text-xs uppercase tracking-wider rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
-              <Lock className="w-4 h-4" />
+              {isSubmitting ? (
+                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Lock className="w-4 h-4" />
+              )}
               <span>
                 {isSubmitting
                   ? 'Processing Order in Pakistan...'
