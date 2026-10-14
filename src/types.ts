@@ -262,6 +262,7 @@ export interface Order {
   customerEmail: string;
   customerPhone: string;
   shippingAddress: Address;
+  billingAddress?: Address | Record<string, any>;
   items: OrderItem[];
   subtotal: number;
   shippingFee: number;

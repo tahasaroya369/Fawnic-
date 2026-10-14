@@ -1655,6 +1655,16 @@ function loadDatabase(): DatabaseSchema {
         // Remove any old demo admin account
         parsed.users = parsed.users.filter((u: any) => u.email !== 'admin@fawnic.pk');
 
+        if (!parsed.addresses) parsed.addresses = [];
+        if (!parsed.reviews) parsed.reviews = [];
+        if (!parsed.coupons) parsed.coupons = [];
+        if (!parsed.orders) parsed.orders = [];
+        if (!parsed.categories) parsed.categories = [];
+        if (!parsed.faqs) parsed.faqs = [];
+        if (!parsed.policies) parsed.policies = [];
+        if (!parsed.contactMessages) parsed.contactMessages = [];
+        if (!parsed.newsletterSubscribers) parsed.newsletterSubscribers = [];
+        if (!parsed.wishlists) parsed.wishlists = {};
         if (!parsed.inventoryTransactions) parsed.inventoryTransactions = [];
         if (!parsed.notifications) parsed.notifications = [];
         if (!parsed.notificationReads) parsed.notificationReads = [];
@@ -2196,5 +2206,26 @@ export function getDb(): DatabaseSchema {
   if (!db) {
     db = loadDatabase();
   }
+  if (!db.addresses) db.addresses = [];
+  if (!db.reviews) db.reviews = [];
+  if (!db.coupons) db.coupons = [];
+  if (!db.orders) db.orders = [];
+  if (!db.users) db.users = [];
+  if (!db.products) db.products = [];
+  if (!db.categories) db.categories = [];
+  if (!db.faqs) db.faqs = [];
+  if (!db.policies) db.policies = [];
+  if (!db.contactMessages) db.contactMessages = [];
+  if (!db.newsletterSubscribers) db.newsletterSubscribers = [];
+  if (!db.wishlists) db.wishlists = {};
+  if (!db.inventoryTransactions) db.inventoryTransactions = [];
+  if (!db.notifications) db.notifications = [];
+  if (!db.notificationReads) db.notificationReads = [];
+  if (!db.invoices) db.invoices = [];
+  if (!db.queries) db.queries = [];
+  if (!db.teamMembers) db.teamMembers = [];
+  if (!db.promotions) db.promotions = [];
+  if (!db.customerNotes) db.customerNotes = {};
+  if (!db.auditLogs) db.auditLogs = [];
   return db;
 }

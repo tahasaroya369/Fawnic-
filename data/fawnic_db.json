@@ -97,11 +97,104 @@
       "salt": "6ffaaee78bafe260acc8d41b61511a3b",
       "email": "tahasaroya@gmail.com",
       "phone": "+92",
+      "avatar": "",
       "createdAt": "2026-10-09T19:53:43.454Z",
+      "updatedAt": "2026-10-12T19:31:22.936Z",
       "passwordHash": "6f8dc7a2c577e2018d05d32ce0da3ab01573929aa7fc66b4ceaae1c469d0a6f17e19a7e4c81ef19a1e762d94e6d3c9de982150bb306923eb628f798011bd8afb"
     }
   ],
   "orders": [
+    {
+      "id": "ord_1791833752419",
+      "orderNumber": "FWN-26226",
+      "customerId": "usr_1791575623453_plouq",
+      "customerName": "sufyan",
+      "customerEmail": "tahasaroya@gmail.com",
+      "customerPhone": "+92234567890987654",
+      "items": [
+        {
+          "sku": "FWN-0001-2",
+          "name": "Men Best Wallet For Events (Copy) (Copy)",
+          "image": "https://ik.imagekit.io/cdef76odq/products/1791483577163-whatsapp-image-2026-09-29-at-9-1_wngEb66Ko.jpg",
+          "price": 3800,
+          "total": 3800,
+          "quantity": 1,
+          "subtotal": 3800,
+          "productId": "fwn_prd_1791486063309_krg0",
+          "unitPrice": 3800,
+          "productName": "Men Best Wallet For Events (Copy) (Copy)",
+          "variantInfo": "Color: Brown",
+          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791483577163-whatsapp-image-2026-09-29-at-9-1_wngEb66Ko.jpg",
+          "selectedColor": "Brown",
+          "selectedVariants": {
+            "Color": "Brown"
+          },
+          "selectedVariation": {
+            "id": "var_1791523681547_bbgg",
+            "sku": "FWN-0001-2",
+            "name": "Brown",
+            "type": "color",
+            "color": "Brown",
+            "image": "https://ik.imagekit.io/cdef76odq/products/1791483577163-whatsapp-image-2026-09-29-at-9-1_wngEb66Ko.jpg",
+            "order": 2,
+            "colorCode": "#78350f"
+          }
+        }
+      ],
+      "shippingAddress": {
+        "id": "addr_1791873223233",
+        "city": "Sheikhupura",
+        "phone": "+92234567890987654",
+        "fullName": "sufyan",
+        "province": "Punjab",
+        "isDefault": false,
+        "postalCode": "75500",
+        "addressLine1": "79 X Block Housing Colony Sheikhupura",
+        "recipientName": "sufyan"
+      },
+      "billingAddress": {},
+      "status": "cancelled",
+      "paymentMethod": "cod",
+      "paymentStatus": "pending",
+      "subtotal": 3800,
+      "shippingFee": 250,
+      "discount": 0,
+      "total": 4050,
+      "timeline": [
+        {
+          "note": "Order placed by customer via Cash on Delivery.",
+          "status": "pending",
+          "location": "Sheikhupura, Pakistan",
+          "timestamp": "2026-10-12T19:35:52.419Z",
+          "updatedBy": "Customer"
+        },
+        {
+          "note": "Customer requested cancellation from dashboard",
+          "status": "cancelled",
+          "location": "FAWNIC Atelier, Karachi",
+          "timestamp": "2026-10-12T19:36:39.140Z",
+          "updatedBy": "sufyan"
+        }
+      ],
+      "trackingHistory": [
+        {
+          "note": "Order placed by customer via Cash on Delivery.",
+          "status": "pending",
+          "location": "Sheikhupura, Pakistan",
+          "timestamp": "2026-10-12T19:35:52.419Z",
+          "updatedBy": "Customer"
+        },
+        {
+          "note": "Customer requested cancellation from dashboard",
+          "status": "cancelled",
+          "location": "FAWNIC Atelier, Karachi",
+          "timestamp": "2026-10-12T19:36:39.140Z",
+          "updatedBy": "sufyan"
+        }
+      ],
+      "createdAt": "2026-10-12T19:35:52.419Z",
+      "updatedAt": "2026-10-12T19:36:38.802Z"
+    },
     {
       "id": "ord_1791663221383",
       "orderNumber": "FWN-55148",
@@ -151,7 +244,7 @@
         "recipientName": "sufyan"
       },
       "billingAddress": {},
-      "status": "pending",
+      "status": "ready_to_dispatch",
       "paymentMethod": "cod",
       "paymentStatus": "pending",
       "subtotal": 3800,
@@ -187,6 +280,13 @@
           "location": "FAWNIC Logistics Center, Karachi",
           "timestamp": "2026-10-11T14:14:14.491Z",
           "updatedBy": "Ali Chishti"
+        },
+        {
+          "note": "Order status updated to \"ready_to_dispatch\"",
+          "status": "ready_to_dispatch",
+          "location": "FAWNIC Logistics Center, Karachi",
+          "timestamp": "2026-10-13T19:40:12.716Z",
+          "updatedBy": "Ali Chishti"
         }
       ],
       "trackingHistory": [
@@ -217,10 +317,17 @@
           "location": "FAWNIC Logistics Center, Karachi",
           "timestamp": "2026-10-11T14:14:14.491Z",
           "updatedBy": "Ali Chishti"
+        },
+        {
+          "note": "Order status updated to \"ready_to_dispatch\"",
+          "status": "ready_to_dispatch",
+          "location": "FAWNIC Logistics Center, Karachi",
+          "timestamp": "2026-10-13T19:40:12.716Z",
+          "updatedBy": "Ali Chishti"
         }
       ],
       "createdAt": "2026-10-10T20:13:41.384Z",
-      "updatedAt": "2026-10-11T14:14:14.835Z"
+      "updatedAt": "2026-10-13T19:40:13.059Z"
     },
     {
       "id": "ord_1791653294179",
@@ -256,13 +363,14 @@
         "recipientName": "sufyan"
       },
       "billingAddress": {},
-      "status": "cancelled",
+      "status": "packed",
       "paymentMethod": "cod",
       "paymentStatus": "pending",
       "subtotal": 4499,
       "shippingFee": 250,
       "discount": 0,
       "total": 4749,
+      "notes": "Reset to confirmed",
       "timeline": [
         {
           "note": "Order placed by customer via Cash on Delivery.",
@@ -298,6 +406,48 @@
           "location": "FAWNIC Atelier, Karachi",
           "timestamp": "2026-10-11T14:13:43.634Z",
           "updatedBy": "sufyan"
+        },
+        {
+          "note": "Reset to confirmed",
+          "status": "confirmed",
+          "location": "FAWNIC Logistics Center, Karachi",
+          "timestamp": "2026-10-11T14:14:23.585Z",
+          "updatedBy": "Ali Chishti"
+        },
+        {
+          "note": "Customer requested cancellation from dashboard",
+          "status": "cancelled",
+          "location": "FAWNIC Atelier, Karachi",
+          "timestamp": "2026-10-13T19:38:50.223Z",
+          "updatedBy": "sufyan"
+        },
+        {
+          "note": "Order status updated to \"packed\"",
+          "status": "packed",
+          "location": "FAWNIC Logistics Center, Karachi",
+          "timestamp": "2026-10-13T19:42:39.547Z",
+          "updatedBy": "Ali Chishti"
+        },
+        {
+          "note": "Order status updated to \"confirmed\"",
+          "status": "confirmed",
+          "location": "FAWNIC Logistics Center, Karachi",
+          "timestamp": "2026-10-13T19:43:14.405Z",
+          "updatedBy": "Ali Chishti"
+        },
+        {
+          "note": "Order status updated to \"processing\"",
+          "status": "processing",
+          "location": "FAWNIC Logistics Center, Karachi",
+          "timestamp": "2026-10-13T19:43:57.051Z",
+          "updatedBy": "Ali Chishti"
+        },
+        {
+          "note": "Order status updated to \"packed\"",
+          "status": "packed",
+          "location": "FAWNIC Logistics Center, Karachi",
+          "timestamp": "2026-10-13T19:44:22.313Z",
+          "updatedBy": "Ali Chishti"
         }
       ],
       "trackingHistory": [
@@ -335,10 +485,52 @@
           "location": "FAWNIC Atelier, Karachi",
           "timestamp": "2026-10-11T14:13:43.634Z",
           "updatedBy": "sufyan"
+        },
+        {
+          "note": "Reset to confirmed",
+          "status": "confirmed",
+          "location": "FAWNIC Logistics Center, Karachi",
+          "timestamp": "2026-10-11T14:14:23.585Z",
+          "updatedBy": "Ali Chishti"
+        },
+        {
+          "note": "Customer requested cancellation from dashboard",
+          "status": "cancelled",
+          "location": "FAWNIC Atelier, Karachi",
+          "timestamp": "2026-10-13T19:38:50.223Z",
+          "updatedBy": "sufyan"
+        },
+        {
+          "note": "Order status updated to \"packed\"",
+          "status": "packed",
+          "location": "FAWNIC Logistics Center, Karachi",
+          "timestamp": "2026-10-13T19:42:39.547Z",
+          "updatedBy": "Ali Chishti"
+        },
+        {
+          "note": "Order status updated to \"confirmed\"",
+          "status": "confirmed",
+          "location": "FAWNIC Logistics Center, Karachi",
+          "timestamp": "2026-10-13T19:43:14.405Z",
+          "updatedBy": "Ali Chishti"
+        },
+        {
+          "note": "Order status updated to \"processing\"",
+          "status": "processing",
+          "location": "FAWNIC Logistics Center, Karachi",
+          "timestamp": "2026-10-13T19:43:57.051Z",
+          "updatedBy": "Ali Chishti"
+        },
+        {
+          "note": "Order status updated to \"packed\"",
+          "status": "packed",
+          "location": "FAWNIC Logistics Center, Karachi",
+          "timestamp": "2026-10-13T19:44:22.313Z",
+          "updatedBy": "Ali Chishti"
         }
       ],
       "createdAt": "2026-10-10T17:28:14.179Z",
-      "updatedAt": "2026-10-11T14:13:43.302Z"
+      "updatedAt": "2026-10-13T19:44:22.657Z"
     }
   ],
   "coupons": [
@@ -346,14 +538,14 @@
       "id": "cpn_3",
       "code": "LUXURY20",
       "type": "percent",
-      "value": 20,
+      "value": 10,
       "minOrderAmount": 8000,
       "maxDiscount": 3000,
       "usageLimit": 100,
       "usedCount": 15,
       "perUserLimit": 1,
       "isActive": true,
-      "expiresAt": "2026-12-31T23:59:59.000Z"
+      "expiresAt": "2026-12-31T00:00:00.000Z"
     },
     {
       "id": "cpn_2",
@@ -364,7 +556,7 @@
       "usageLimit": 1000,
       "usedCount": 78,
       "perUserLimit": 1,
-      "isActive": true,
+      "isActive": false,
       "expiresAt": "2026-12-31T23:59:59.000Z"
     },
     {
@@ -377,7 +569,7 @@
       "usageLimit": 500,
       "usedCount": 42,
       "perUserLimit": 1,
-      "isActive": true,
+      "isActive": false,
       "expiresAt": "2026-12-31T23:59:59.000Z"
     }
   ],
@@ -440,45 +632,8 @@
       "verifiedPurchase": true
     }
   ],
-  "_version": 1097,
+  "_version": 1196,
   "invoices": [
-    {
-      "id": "inv_1791663221384",
-      "invoiceNumber": "FW-INV-0035",
-      "type": "order",
-      "orderId": "ord_1791663221383",
-      "orderNumber": "FWN-55148",
-      "customerName": "sufyan",
-      "customerEmail": "tahasaroya@gmail.com",
-      "customerPhone": "+920987654",
-      "customerAddress": "79 X Block Housing Colony Sheikhupura, Lahore, Punjab, 75500",
-      "items": [
-        {
-          "sku": "FWN-0001-2",
-          "name": "Men Best Wallet For Events (Copy) (Copy)",
-          "image": "https://ik.imagekit.io/cdef76odq/products/1791483577163-whatsapp-image-2026-09-29-at-9-1_wngEb66Ko.jpg",
-          "price": 3800,
-          "quantity": 1,
-          "subtotal": 3800,
-          "productId": "fwn_prd_1791486063309_krg0",
-          "unitPrice": 3800,
-          "productName": "Men Best Wallet For Events (Copy) (Copy)",
-          "variantInfo": "Color: Brown",
-          "productImage": "https://ik.imagekit.io/cdef76odq/products/1791483577163-whatsapp-image-2026-09-29-at-9-1_wngEb66Ko.jpg",
-          "selectedColor": "Color: Brown"
-        }
-      ],
-      "subtotal": 3800,
-      "shippingFee": 250,
-      "discount": 0,
-      "tax": 0,
-      "total": 4050,
-      "paymentMethod": "Cash on Delivery (COD)",
-      "paymentStatus": "pending",
-      "orderDate": "2026-10-10T20:13:41.384Z",
-      "createdAt": "2026-10-10T20:13:41.384Z",
-      "status": "issued"
-    },
     {
       "id": "inv_1791653294180",
       "invoiceNumber": "FW-INV-0034",
@@ -1763,7 +1918,7 @@
       "regularPrice": 4999,
       "salePrice": 4499,
       "costPrice": 2200,
-      "stock": 7,
+      "stock": 8,
       "lowStockThreshold": 1,
       "stockStatus": "in_stock",
       "leatherType": "Full-Grain Cowhide",
@@ -1791,7 +1946,7 @@
       "rating": 5,
       "reviewCount": 0,
       "createdAt": "2026-10-09T18:50:38.415Z",
-      "updatedAt": "2026-10-11T14:13:43.302Z"
+      "updatedAt": "2026-10-13T19:38:49.877Z"
     },
     {
       "id": "fwn_prd_1791486063309_krg0",
@@ -1856,7 +2011,7 @@
       "rating": 5,
       "reviewCount": 0,
       "createdAt": "2026-10-08T19:01:03.309Z",
-      "updatedAt": "2026-10-11T14:13:21.530Z"
+      "updatedAt": "2026-10-12T19:36:38.802Z"
     }
   ],
   "settings": {
@@ -1911,7 +2066,7 @@
       "fwn_blt_03"
     ]
   },
-  "_updatedAt": "2026-10-11T14:14:24.051Z",
+  "_updatedAt": "2026-10-13T20:04:36.216Z",
   "categories": [
     {
       "id": "cat_wallets",
@@ -2039,31 +2194,7 @@
   },
   "teamMembers": [],
   "customerNotes": {},
-  "notifications": [
-    {
-      "id": "notif_ord_ord_1791653294179_confirmed_1791728064046",
-      "title": "Order Confirmed",
-      "message": "Your order #FWN-57484 has been confirmed. Our leather artisans are preparing your selection.",
-      "type": "Order Update",
-      "link": "/track/FWN-57484",
-      "buttonText": "TRACK CONSIGNMENT",
-      "audience": "specific",
-      "targetUserIds": [
-        "usr_1791575623453_plouq"
-      ],
-      "targetUserNames": [
-        "sufyan"
-      ],
-      "status": "published",
-      "publishedAt": "2026-10-11T14:14:24.046Z",
-      "createdAt": "2026-10-11T14:14:24.046Z",
-      "updatedAt": "2026-10-11T14:14:24.046Z",
-      "createdBy": "Atelier Order System",
-      "orderId": "ord_1791653294179",
-      "orderNumber": "FWN-57484",
-      "orderStatus": "confirmed"
-    }
-  ],
+  "notifications": [],
   "invoiceSettings": {
     "ntn": "",
     "email": "fawnic01@gmail.com",
@@ -2085,6 +2216,20 @@
     }
   ],
   "inventoryTransactions": [
+    {
+      "id": "txn_1791833752420_141",
+      "sku": "FWN-0001-2",
+      "notes": "Consignment order FWN-26226",
+      "change": -1,
+      "reason": "Order Placed",
+      "newStock": 5,
+      "productId": "fwn_prd_1791486063309_krg0",
+      "timestamp": "2026-10-12T19:35:52.420Z",
+      "adminEmail": "online-checkout@fawnic.pk",
+      "productName": "Men Best Wallet For Events (Copy) (Copy)",
+      "referenceId": "FWN-26226",
+      "previousStock": 6
+    },
     {
       "id": "txn_1791663221384_449",
       "sku": "FWN-0001-2",
@@ -2977,359 +3122,6 @@
       "productName": "The Sovereign Executive Bifold Wallet",
       "referenceId": "FWN-26814",
       "previousStock": 50
-    }
-  ],
-  "_syncEvents": [
-    {
-      "type": "order:updated",
-      "action": "updated",
-      "order": {
-        "id": "ord_1791653294179",
-        "orderNumber": "FWN-57484",
-        "customerId": "usr_1791575623453_plouq",
-        "customerName": "sufyan",
-        "customerEmail": "tahasaroya@gmail.com",
-        "customerPhone": "+92876547654",
-        "items": [
-          {
-            "sku": "FWN-7163",
-            "name": "premium leather",
-            "image": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg",
-            "price": 4499,
-            "total": 4499,
-            "quantity": 1,
-            "subtotal": 4499,
-            "productId": "fwn_prd_1791571838415_6k8u",
-            "unitPrice": 4499,
-            "productName": "premium leather",
-            "productImage": "https://ik.imagekit.io/cdef76odq/products/1791571737627-whatsapp-image-2026-09-29-at-9-1_b2AatRsf_.jpg"
-          }
-        ],
-        "shippingAddress": {
-          "id": "addr_1791692765600",
-          "city": "Sheikhupura",
-          "phone": "+92876547654",
-          "fullName": "sufyan",
-          "province": "Punjab",
-          "isDefault": false,
-          "postalCode": "75500",
-          "addressLine1": "79 X Block Housing Colony Sheikhupura",
-          "recipientName": "sufyan"
-        },
-        "billingAddress": {},
-        "status": "confirmed",
-        "paymentMethod": "cod",
-        "paymentStatus": "pending",
-        "subtotal": 4499,
-        "shippingFee": 250,
-        "discount": 0,
-        "total": 4749,
-        "notes": "Reset to confirmed",
-        "timeline": [
-          {
-            "note": "Order placed by customer via Cash on Delivery.",
-            "status": "pending",
-            "location": "Sheikhupura, Pakistan",
-            "timestamp": "2026-10-10T17:28:14.179Z",
-            "updatedBy": "Customer"
-          },
-          {
-            "note": "Order status updated to \"processing\"",
-            "status": "processing",
-            "location": "FAWNIC Logistics Center, Karachi",
-            "timestamp": "2026-10-10T17:31:15.878Z",
-            "updatedBy": "Ali Chishti"
-          },
-          {
-            "note": "Order status updated to \"packed\"",
-            "status": "packed",
-            "location": "FAWNIC Logistics Center, Karachi",
-            "timestamp": "2026-10-10T17:31:26.212Z",
-            "updatedBy": "Ali Chishti"
-          },
-          {
-            "note": "Order status updated to \"confirmed\"",
-            "status": "confirmed",
-            "location": "FAWNIC Logistics Center, Karachi",
-            "timestamp": "2026-10-10T17:33:03.682Z",
-            "updatedBy": "Ali Chishti"
-          },
-          {
-            "note": "Test confirmed cancel",
-            "status": "cancelled",
-            "location": "FAWNIC Atelier, Karachi",
-            "timestamp": "2026-10-11T14:13:43.634Z",
-            "updatedBy": "sufyan"
-          },
-          {
-            "status": "confirmed",
-            "timestamp": "2026-10-11T14:14:23.585Z",
-            "updatedBy": "Ali Chishti",
-            "note": "Reset to confirmed",
-            "location": "FAWNIC Logistics Center, Karachi"
-          }
-        ],
-        "trackingHistory": [
-          {
-            "note": "Order placed by customer via Cash on Delivery.",
-            "status": "pending",
-            "location": "Sheikhupura, Pakistan",
-            "timestamp": "2026-10-10T17:28:14.179Z",
-            "updatedBy": "Customer"
-          },
-          {
-            "note": "Order status updated to \"processing\"",
-            "status": "processing",
-            "location": "FAWNIC Logistics Center, Karachi",
-            "timestamp": "2026-10-10T17:31:15.878Z",
-            "updatedBy": "Ali Chishti"
-          },
-          {
-            "note": "Order status updated to \"packed\"",
-            "status": "packed",
-            "location": "FAWNIC Logistics Center, Karachi",
-            "timestamp": "2026-10-10T17:31:26.212Z",
-            "updatedBy": "Ali Chishti"
-          },
-          {
-            "note": "Order status updated to \"confirmed\"",
-            "status": "confirmed",
-            "location": "FAWNIC Logistics Center, Karachi",
-            "timestamp": "2026-10-10T17:33:03.682Z",
-            "updatedBy": "Ali Chishti"
-          },
-          {
-            "note": "Test confirmed cancel",
-            "status": "cancelled",
-            "location": "FAWNIC Atelier, Karachi",
-            "timestamp": "2026-10-11T14:13:43.634Z",
-            "updatedBy": "sufyan"
-          },
-          {
-            "status": "confirmed",
-            "timestamp": "2026-10-11T14:14:23.585Z",
-            "updatedBy": "Ali Chishti",
-            "note": "Reset to confirmed",
-            "location": "FAWNIC Logistics Center, Karachi"
-          }
-        ],
-        "createdAt": "2026-10-10T17:28:14.179Z",
-        "updatedAt": "2026-10-11T14:14:23.585Z"
-      },
-      "orderId": "ord_1791653294179",
-      "orderNumber": "FWN-57484",
-      "status": "confirmed",
-      "id": "evt_1791728064049_o3f0o",
-      "timestamp": 1791728064049
-    },
-    {
-      "type": "notification:new",
-      "action": "created",
-      "notification": {
-        "id": "notif_ord_ord_1791653294179_confirmed_1791728064046",
-        "title": "Order Confirmed",
-        "message": "Your order #FWN-57484 has been confirmed. Our leather artisans are preparing your selection.",
-        "type": "Order Update",
-        "link": "/track/FWN-57484",
-        "buttonText": "TRACK CONSIGNMENT",
-        "audience": "specific",
-        "targetUserIds": [
-          "usr_1791575623453_plouq"
-        ],
-        "targetUserNames": [
-          "sufyan"
-        ],
-        "status": "published",
-        "publishedAt": "2026-10-11T14:14:24.046Z",
-        "createdAt": "2026-10-11T14:14:24.046Z",
-        "updatedAt": "2026-10-11T14:14:24.046Z",
-        "createdBy": "Atelier Order System",
-        "orderId": "ord_1791653294179",
-        "orderNumber": "FWN-57484",
-        "orderStatus": "confirmed"
-      },
-      "notificationId": "notif_ord_ord_1791653294179_confirmed_1791728064046",
-      "id": "evt_1791728064048_mdps4",
-      "timestamp": 1791728064048
-    },
-    {
-      "type": "order:updated",
-      "action": "updated",
-      "order": {
-        "id": "ord_1791663221383",
-        "orderNumber": "FWN-55148",
-        "customerId": "usr_1791575623453_plouq",
-        "customerName": "sufyan",
-        "customerEmail": "tahasaroya@gmail.com",
-        "customerPhone": "+920987654",
-        "items": [
-          {
-            "sku": "FWN-0001-2",
-            "name": "Men Best Wallet For Events (Copy) (Copy)",
-            "image": "https://ik.imagekit.io/cdef76odq/products/1791483577163-whatsapp-image-2026-09-29-at-9-1_wngEb66Ko.jpg",
-            "price": 3800,
-            "total": 3800,
-            "quantity": 1,
-            "subtotal": 3800,
-            "productId": "fwn_prd_1791486063309_krg0",
-            "unitPrice": 3800,
-            "productName": "Men Best Wallet For Events (Copy) (Copy)",
-            "variantInfo": "Color: Brown",
-            "productImage": "https://ik.imagekit.io/cdef76odq/products/1791483577163-whatsapp-image-2026-09-29-at-9-1_wngEb66Ko.jpg",
-            "selectedColor": "Brown",
-            "selectedVariants": {
-              "Color": "Brown"
-            },
-            "selectedVariation": {
-              "id": "var_1791523681547_bbgg",
-              "sku": "FWN-0001-2",
-              "name": "Brown",
-              "type": "color",
-              "color": "Brown",
-              "image": "https://ik.imagekit.io/cdef76odq/products/1791483577163-whatsapp-image-2026-09-29-at-9-1_wngEb66Ko.jpg",
-              "order": 2,
-              "colorCode": "#78350f"
-            }
-          }
-        ],
-        "shippingAddress": {
-          "id": "addr_1791702692723",
-          "city": "Lahore",
-          "phone": "+920987654",
-          "fullName": "sufyan",
-          "province": "Punjab",
-          "isDefault": false,
-          "postalCode": "75500",
-          "addressLine1": "79 X Block Housing Colony Sheikhupura",
-          "recipientName": "sufyan"
-        },
-        "billingAddress": {},
-        "status": "pending",
-        "paymentMethod": "cod",
-        "paymentStatus": "pending",
-        "subtotal": 3800,
-        "shippingFee": 250,
-        "discount": 0,
-        "total": 4050,
-        "notes": "Reset to pending for testing",
-        "timeline": [
-          {
-            "note": "Order placed by customer via Cash on Delivery.",
-            "status": "pending",
-            "location": "Lahore, Pakistan",
-            "timestamp": "2026-10-10T20:13:41.384Z",
-            "updatedBy": "Customer"
-          },
-          {
-            "note": "Test verification before final audit",
-            "status": "cancelled",
-            "location": "FAWNIC Atelier, Karachi",
-            "timestamp": "2026-10-11T14:13:21.863Z",
-            "updatedBy": "sufyan"
-          },
-          {
-            "note": "Packed for shipping",
-            "status": "packed",
-            "location": "FAWNIC Logistics Center, Karachi",
-            "timestamp": "2026-10-11T14:14:05.208Z",
-            "updatedBy": "Ali Chishti"
-          },
-          {
-            "status": "pending",
-            "timestamp": "2026-10-11T14:14:14.491Z",
-            "updatedBy": "Ali Chishti",
-            "note": "Reset to pending for testing",
-            "location": "FAWNIC Logistics Center, Karachi"
-          }
-        ],
-        "trackingHistory": [
-          {
-            "note": "Order placed by customer via Cash on Delivery.",
-            "status": "pending",
-            "location": "Lahore, Pakistan",
-            "timestamp": "2026-10-10T20:13:41.384Z",
-            "updatedBy": "Customer"
-          },
-          {
-            "note": "Test verification before final audit",
-            "status": "cancelled",
-            "location": "FAWNIC Atelier, Karachi",
-            "timestamp": "2026-10-11T14:13:21.863Z",
-            "updatedBy": "sufyan"
-          },
-          {
-            "note": "Packed for shipping",
-            "status": "packed",
-            "location": "FAWNIC Logistics Center, Karachi",
-            "timestamp": "2026-10-11T14:14:05.208Z",
-            "updatedBy": "Ali Chishti"
-          },
-          {
-            "status": "pending",
-            "timestamp": "2026-10-11T14:14:14.491Z",
-            "updatedBy": "Ali Chishti",
-            "note": "Reset to pending for testing",
-            "location": "FAWNIC Logistics Center, Karachi"
-          }
-        ],
-        "createdAt": "2026-10-10T20:13:41.384Z",
-        "updatedAt": "2026-10-11T14:14:14.491Z"
-      },
-      "orderId": "ord_1791663221383",
-      "orderNumber": "FWN-55148",
-      "status": "pending",
-      "id": "evt_1791728054966_zzljk",
-      "timestamp": 1791728054966
-    },
-    {
-      "type": "notification:new",
-      "action": "created",
-      "notification": {
-        "id": "notif_ord_ord_1791663221383_pending_1791728054963",
-        "title": "Order Placed Successfully",
-        "message": "Your bespoke leather order #FWN-55148 for Rs. 4,050 has been received and logged in our atelier.",
-        "type": "Order Update",
-        "link": "/track/FWN-55148",
-        "buttonText": "TRACK CONSIGNMENT",
-        "audience": "specific",
-        "targetUserIds": [
-          "usr_1791575623453_plouq"
-        ],
-        "targetUserNames": [
-          "sufyan"
-        ],
-        "status": "published",
-        "publishedAt": "2026-10-11T14:14:14.963Z",
-        "createdAt": "2026-10-11T14:14:14.963Z",
-        "updatedAt": "2026-10-11T14:14:14.963Z",
-        "createdBy": "Atelier Order System",
-        "orderId": "ord_1791663221383",
-        "orderNumber": "FWN-55148",
-        "orderStatus": "pending"
-      },
-      "notificationId": "notif_ord_ord_1791663221383_pending_1791728054963",
-      "id": "evt_1791728054965_jd4jl",
-      "timestamp": 1791728054965
-    }
-  ],
-  "auditLogs": [
-    {
-      "id": "log_1791728064051",
-      "adminEmail": "alichishtia111@gmail.com",
-      "action": "ORDER_TRACKING_UPDATED",
-      "entityType": "Order",
-      "entityId": "FWN-57484",
-      "details": "Tracking updated. Status: \"confirmed\", Tracking #: \"None\", Courier: \"None\"",
-      "timestamp": "2026-10-11T14:14:24.051Z"
-    },
-    {
-      "id": "log_1791728054968",
-      "adminEmail": "alichishtia111@gmail.com",
-      "action": "ORDER_TRACKING_UPDATED",
-      "entityType": "Order",
-      "entityId": "FWN-55148",
-      "details": "Tracking updated. Status: \"pending\", Tracking #: \"None\", Courier: \"None\"",
-      "timestamp": "2026-10-11T14:14:14.968Z"
     }
   ]
 }

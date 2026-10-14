@@ -430,10 +430,12 @@ export async function initializeNeonSchema(): Promise<boolean> {
             updated_at = NOW();
         `);
 
-        // Check if coupons table is empty. If so, seed initial coupons.
+        // Check if coupons have ever been seeded. If not, seed initial coupons once.
+        const seedCheck = await client.query("SELECT data FROM app_settings WHERE key = 'coupons_seeded' LIMIT 1");
+        const alreadySeeded = seedCheck.rows && seedCheck.rows.length > 0;
         const cpnCountRes = await client.query('SELECT count(*) as count FROM coupons');
         const cpnCount = parseInt(cpnCountRes.rows[0]?.count || '0', 10);
-        if (cpnCount === 0) {
+        if (!alreadySeeded && cpnCount === 0) {
           try {
             const { getInitialDatabase } = await import('../db.js');
             const initialData = getInitialDatabase();
@@ -460,6 +462,9 @@ export async function initializeNeonSchema(): Promise<boolean> {
               }
             }
           } catch {}
+          await client.query(
+            `INSERT INTO app_settings (key, data, updated_at) VALUES ('coupons_seeded', '"true"', NOW()) ON CONFLICT (key) DO NOTHING`
+          );
         }
       } finally {
         client.release();
@@ -1760,7 +1765,111 @@ export async function insertCouponInNeon(coupon: Coupon): Promise<Coupon> {
   return coupon;
 }
 
-export async function deleteCouponInNeon(id: string): Promise<boolean> {
+export async function updateCouponInNeon(idOrCode: string, updates: Partial<Coupon>): Promise<Coupon | null> {
+  const dbUrl = getNeonDatabaseUrl();
+  if (!dbUrl) return null;
+
+  try {
+    await initializeNeonSchema();
+    const pool = getNeonPool();
+    if (!pool) return null;
+
+    const codeSearch = (updates.code || idOrCode).trim().toUpperCase();
+    const existingRes = await pool.query(
+      'SELECT * FROM coupons WHERE id = $1 OR UPPER(code) = UPPER($1) OR UPPER(code) = UPPER($2) LIMIT 1',
+      [idOrCode, codeSearch]
+    );
+
+    if (!existingRes.rows || existingRes.rows.length === 0) {
+      // If coupon doesn't exist in Neon table yet, create it with requested state
+      const effectiveExp = (updates.expiresAt || updates.expiryDate)
+        ? new Date((updates.expiresAt || updates.expiryDate)!).toISOString()
+        : undefined;
+      const fullCoupon: Coupon = {
+        id: idOrCode.startsWith('cpn_') ? idOrCode : `cpn_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+        code: codeSearch,
+        type: updates.type === 'percentage' ? 'percent' : (updates.type || 'percent'),
+        value: Number(updates.value) || 0,
+        minOrderAmount: Number(updates.minOrderAmount) || 0,
+        maxDiscount: updates.maxDiscount ? Number(updates.maxDiscount) : undefined,
+        usageLimit: Number(updates.usageLimit) || 100,
+        usedCount: Number(updates.usedCount) || 0,
+        perUserLimit: Number(updates.perUserLimit) || 1,
+        isActive: updates.isActive !== undefined ? Boolean(updates.isActive) : true,
+        expiresAt: effectiveExp,
+        expiryDate: effectiveExp,
+      };
+      return await insertCouponInNeon(fullCoupon);
+    }
+
+    const current = existingRes.rows[0];
+    const newCode = updates.code !== undefined ? updates.code.trim().toUpperCase() : current.code;
+    const newType = updates.type !== undefined ? updates.type : (current.type || 'percent');
+    const newValue = updates.value !== undefined ? Number(updates.value) : Number(current.value);
+    const newMinOrder = updates.minOrderAmount !== undefined ? Number(updates.minOrderAmount) : Number(current.min_order_amount);
+    const newMaxDiscount = updates.maxDiscount !== undefined ? (updates.maxDiscount ? Number(updates.maxDiscount) : null) : current.max_discount;
+    const newUsageLimit = updates.usageLimit !== undefined ? Number(updates.usageLimit) : Number(current.usage_limit);
+    const newUsedCount = updates.usedCount !== undefined ? Number(updates.usedCount) : Number(current.used_count);
+    const newPerUserLimit = updates.perUserLimit !== undefined ? Number(updates.perUserLimit) : Number(current.per_user_limit);
+    const newIsActive = updates.isActive !== undefined ? Boolean(updates.isActive) : Boolean(current.is_active);
+    const newExpiresAt = (updates.expiresAt !== undefined || updates.expiryDate !== undefined)
+      ? ((updates.expiresAt || updates.expiryDate) ? new Date((updates.expiresAt || updates.expiryDate)!) : null)
+      : current.expires_at;
+
+    const updateQuery = `
+      UPDATE coupons SET
+        code = $2,
+        type = $3,
+        value = $4,
+        min_order_amount = $5,
+        max_discount = $6,
+        usage_limit = $7,
+        used_count = $8,
+        per_user_limit = $9,
+        is_active = $10,
+        expires_at = $11
+      WHERE id = $1
+      RETURNING *;
+    `;
+
+    const res = await pool.query(updateQuery, [
+      current.id,
+      newCode,
+      newType,
+      newValue,
+      newMinOrder,
+      newMaxDiscount,
+      newUsageLimit,
+      newUsedCount,
+      newPerUserLimit,
+      newIsActive,
+      newExpiresAt,
+    ]);
+
+    if (res.rows && res.rows.length > 0) {
+      const row = res.rows[0];
+      return {
+        id: row.id,
+        code: row.code,
+        type: row.type || 'percent',
+        value: Number(row.value) || 0,
+        minOrderAmount: Number(row.min_order_amount) || 0,
+        maxDiscount: row.max_discount !== null ? Number(row.max_discount) : undefined,
+        usageLimit: Number(row.usage_limit) || 100,
+        usedCount: Number(row.used_count) || 0,
+        perUserLimit: Number(row.per_user_limit) || 1,
+        isActive: Boolean(row.is_active),
+        expiresAt: row.expires_at ? new Date(row.expires_at).toISOString() : undefined,
+      };
+    }
+    return null;
+  } catch (err: any) {
+    console.error('[Neon PostgreSQL] Error updating coupon in Neon:', err.message);
+    throw err;
+  }
+}
+
+export async function deleteCouponInNeon(idOrCode: string, optionalCode?: string): Promise<boolean> {
   const dbUrl = getNeonDatabaseUrl();
   if (!dbUrl) return false;
 
@@ -1769,7 +1878,11 @@ export async function deleteCouponInNeon(id: string): Promise<boolean> {
     const pool = getNeonPool();
     if (!pool) return false;
 
-    await pool.query('DELETE FROM coupons WHERE id = $1', [id]);
+    const codeSearch = (optionalCode || idOrCode).trim().toUpperCase();
+    await pool.query(
+      'DELETE FROM coupons WHERE id = $1 OR UPPER(code) = UPPER($1) OR UPPER(code) = UPPER($2) OR id = $2',
+      [idOrCode, codeSearch]
+    );
     return true;
   } catch (err: any) {
     console.error('[Neon PostgreSQL] Error deleting coupon from Neon:', err.message);

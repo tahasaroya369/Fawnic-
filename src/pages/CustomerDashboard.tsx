@@ -30,6 +30,8 @@ import {
   ChevronRight,
   Filter,
   Loader2,
+  X,
+  AlertTriangle,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.js';
 import { useWishlist } from '../context/WishlistContext.js';

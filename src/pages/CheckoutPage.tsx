@@ -17,6 +17,7 @@ import {
   X,
   Image as ImageIcon,
   Info,
+  Tag,
 } from 'lucide-react';
 import { useCart } from '../context/CartContext.js';
 import { useAuth } from '../context/AuthContext.js';
@@ -86,7 +87,17 @@ const PAKISTAN_CITY_SUGGESTIONS = [
 ];
 
 export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
-  const { items, subtotal, shippingFee, discountAmount, couponCode, total, clearCart } = useCart();
+  const {
+    items,
+    subtotal,
+    shippingFee,
+    discountAmount,
+    couponCode,
+    total,
+    clearCart,
+    applyCoupon,
+    removeCoupon,
+  } = useCart();
   const { user, token } = useAuth();
 
   const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
@@ -103,6 +114,22 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
   const [addressLine2, setAddressLine2] = useState('');
   const [landmark, setLandmark] = useState('');
   const [postalCode, setPostalCode] = useState('75500');
+
+  // Checkout Coupon Box State
+  const [checkoutCouponInput, setCheckoutCouponInput] = useState('');
+  const [checkoutCouponMsg, setCheckoutCouponMsg] = useState<{ text: string; isError: boolean } | null>(null);
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+
+  const handleApplyCheckoutCoupon = async (e?: React.FormEvent | React.MouseEvent | React.KeyboardEvent) => {
+    if (e) e.preventDefault();
+    if (!checkoutCouponInput.trim() || isApplyingCoupon) return;
+    setIsApplyingCoupon(true);
+    setCheckoutCouponMsg(null);
+    const res = await applyCoupon(checkoutCouponInput.trim());
+    setIsApplyingCoupon(false);
+    setCheckoutCouponMsg({ text: res.message, isError: !res.success });
+    if (res.success) setCheckoutCouponInput('');
+  };
 
   // Payment Selection - Strictly COD and Bank Transfer only
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'bank_transfer'>('cod');
@@ -397,7 +424,11 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
       }
 
       if (!res.ok) {
-        setErrorMsg(data.error || data.message || 'Failed to submit order. Please verify your details.');
+        const errorText = data.error || data.message || 'Failed to submit order. Please verify your details.';
+        if (errorText.toLowerCase().includes('coupon')) {
+          removeCoupon();
+        }
+        setErrorMsg(errorText);
         return;
       }
 
@@ -1024,6 +1055,56 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
                   ))}
                 </div>
               ))}
+            </div>
+
+            {/* Atelier Promotional Coupon */}
+            <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 space-y-2">
+              {couponCode ? (
+                <div className="flex items-center justify-between p-2.5 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs">
+                  <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-semibold">
+                    <Tag className="w-3.5 h-3.5 shrink-0" />
+                    <span>Applied: {couponCode}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={removeCoupon}
+                    className="text-xs font-bold text-rose-600 dark:text-rose-400 hover:underline cursor-pointer"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={checkoutCouponInput}
+                      onChange={(e) => setCheckoutCouponInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleApplyCheckoutCoupon(e);
+                        }
+                      }}
+                      placeholder="Coupon Code"
+                      className="flex-1 px-3 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs uppercase font-semibold focus:outline-none focus:border-zinc-900 dark:focus:border-zinc-100"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleApplyCheckoutCoupon()}
+                      disabled={isApplyingCoupon || !checkoutCouponInput.trim()}
+                      className="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold rounded-xl hover:opacity-90 transition-opacity cursor-pointer shrink-0 disabled:opacity-50"
+                    >
+                      {isApplyingCoupon ? 'Applying...' : 'Apply'}
+                    </button>
+                  </div>
+                  {checkoutCouponMsg && (
+                    <p className={`text-[11px] font-medium ${checkoutCouponMsg.isError ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                      {checkoutCouponMsg.text}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Financial Summary */}

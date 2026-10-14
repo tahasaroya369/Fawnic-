@@ -27,6 +27,7 @@ import {
   deleteNotificationInNeon,
   getCouponsFromNeon,
   insertCouponInNeon,
+  updateCouponInNeon,
   deleteCouponInNeon,
   updateUserInNeon,
   deleteUserInNeon,
@@ -1352,25 +1353,35 @@ router.get('/coupons', async (req: AuthenticatedRequest, res) => {
 });
 
 router.post('/coupons', async (req: AuthenticatedRequest, res) => {
-  const { code, type, value, minOrderAmount, maxDiscount, usageLimit, expiresAt } = req.body;
-  if (!code || !value) {
+  const { code, type, value, minOrderAmount, maxDiscount, usageLimit, expiresAt, expiryDate, isActive } = req.body;
+  if (!code || value === undefined || value === null) {
     res.status(400).json({ error: 'Coupon code and value are required' });
     return;
   }
 
   const db = getDb();
+  if (!db.coupons) db.coupons = [];
+
+  const existingIdx = db.coupons.findIndex((c) => c.code.toUpperCase() === code.trim().toUpperCase());
+  if (existingIdx !== -1) {
+    res.status(400).json({ error: `Coupon code "${code.trim().toUpperCase()}" already exists` });
+    return;
+  }
+
+  const effectiveExp = expiresAt || expiryDate || '2026-12-31T23:59:59.000Z';
   const newCoupon: Coupon = {
     id: `cpn_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
     code: code.trim().toUpperCase(),
-    type: type || 'percent',
+    type: type === 'percentage' ? 'percent' : (type || 'percent'),
     value: Number(value),
     minOrderAmount: Number(minOrderAmount) || 0,
     maxDiscount: maxDiscount ? Number(maxDiscount) : undefined,
     usageLimit: Number(usageLimit) || 100,
     usedCount: 0,
     perUserLimit: 1,
-    expiresAt: expiresAt || '2026-12-31T23:59:59.000Z',
-    isActive: true,
+    expiresAt: effectiveExp,
+    expiryDate: effectiveExp,
+    isActive: isActive !== false,
   };
 
   let savedCoupon = newCoupon;
@@ -1385,7 +1396,6 @@ router.post('/coupons', async (req: AuthenticatedRequest, res) => {
     }
   }
 
-  if (!db.coupons) db.coupons = [];
   db.coupons.unshift(savedCoupon);
   logAdminAction(req.user!.email, 'COUPON_CREATED', 'Coupon', savedCoupon.code);
   await saveDatabaseAsync();
@@ -1394,14 +1404,128 @@ router.post('/coupons', async (req: AuthenticatedRequest, res) => {
   res.status(201).json(savedCoupon);
 });
 
+// Update / Toggle Coupon (PUT and PATCH)
+const updateCouponHandler = async (req: AuthenticatedRequest, res: express.Response) => {
+  const target = req.params.id;
+  const db = getDb();
+  if (!db.coupons) db.coupons = [];
+
+  let coupon = db.coupons.find((c) => c.id === target || c.code.toUpperCase() === target.toUpperCase());
+
+  // If not found in local db, check Neon
+  if (!coupon && isNeonConfigured()) {
+    try {
+      const neonCoupons = await getCouponsFromNeon();
+      if (Array.isArray(neonCoupons)) {
+        db.coupons = neonCoupons;
+        coupon = db.coupons.find((c) => c.id === target || c.code.toUpperCase() === target.toUpperCase());
+      }
+    } catch (err: any) {
+      console.warn('[Neon PostgreSQL] Error refreshing coupons:', err.message);
+    }
+  }
+
+  if (!coupon) {
+    res.status(404).json({ error: 'Coupon not found' });
+    return;
+  }
+
+  const updates: Partial<Coupon> = {};
+
+  if (req.body.isActive !== undefined) {
+    coupon.isActive = Boolean(req.body.isActive);
+    updates.isActive = coupon.isActive;
+  }
+  if (req.body.code !== undefined && req.body.code.trim()) {
+    coupon.code = req.body.code.trim().toUpperCase();
+    updates.code = coupon.code;
+  }
+  if (req.body.type !== undefined) {
+    coupon.type = req.body.type === 'percentage' ? 'percent' : req.body.type;
+    updates.type = coupon.type;
+  }
+  if (req.body.value !== undefined) {
+    coupon.value = Number(req.body.value);
+    updates.value = coupon.value;
+  }
+  if (req.body.minOrderAmount !== undefined) {
+    coupon.minOrderAmount = Number(req.body.minOrderAmount);
+    updates.minOrderAmount = coupon.minOrderAmount;
+  }
+  if (req.body.maxDiscount !== undefined) {
+    coupon.maxDiscount = req.body.maxDiscount ? Number(req.body.maxDiscount) : undefined;
+    updates.maxDiscount = coupon.maxDiscount;
+  }
+  if (req.body.usageLimit !== undefined) {
+    coupon.usageLimit = Number(req.body.usageLimit);
+    updates.usageLimit = coupon.usageLimit;
+  }
+  if (req.body.usedCount !== undefined) {
+    coupon.usedCount = Number(req.body.usedCount);
+    updates.usedCount = coupon.usedCount;
+  }
+  if (req.body.expiresAt !== undefined || req.body.expiryDate !== undefined) {
+    const rawExp = req.body.expiresAt || req.body.expiryDate;
+    const formattedExp = rawExp ? new Date(rawExp).toISOString() : undefined;
+    coupon.expiresAt = formattedExp || coupon.expiresAt;
+    coupon.expiryDate = formattedExp || coupon.expiryDate;
+    updates.expiresAt = coupon.expiresAt;
+    updates.expiryDate = coupon.expiryDate;
+  }
+
+  if (isNeonConfigured()) {
+    try {
+      const neonUpdated = await updateCouponInNeon(coupon.id, coupon);
+      if (neonUpdated) {
+        Object.assign(coupon, neonUpdated);
+      }
+      console.info(`[Neon PostgreSQL] Coupon updated: ${coupon.code} (active: ${coupon.isActive})`);
+    } catch (neonErr: any) {
+      console.error('[Neon PostgreSQL] Error updating coupon in Neon:', neonErr.message);
+      res.status(500).json({ error: 'Database failed to persist coupon update: ' + neonErr.message });
+      return;
+    }
+  }
+
+  logAdminAction(req.user!.email, 'COUPON_UPDATED', 'Coupon', `${coupon.code} (active: ${coupon.isActive})`);
+  await saveDatabaseAsync();
+  broadcastCouponEvent({ action: 'updated', coupon });
+
+  res.json({
+    success: true,
+    message: `Coupon "${coupon.code}" ${coupon.isActive ? 'enabled' : 'disabled'} successfully`,
+    coupon,
+  });
+};
+
+router.put('/coupons/:id', updateCouponHandler);
+router.patch('/coupons/:id', updateCouponHandler);
+
 router.delete('/coupons/:id', async (req: AuthenticatedRequest, res) => {
   const db = getDb();
   const target = req.params.id;
 
+  if (!db.coupons) db.coupons = [];
+  let existingCoupon = db.coupons.find((c) => c.id === target || c.code.toUpperCase() === target.toUpperCase());
+
+  // If not found in local db, ensure latest from Neon
+  if (!existingCoupon && isNeonConfigured()) {
+    try {
+      const neonCoupons = await getCouponsFromNeon();
+      if (Array.isArray(neonCoupons)) {
+        db.coupons = neonCoupons;
+        existingCoupon = db.coupons.find((c) => c.id === target || c.code.toUpperCase() === target.toUpperCase());
+      }
+    } catch {}
+  }
+
+  const targetId = existingCoupon ? existingCoupon.id : target;
+  const targetCode = existingCoupon ? existingCoupon.code : target;
+
   if (isNeonConfigured()) {
     try {
-      await deleteCouponInNeon(target);
-      console.info(`[Neon PostgreSQL] Coupon deleted: ${target}`);
+      await deleteCouponInNeon(targetId, targetCode);
+      console.info(`[Neon PostgreSQL] Coupon permanently deleted: ${targetId} (${targetCode})`);
     } catch (neonErr: any) {
       console.error('[Neon PostgreSQL] Error deleting coupon in Neon:', neonErr.message);
       res.status(500).json({ error: 'Database failed to persist coupon deletion: ' + neonErr.message });
@@ -1409,14 +1533,15 @@ router.delete('/coupons/:id', async (req: AuthenticatedRequest, res) => {
     }
   }
 
-  if (!db.coupons) db.coupons = [];
-  const idx = db.coupons.findIndex((c) => c.id === target || c.code.toUpperCase() === target.toUpperCase());
-  if (idx !== -1) {
-    db.coupons.splice(idx, 1);
-  }
+  // Permanently filter out the coupon from memory and JSON storage
+  db.coupons = db.coupons.filter(
+    (c) => c.id !== targetId && c.id !== target && c.code.toUpperCase() !== targetCode.toUpperCase()
+  );
+
+  logAdminAction(req.user!.email, 'COUPON_DELETED', 'Coupon', targetCode);
   await saveDatabaseAsync();
-  broadcastCouponEvent({ action: 'deleted', couponId: target });
-  res.json({ message: 'Coupon deleted successfully' });
+  broadcastCouponEvent({ action: 'deleted', couponId: targetId });
+  res.json({ success: true, message: `Coupon "${targetCode}" permanently deleted successfully` });
 });
 
 // 7. Homepage CMS Management
@@ -2083,7 +2208,7 @@ router.get('/customers/:id', (req: AuthenticatedRequest, res) => {
     .filter((o) => o.status !== 'cancelled')
     .reduce((sum, o) => sum + o.total, 0);
 
-  const customerAddresses = db.addresses.filter((a) => a.userId === customer.id);
+  const customerAddresses = (db.addresses || []).filter((a) => a.userId === customer.id);
   const notes = db.customerNotes?.[customer.id] || '';
 
   res.json({
@@ -2515,7 +2640,7 @@ router.get('/notifications', async (req: AuthenticatedRequest, res) => {
 
   // Map each notification with its engagement / read count
   const enrichedList = list.map((n) => {
-    const readCount = db.notificationReads.filter((r) => r.notificationId === n.id).length;
+    const readCount = (db.notificationReads || []).filter((r) => r.notificationId === n.id).length;
     return {
       ...n,
       readCount,

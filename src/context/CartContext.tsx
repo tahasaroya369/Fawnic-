@@ -73,15 +73,18 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     fetch('/api/coupons/validate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code: couponCode, cartSubtotal: subtotal }),
+      body: JSON.stringify({ code: couponCode, subtotal, cartSubtotal: subtotal }),
     })
       .then((res) => res.json())
       .then((data) => {
-        if (data.valid) {
+        if (data && data.valid && typeof data.discountAmount === 'number') {
           setDiscountAmount(data.discountAmount);
         } else {
+          // If coupon is no longer active, expired, or subtotal is below minimum, revoke it
           setCouponCode(null);
-          localStorage.removeItem('fawnic_coupon');
+          try {
+            localStorage.removeItem('fawnic_coupon');
+          } catch {}
           setDiscountAmount(0);
         }
       })
@@ -203,20 +206,25 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const res = await fetch('/api/coupons/validate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: code.trim(), cartSubtotal: subtotal }),
+        body: JSON.stringify({ code: code.trim(), subtotal, cartSubtotal: subtotal }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
-      if (!res.ok) {
-        return { success: false, message: data.error || 'Invalid coupon code' };
+      if (!res.ok || !data.valid) {
+        return { success: false, message: data.error || 'Invalid or inactive promotional coupon' };
       }
 
       setCouponCode(data.code);
-      localStorage.setItem('fawnic_coupon', data.code);
-      setDiscountAmount(data.discountAmount);
-      return { success: true, message: `Coupon applied: Rs. ${data.discountAmount.toLocaleString()} saved!` };
-    } catch {
-      return { success: false, message: 'Network error validating coupon' };
+      try {
+        localStorage.setItem('fawnic_coupon', data.code);
+      } catch {}
+      setDiscountAmount(Number(data.discountAmount) || 0);
+      return {
+        success: true,
+        message: data.message || `Coupon applied: Rs. ${Number(data.discountAmount).toLocaleString()} saved!`,
+      };
+    } catch (err: any) {
+      return { success: false, message: err?.message || 'Network error validating coupon' };
     }
   };
 

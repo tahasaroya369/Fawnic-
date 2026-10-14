@@ -8,6 +8,8 @@ import {
   getProductsFromNeon,
   adjustProductStockInNeon,
   insertInvoiceInNeon,
+  getCouponsFromNeon,
+  updateCouponInNeon,
 } from '../storage/neon.js';
 import { requireAuth, type AuthenticatedRequest } from '../middleware.js';
 import type { Order, OrderItem } from '../../src/types.js';
@@ -173,24 +175,78 @@ router.post('/', async (req: AuthenticatedRequest, res) => {
     const cashbackPercentage = isCashbackEligible ? 7 : 0;
     const cashbackAmount = isCashbackEligible ? Math.round(subtotal * 0.07) : 0;
 
-    // Coupon Discount Calculation
+    // Coupon Discount Calculation & Strict Database Validation
     let discount = 0;
     let appliedCouponCode: string | undefined = undefined;
 
-    if (couponCode && typeof couponCode === 'string') {
+    if (couponCode && typeof couponCode === 'string' && couponCode.trim()) {
       const code = couponCode.trim().toUpperCase();
-      const coupon = db.coupons.find((c) => c.code === code && c.isActive);
-      if (coupon && subtotal >= coupon.minOrderAmount) {
-        if (coupon.type === 'percent') {
-          discount = (subtotal * coupon.value) / 100;
-          if (coupon.maxDiscount && discount > coupon.maxDiscount) {
-            discount = coupon.maxDiscount;
+
+      // Ensure fresh database coupons from Neon if configured
+      if (isNeonConfigured()) {
+        try {
+          const liveCoupons = await getCouponsFromNeon();
+          if (Array.isArray(liveCoupons)) {
+            db.coupons = liveCoupons;
           }
-        } else {
-          discount = coupon.value;
+        } catch (err: any) {
+          console.warn('[Neon PostgreSQL] Error getting live coupons in order route:', err.message);
         }
-        coupon.usedCount += 1;
-        appliedCouponCode = coupon.code;
+      }
+
+      const coupon = (db.coupons || []).find((c) => c.code.toUpperCase() === code);
+      if (!coupon) {
+        res.status(400).json({ error: `Promotional coupon "${code}" is invalid or does not exist.` });
+        return;
+      }
+
+      if (!coupon.isActive) {
+        res.status(400).json({ error: `Promotional coupon "${coupon.code}" is currently disabled or inactive.` });
+        return;
+      }
+
+      const expiryStr = coupon.expiresAt || coupon.expiryDate;
+      if (expiryStr) {
+        const expiryDate = new Date(expiryStr);
+        if (!isNaN(expiryDate.getTime()) && expiryDate.getTime() < Date.now()) {
+          res.status(400).json({ error: `Promotional coupon "${coupon.code}" has expired.` });
+          return;
+        }
+      }
+
+      if (coupon.usageLimit && (coupon.usedCount || 0) >= coupon.usageLimit) {
+        res.status(400).json({ error: `Promotional coupon "${coupon.code}" has reached its maximum usage limit.` });
+        return;
+      }
+
+      const minRequired = Number(coupon.minOrderAmount) || 0;
+      if (subtotal < minRequired) {
+        res.status(400).json({
+          error: `Coupon "${coupon.code}" requires a minimum order of Rs. ${minRequired.toLocaleString()}. (Current: Rs. ${subtotal.toLocaleString()})`,
+        });
+        return;
+      }
+
+      const isPercentage = coupon.type === 'percent' || coupon.type === 'percentage';
+      if (isPercentage) {
+        discount = Math.round((subtotal * Number(coupon.value)) / 100);
+        if (coupon.maxDiscount && discount > Number(coupon.maxDiscount)) {
+          discount = Number(coupon.maxDiscount);
+        }
+      } else {
+        discount = Math.round(Number(coupon.value));
+      }
+
+      discount = Math.max(0, Math.min(discount, subtotal));
+      coupon.usedCount = (coupon.usedCount || 0) + 1;
+      appliedCouponCode = coupon.code;
+
+      if (isNeonConfigured()) {
+        try {
+          await updateCouponInNeon(coupon.id, { usedCount: coupon.usedCount, code: coupon.code });
+        } catch (err: any) {
+          console.warn('[Neon PostgreSQL] Error updating coupon used_count:', err.message);
+        }
       }
     }
 

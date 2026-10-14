@@ -204,7 +204,8 @@ router.get('/returns', requireAuth, (req: AuthenticatedRequest, res) => {
 // Get Saved Addresses
 router.get('/addresses', requireAuth, (req: AuthenticatedRequest, res) => {
   const db = getDb();
-  const list = db.addresses.filter((a) => a.userId === req.user?.id);
+  if (!db.addresses) db.addresses = [];
+  const list = (db.addresses || []).filter((a) => a.userId === req.user?.id);
   res.json(list);
 });
 
@@ -317,8 +318,9 @@ router.delete('/addresses/:id', requireAuth, (req: AuthenticatedRequest, res) =>
 // Get Wishlist
 router.get('/wishlist', requireAuth, (req: AuthenticatedRequest, res) => {
   const db = getDb();
+  if (!db.wishlists) db.wishlists = {};
   const productIds = db.wishlists[req.user!.id] || [];
-  const products = db.products.filter((p) => productIds.includes(p.id));
+  const products = (db.products || []).filter((p) => productIds.includes(p.id));
   res.json({ productIds, products });
 });
 

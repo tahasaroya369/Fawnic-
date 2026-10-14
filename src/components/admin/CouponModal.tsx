@@ -37,7 +37,8 @@ export const CouponModal: React.FC<CouponModalProps> = ({
         setMinOrder(coupon.minOrderAmount || 0);
         setMaxDiscount(coupon.maxDiscount);
         setUsageLimit(coupon.usageLimit);
-        setExpiryDate(coupon.expiryDate ? coupon.expiryDate.split('T')[0] : '');
+        const exp = coupon.expiresAt || coupon.expiryDate;
+        setExpiryDate(exp ? exp.split('T')[0] : '');
         setIsActive(coupon.isActive);
       } else {
         setCode('');
@@ -70,19 +71,29 @@ export const CouponModal: React.FC<CouponModalProps> = ({
       setLoading(true);
       setError('');
 
-      const res = await fetch('/api/admin/coupons', {
-        method: 'POST',
+      const url = coupon ? `/api/admin/coupons/${coupon.id}` : '/api/admin/coupons';
+      const method = coupon ? 'PUT' : 'POST';
+
+      const effectiveToken =
+        token ||
+        (typeof window !== 'undefined'
+          ? localStorage.getItem('fawnic_auth_token') || sessionStorage.getItem('fawnic_auth_token')
+          : null);
+
+      const res = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+          ...(effectiveToken ? { Authorization: `Bearer ${effectiveToken}` } : {}),
         },
         body: JSON.stringify({
           code: code.trim().toUpperCase(),
-          type,
+          type: type === 'percentage' ? 'percent' : 'fixed',
           value: Number(value),
           minOrderAmount: Number(minOrder) || 0,
           maxDiscount: maxDiscount ? Number(maxDiscount) : undefined,
           usageLimit: usageLimit ? Number(usageLimit) : undefined,
+          expiresAt: expiryDate ? new Date(expiryDate).toISOString() : undefined,
           expiryDate: expiryDate ? new Date(expiryDate).toISOString() : undefined,
           isActive,
         }),
@@ -93,10 +104,10 @@ export const CouponModal: React.FC<CouponModalProps> = ({
         throw new Error(data.error || 'Failed to save coupon');
       }
 
-      onSuccess(data);
+      onSuccess(data.coupon || data);
       onClose();
     } catch (err: any) {
-      console.error('Coupon creation error:', err);
+      console.error('Coupon save error:', err);
       setError(err.message || 'Error occurred while saving coupon.');
     } finally {
       setLoading(false);

@@ -259,7 +259,7 @@ router.get('/:slug', async (req, res) => {
     .slice(0, 4);
 
   // Reviews for this product
-  const reviews = db.reviews.filter(
+  const reviews = (db.reviews || []).filter(
     (r) => r.productId === product.id && r.isApproved
   );
 
@@ -297,10 +297,11 @@ router.post('/:id/reviews', (req: AuthenticatedRequest, res) => {
     createdAt: new Date().toISOString(),
   };
 
+  if (!db.reviews) db.reviews = [];
   db.reviews.unshift(newReview);
 
   // Recalculate product rating
-  const approvedReviews = db.reviews.filter((r) => r.productId === product.id && r.isApproved);
+  const approvedReviews = (db.reviews || []).filter((r) => r.productId === product.id && r.isApproved);
   const avg = approvedReviews.reduce((sum, r) => sum + r.rating, 0) / approvedReviews.length;
   product.rating = Number(avg.toFixed(1));
   product.reviewCount = approvedReviews.length;

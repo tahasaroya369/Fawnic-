@@ -9,6 +9,7 @@ export interface AuthenticatedRequest extends Request {
     email: string;
     role: 'customer' | 'admin' | 'staff';
     name: string;
+    phone?: string;
     staffRole?: string;
     permissions?: StaffPermissions;
   };
@@ -37,6 +38,7 @@ export function authMiddleware(req: AuthenticatedRequest, res: Response, next: N
         email: user.email,
         role: user.role,
         name: user.name,
+        phone: (user as any).phone,
       };
     } else {
       removeSession(token);

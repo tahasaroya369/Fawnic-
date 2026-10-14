@@ -542,7 +542,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                     </p>
                   </div>
                   <span className="font-serif font-bold text-stone-950 dark:text-stone-50 text-xs">
-                    Rs. {(item.subtotal ?? (item.total ?? (item.quantity * ((item.price ?? item.unitPrice) || 0))) || 0).toLocaleString()}
+                    Rs. {(item.subtotal ?? item.total ?? (item.quantity * ((item.price ?? item.unitPrice) || 0)) ?? 0).toLocaleString()}
                   </span>
                 </div>
               ))}

@@ -106,54 +106,105 @@ router.post('/coupons/validate', validateCouponHandler);
 async function validateCouponHandler(req: express.Request, res: express.Response) {
   const { code, subtotal, cartSubtotal } = req.body;
   const targetSubtotal = subtotal !== undefined ? subtotal : cartSubtotal;
-  if (!code) {
-    res.status(400).json({ error: 'Coupon code is required' });
+  if (!code || typeof code !== 'string' || !code.trim()) {
+    res.status(400).json({ error: 'Please enter a valid coupon code', valid: false });
     return;
   }
 
+  const cleanCode = code.trim().toUpperCase();
+
+  // Always fetch live coupons from Neon if configured to avoid stale status
   if (isNeonConfigured()) {
     try {
       const neonCoupons = await getCouponsFromNeon();
       if (Array.isArray(neonCoupons)) {
         getDb().coupons = neonCoupons;
       }
-    } catch {}
+    } catch (err: any) {
+      console.warn('[Neon PostgreSQL] Error getting live coupons:', err.message);
+    }
   }
 
   const db = getDb();
-  const coupon = (db.coupons || []).find((c) => c.code.toUpperCase() === code.trim().toUpperCase() && c.isActive);
+  const coupon = (db.coupons || []).find((c) => c.code.toUpperCase() === cleanCode);
 
   if (!coupon) {
-    res.status(404).json({ error: 'Invalid or expired promotional code', valid: false });
+    res.status(404).json({ error: `Coupon code "${cleanCode}" is invalid or does not exist.`, valid: false });
     return;
   }
 
-  const orderSubtotal = Number(targetSubtotal) || 0;
-  if (orderSubtotal < coupon.minOrderAmount) {
+  // 1. Check Active Status
+  if (!coupon.isActive) {
     res.status(400).json({
-      error: `This coupon requires a minimum order of Rs. ${coupon.minOrderAmount.toLocaleString()}`,
+      error: `Coupon "${coupon.code}" is currently inactive or has been disabled.`,
       valid: false,
     });
     return;
   }
 
+  // 2. Check Expiry Date
+  const expiryStr = coupon.expiresAt || coupon.expiryDate;
+  if (expiryStr) {
+    const expiryDate = new Date(expiryStr);
+    if (!isNaN(expiryDate.getTime()) && expiryDate.getTime() < Date.now()) {
+      res.status(400).json({
+        error: `Coupon "${coupon.code}" expired on ${expiryDate.toLocaleDateString('en-PK')}.`,
+        valid: false,
+      });
+      return;
+    }
+  }
+
+  // 3. Check Usage Limits
+  if (coupon.usageLimit && (coupon.usedCount || 0) >= coupon.usageLimit) {
+    res.status(400).json({
+      error: `Coupon "${coupon.code}" has reached its maximum usage limit (${coupon.usageLimit} uses).`,
+      valid: false,
+    });
+    return;
+  }
+
+  // 4. Check Minimum Order Amount
+  const orderSubtotal = Number(targetSubtotal) || 0;
+  const minRequired = Number(coupon.minOrderAmount) || 0;
+  if (orderSubtotal < minRequired) {
+    res.status(400).json({
+      error: `This coupon requires a minimum subtotal of Rs. ${minRequired.toLocaleString()}. (Current: Rs. ${orderSubtotal.toLocaleString()})`,
+      valid: false,
+      minOrderAmount: minRequired,
+    });
+    return;
+  }
+
+  // 5. Calculate Discount Correctly
+  const isPercentage = coupon.type === 'percent' || coupon.type === 'percentage';
   let discountAmount = 0;
-  if (coupon.type === 'percent') {
-    discountAmount = (orderSubtotal * coupon.value) / 100;
-    if (coupon.maxDiscount && discountAmount > coupon.maxDiscount) {
-      discountAmount = coupon.maxDiscount;
+  if (isPercentage) {
+    discountAmount = Math.round((orderSubtotal * Number(coupon.value)) / 100);
+    if (coupon.maxDiscount && discountAmount > Number(coupon.maxDiscount)) {
+      discountAmount = Number(coupon.maxDiscount);
     }
   } else {
-    discountAmount = coupon.value;
+    discountAmount = Math.round(Number(coupon.value));
   }
+
+  // Discount cannot exceed subtotal
+  discountAmount = Math.max(0, Math.min(discountAmount, orderSubtotal));
+  const finalPayable = Math.max(0, orderSubtotal - discountAmount);
 
   res.json({
     valid: true,
     code: coupon.code,
-    type: coupon.type,
+    type: isPercentage ? 'percent' : 'fixed',
     value: coupon.value,
     discountAmount,
-    message: `Coupon "${coupon.code}" applied successfully!`,
+    subtotal: orderSubtotal,
+    finalAmount: finalPayable,
+    minOrderAmount: minRequired,
+    maxDiscount: coupon.maxDiscount,
+    message: isPercentage
+      ? `Coupon "${coupon.code}" applied: ${coupon.value}% off (Rs. ${discountAmount.toLocaleString()} saved)!`
+      : `Coupon "${coupon.code}" applied: Rs. ${discountAmount.toLocaleString()} flat discount!`,
   });
 }
 
