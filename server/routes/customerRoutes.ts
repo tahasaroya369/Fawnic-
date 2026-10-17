@@ -30,11 +30,15 @@ router.get('/orders', requireAuth, async (req: AuthenticatedRequest, res) => {
   }
   const db = getDb();
   const userId = req.user?.id;
-  const userEmail = req.user?.email?.toLowerCase();
+  let userEmail = (req.user?.email || '').trim().toLowerCase();
+  if (!userEmail && userId) {
+    const u = db.users.find((x) => x.id === userId);
+    if (u?.email) userEmail = u.email.trim().toLowerCase();
+  }
 
   const userOrders = (db.orders || []).filter((o) => {
-    if (userId && o.customerId === userId) return true;
-    if (userEmail && o.customerEmail && o.customerEmail.toLowerCase() === userEmail) return true;
+    if (userId && o.customerId && o.customerId === userId) return true;
+    if (userEmail && o.customerEmail && o.customerEmail.trim().toLowerCase() === userEmail) return true;
     return false;
   });
 
@@ -56,7 +60,11 @@ router.get('/orders/:id', requireAuth, async (req: AuthenticatedRequest, res) =>
   }
   const db = getDb();
   const userId = req.user?.id;
-  const userEmail = req.user?.email?.toLowerCase();
+  let userEmail = (req.user?.email || '').trim().toLowerCase();
+  if (!userEmail && userId) {
+    const u = db.users.find((x) => x.id === userId);
+    if (u?.email) userEmail = u.email.trim().toLowerCase();
+  }
   const orderId = req.params.id;
 
   const order = (db.orders || []).find(
@@ -70,7 +78,7 @@ router.get('/orders/:id', requireAuth, async (req: AuthenticatedRequest, res) =>
 
   const isOwner =
     (userId && order.customerId === userId) ||
-    (userEmail && order.customerEmail && order.customerEmail.toLowerCase() === userEmail) ||
+    (userEmail && order.customerEmail && order.customerEmail.trim().toLowerCase() === userEmail) ||
     (req.user as any)?.role === 'admin' ||
     (req.user as any)?.role === 'super_admin';
 

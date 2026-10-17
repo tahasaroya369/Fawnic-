@@ -3,6 +3,8 @@ import { getSession, removeSession } from './auth.js';
 import { getDb } from './db.js';
 import type { StaffPermissions } from '../src/types.js';
 
+import { isNeonConfigured, getUserByIdInNeon, getUserByEmailInNeon } from './storage/neon.js';
+
 export interface AuthenticatedRequest extends Request {
   user?: {
     id: string;
@@ -15,58 +17,95 @@ export interface AuthenticatedRequest extends Request {
   };
 }
 
-export function authMiddleware(req: AuthenticatedRequest, res: Response, next: NextFunction): void {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return next();
-  }
-
-  const token = authHeader.split(' ')[1];
-  const session = getSession(token);
-  if (!session) {
-    return next();
-  }
-
-  const db = getDb();
-
-  // Admin and customer accounts
-  if (session.role === 'admin' || session.role === 'customer') {
-    const user = db.users.find((u) => u.id === session.userId);
-    if (user && !user.isSuspended) {
-      req.user = {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-        name: user.name,
-        phone: (user as any).phone,
-      };
-    } else {
-      removeSession(token);
-    }
-    return next();
-  }
-
-  // Staff accounts: check live status in db.teamMembers
-  if (session.role === 'staff') {
-    const member = (db.teamMembers || []).find((m) => m.id === session.userId);
-    // If deleted or not active (disabled / suspended), invalidate session immediately!
-    if (!member || member.status !== 'active') {
-      removeSession(token);
+export async function authMiddleware(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return next();
     }
 
-    req.user = {
-      id: member.id,
-      email: member.email,
-      role: 'staff',
-      name: member.name,
-      staffRole: member.role,
-      permissions: member.permissions || { pages: ['dashboard'] },
-    };
-    return next();
-  }
+    const token = authHeader.split(' ')[1];
+    const session = getSession(token);
+    if (!session) {
+      return next();
+    }
 
-  next();
+    const db = getDb();
+
+    // Admin and customer accounts
+    if (session.role === 'admin' || session.role === 'customer') {
+      let user = db.users.find(
+        (u) => u.id === session.userId || (session.email && u.email.toLowerCase() === session.email.toLowerCase())
+      );
+
+      // Fallback directly to Neon database if user not found in local memory (crucial for Vercel multi-instance serverless)
+      if (!user && isNeonConfigured()) {
+        try {
+          const neonUser =
+            (await getUserByIdInNeon(session.userId)) ||
+            (session.email ? await getUserByEmailInNeon(session.email) : null);
+          if (neonUser) {
+            user = neonUser;
+            if (!db.users.some((u) => u.id === neonUser.id)) {
+              db.users.push(neonUser);
+            }
+          }
+        } catch (err: any) {
+          console.warn('[Neon Auth Middleware] Lookup note:', err.message);
+        }
+      }
+
+      if (user) {
+        if (user.isSuspended) {
+          removeSession(token);
+          return next();
+        }
+        req.user = {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          name: user.name,
+          phone: (user as any).phone,
+        };
+        return next();
+      }
+
+      // If user record wasn't found in memory/DB yet, the cryptographically signed HMAC token is still valid.
+      // Do NOT wipe the session; retain the verified payload credentials so customer requests proceed seamlessly.
+      req.user = {
+        id: session.userId,
+        email: session.email,
+        role: session.role,
+        name: session.email.split('@')[0],
+      };
+      return next();
+    }
+
+    // Staff accounts: check live status in db.teamMembers
+    if (session.role === 'staff') {
+      const member = (db.teamMembers || []).find((m) => m.id === session.userId);
+      // If deleted or not active (disabled / suspended), invalidate session immediately!
+      if (!member || member.status !== 'active') {
+        removeSession(token);
+        return next();
+      }
+
+      req.user = {
+        id: member.id,
+        email: member.email,
+        role: 'staff',
+        name: member.name,
+        staffRole: member.role,
+        permissions: member.permissions || { pages: ['dashboard'] },
+      };
+      return next();
+    }
+
+    next();
+  } catch (err) {
+    console.error('[authMiddleware Error]', err);
+    next();
+  }
 }
 
 export function requireAuth(req: AuthenticatedRequest, res: Response, next: NextFunction): void {

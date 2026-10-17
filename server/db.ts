@@ -14,6 +14,7 @@ import {
   getCouponsFromNeon,
   getCustomerQueriesFromNeon,
   getInvoicesFromNeon,
+  getUsersFromNeon,
 } from './storage/neon.js';
 import type {
   User,
@@ -2108,6 +2109,7 @@ export async function syncDatabaseFromRemote(): Promise<void> {
     let neonCoupons: Coupon[] | null = null;
     let neonQueries: CustomerQuery[] | null = null;
     let neonInvoices: InvoiceRecord[] | null = null;
+    let neonUsers: UserWithAuth[] | null = null;
 
     // If Neon is configured, sync directly from authoritative relational tables
     if (isNeonConfigured()) {
@@ -2120,6 +2122,7 @@ export async function syncDatabaseFromRemote(): Promise<void> {
           coupRes,
           queryRes,
           invRes,
+          userRes,
         ] = await Promise.allSettled([
           getProductsFromNeon(),
           getCategoriesFromNeon(),
@@ -2128,6 +2131,7 @@ export async function syncDatabaseFromRemote(): Promise<void> {
           getCouponsFromNeon(),
           getCustomerQueriesFromNeon(),
           getInvoicesFromNeon(),
+          getUsersFromNeon(),
         ]);
 
         if (prodRes.status === 'fulfilled') neonProducts = prodRes.value;
@@ -2137,6 +2141,7 @@ export async function syncDatabaseFromRemote(): Promise<void> {
         if (coupRes.status === 'fulfilled') neonCoupons = coupRes.value;
         if (queryRes.status === 'fulfilled') neonQueries = queryRes.value;
         if (invRes.status === 'fulfilled') neonInvoices = invRes.value;
+        if (userRes.status === 'fulfilled') neonUsers = userRes.value;
 
         if (!db) db = loadDatabase();
         if (Array.isArray(neonProducts)) db.products = neonProducts;
@@ -2146,6 +2151,12 @@ export async function syncDatabaseFromRemote(): Promise<void> {
         if (Array.isArray(neonCoupons)) db.coupons = neonCoupons;
         if (Array.isArray(neonQueries)) db.queries = neonQueries;
         if (Array.isArray(neonInvoices)) db.invoices = neonInvoices;
+        if (Array.isArray(neonUsers) && neonUsers.length > 0) {
+          const userMap = new Map<string, UserWithAuth>();
+          (db.users || []).forEach((u) => userMap.set(u.id, u));
+          neonUsers.forEach((u) => userMap.set(u.id, u));
+          db.users = Array.from(userMap.values());
+        }
       } catch (err: any) {
         console.warn('[Neon Sync] Direct table fetch note:', err.message);
       }
@@ -2165,6 +2176,7 @@ export async function syncDatabaseFromRemote(): Promise<void> {
 
       // If Neon is configured, relational tables are the absolute source of truth
       if (isNeonConfigured()) {
+        if (Array.isArray(neonUsers) && neonUsers.length > 0) remote.users = neonUsers;
         if (Array.isArray(neonProducts)) remote.products = neonProducts;
         if (Array.isArray(neonCategories)) remote.categories = neonCategories;
         if (Array.isArray(neonOrders)) remote.orders = neonOrders;
@@ -2183,6 +2195,7 @@ export async function syncDatabaseFromRemote(): Promise<void> {
         db = remote;
         // Never allow a stale bundle to overwrite Neon relational tables
         if (isNeonConfigured()) {
+          if (Array.isArray(neonUsers) && neonUsers.length > 0) db.users = neonUsers;
           if (Array.isArray(neonProducts)) db.products = neonProducts;
           if (Array.isArray(neonCategories)) db.categories = neonCategories;
           if (Array.isArray(neonOrders)) db.orders = neonOrders;

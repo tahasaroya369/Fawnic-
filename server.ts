@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import http from 'http';
 import path from 'path';
@@ -8,10 +9,35 @@ import { startNotificationScheduler } from './server/notificationScheduler.js';
 import { initializeNeonSchema } from './server/storage/neon.js';
 import { syncDatabaseFromRemote } from './server/db.js';
 
+// Global process resilience handlers to prevent unexpected process exit
+process.on('unhandledRejection', (reason) => {
+  console.warn('[Process] Unhandled Rejection caught:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('[Process] Uncaught Exception caught:', err);
+});
+
 async function startServer() {
-  const PORT = 3000;
+  const PORT = Number(process.env.PORT) || 3000;
 
   const server = http.createServer(app);
+
+  server.on('error', (err: any) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`[Server] Port ${PORT} is already in use. Please terminate existing process.`);
+    } else {
+      console.error('[Server] Server error:', err);
+    }
+  });
+
+  // Handle termination signals gracefully
+  process.on('SIGTERM', () => {
+    server.close(() => process.exit(0));
+  });
+  process.on('SIGINT', () => {
+    server.close(() => process.exit(0));
+  });
 
   // Initialize Real-time Application WebSocket Server on port 3000
   initWebSocketServer(server);
@@ -51,7 +77,11 @@ async function startServer() {
     }
 
     // Start automated background scheduler for scheduled and expired notifications
-    startNotificationScheduler();
+    try {
+      startNotificationScheduler();
+    } catch (err: any) {
+      console.warn('[Scheduler] Background notification scheduler note:', err.message);
+    }
   })();
 }
 

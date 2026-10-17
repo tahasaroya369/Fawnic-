@@ -10,6 +10,7 @@ import {
   insertInvoiceInNeon,
   getCouponsFromNeon,
   updateCouponInNeon,
+  getUserByEmailInNeon,
 } from '../storage/neon.js';
 import { requireAuth, type AuthenticatedRequest } from '../middleware.js';
 import type { Order, OrderItem } from '../../src/types.js';
@@ -252,10 +253,20 @@ router.post('/', async (req: AuthenticatedRequest, res) => {
 
     const total = Math.max(0, subtotal + shippingFee - discount);
 
-    // Link customer ID if authenticated or existing user
+    // Link customer ID if authenticated or existing registered user
     let customerId = req.user?.id;
     if (!customerId && resolvedEmail) {
-      const matched = (db.users || []).find((u) => u.email.toLowerCase() === resolvedEmail);
+      let matched = (db.users || []).find((u) => u.email.toLowerCase() === resolvedEmail);
+      if (!matched && isNeonConfigured()) {
+        try {
+          matched = await getUserByEmailInNeon(resolvedEmail);
+          if (matched && !db.users.some((u) => u.id === matched.id)) {
+            db.users.push(matched);
+          }
+        } catch (err: any) {
+          console.warn('[Order Route] Customer lookup note:', err.message);
+        }
+      }
       if (matched) {
         customerId = matched.id;
       }

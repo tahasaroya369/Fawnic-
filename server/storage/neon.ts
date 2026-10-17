@@ -401,6 +401,30 @@ export async function initializeNeonSchema(): Promise<boolean> {
           ALTER TABLE users ADD COLUMN IF NOT EXISTS permissions JSONB DEFAULT '{}'::jsonb;
           ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT DEFAULT '';
           ALTER TABLE users ADD COLUMN IF NOT EXISTS salt TEXT DEFAULT '';
+          ALTER TABLE users ADD COLUMN IF NOT EXISTS phone VARCHAR(64) DEFAULT '';
+          ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar TEXT DEFAULT '';
+          ALTER TABLE users ADD COLUMN IF NOT EXISTS address TEXT DEFAULT '';
+          ALTER TABLE users ADD COLUMN IF NOT EXISTS city VARCHAR(128) DEFAULT '';
+          ALTER TABLE users ADD COLUMN IF NOT EXISTS postal_code VARCHAR(32) DEFAULT '';
+          ALTER TABLE users ADD COLUMN IF NOT EXISTS notes TEXT DEFAULT '';
+          ALTER TABLE users ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+
+          ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_id VARCHAR(64) DEFAULT '';
+          CREATE INDEX IF NOT EXISTS idx_orders_customer_id ON orders(customer_id);
+          CREATE INDEX IF NOT EXISTS idx_orders_customer_email ON orders(LOWER(customer_email));
+          CREATE INDEX IF NOT EXISTS idx_users_email ON users(LOWER(email));
+
+          -- Password Reset Tokens Table (for multi-instance serverless OTP persistence)
+          CREATE TABLE IF NOT EXISTS password_resets (
+            email VARCHAR(255) PRIMARY KEY,
+            code_hash TEXT NOT NULL,
+            salt TEXT NOT NULL,
+            reset_token TEXT,
+            attempts INT NOT NULL DEFAULT 0,
+            verified BOOLEAN NOT NULL DEFAULT FALSE,
+            expires_at TIMESTAMPTZ NOT NULL,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+          );
 
           -- Inventory transactions schema alignment
           ALTER TABLE inventory_transactions ADD COLUMN IF NOT EXISTS product_name VARCHAR(255) DEFAULT '';
@@ -466,6 +490,62 @@ export async function initializeNeonSchema(): Promise<boolean> {
             `INSERT INTO app_settings (key, data, updated_at) VALUES ('coupons_seeded', '"true"', NOW()) ON CONFLICT (key) DO NOTHING`
           );
         }
+
+        // Check if users table is initialized; seed initial users and ensure admin account exists
+        const userCountRes = await client.query('SELECT count(*) as count FROM users');
+        const userCount = parseInt(userCountRes.rows[0]?.count || '0', 10);
+        if (userCount === 0) {
+          try {
+            const { getInitialDatabase } = await import('../db.js');
+            const initialData = getInitialDatabase();
+            if (initialData && Array.isArray(initialData.users) && initialData.users.length > 0) {
+              for (const u of initialData.users) {
+                await client.query(
+                  `INSERT INTO users (id, email, name, phone, role, avatar, address, city, postal_code, notes, status, is_suspended, permissions, password_hash, salt, created_at)
+                   VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, NOW())
+                   ON CONFLICT (id) DO NOTHING`,
+                  [
+                    u.id,
+                    u.email.toLowerCase(),
+                    u.name,
+                    u.phone || '',
+                    u.role || 'customer',
+                    u.avatar || '',
+                    (u as any).address || '',
+                    (u as any).city || '',
+                    (u as any).postalCode || '',
+                    (u as any).notes || '',
+                    (u as any).status || 'active',
+                    Boolean((u as any).isSuspended),
+                    JSON.stringify((u as any).permissions || {}),
+                    u.passwordHash || '',
+                    u.salt || '',
+                  ]
+                );
+              }
+            }
+          } catch {}
+        }
+
+        // Always ensure System Administrator exists with valid verified credentials
+        await client.query(
+          `INSERT INTO users (id, email, name, phone, role, password_hash, salt, created_at)
+           VALUES (
+             'usr_admin_1',
+             'alichishtia111@gmail.com',
+             'Ali Chishti',
+             '03711661611',
+             'admin',
+             'cbb3d466de30abaa2a9eea4b4503394626e8f98b65255c1bf6d0f27f1dda9237c92bdc71826328ec229be293012fea5c86f4c982f56066148a5dc11601529048',
+             'e57fbb13aefd72c43f4792a061c43a37',
+             NOW()
+           )
+           ON CONFLICT (id) DO UPDATE SET
+             email = EXCLUDED.email,
+             role = 'admin',
+             password_hash = EXCLUDED.password_hash,
+             salt = EXCLUDED.salt`
+        );
       } finally {
         client.release();
       }
@@ -2067,6 +2147,85 @@ export async function deleteUserInNeon(id: string): Promise<boolean> {
   }
 }
 
+export function rowToUser(row: any): any {
+  return {
+    id: row.id,
+    email: row.email,
+    name: row.name,
+    phone: row.phone || '',
+    role: (row.role as 'customer' | 'admin' | 'staff') || 'customer',
+    avatar: row.avatar || '',
+    address: row.address || '',
+    city: row.city || '',
+    postalCode: row.postal_code || '',
+    notes: row.notes || '',
+    status: row.status || 'active',
+    isSuspended: Boolean(row.is_suspended),
+    permissions: typeof row.permissions === 'string' ? JSON.parse(row.permissions) : (row.permissions || {}),
+    passwordHash: row.password_hash || '',
+    salt: row.salt || '',
+    createdAt: row.created_at ? new Date(row.created_at).toISOString() : new Date().toISOString(),
+    updatedAt: row.updated_at ? new Date(row.updated_at).toISOString() : undefined,
+  };
+}
+
+export async function getUsersFromNeon(): Promise<any[]> {
+  const dbUrl = getNeonDatabaseUrl();
+  if (!dbUrl) return [];
+
+  try {
+    await initializeNeonSchema();
+    const pool = getNeonPool();
+    if (!pool) return [];
+
+    const res = await pool.query('SELECT * FROM users ORDER BY created_at ASC');
+    return (res.rows || []).map(rowToUser);
+  } catch (err: any) {
+    console.error('[Neon PostgreSQL] Error querying users from Neon:', err.message);
+    return [];
+  }
+}
+
+export async function getUserByEmailInNeon(email: string): Promise<any | null> {
+  const dbUrl = getNeonDatabaseUrl();
+  if (!dbUrl || !email) return null;
+
+  try {
+    await initializeNeonSchema();
+    const pool = getNeonPool();
+    if (!pool) return null;
+
+    const res = await pool.query('SELECT * FROM users WHERE LOWER(email) = LOWER($1) LIMIT 1', [email.trim()]);
+    if (res.rows && res.rows.length > 0) {
+      return rowToUser(res.rows[0]);
+    }
+    return null;
+  } catch (err: any) {
+    console.error('[Neon PostgreSQL] Error querying user by email:', err.message);
+    return null;
+  }
+}
+
+export async function getUserByIdInNeon(id: string): Promise<any | null> {
+  const dbUrl = getNeonDatabaseUrl();
+  if (!dbUrl || !id) return null;
+
+  try {
+    await initializeNeonSchema();
+    const pool = getNeonPool();
+    if (!pool) return null;
+
+    const res = await pool.query('SELECT * FROM users WHERE id = $1 LIMIT 1', [id]);
+    if (res.rows && res.rows.length > 0) {
+      return rowToUser(res.rows[0]);
+    }
+    return null;
+  } catch (err: any) {
+    console.error('[Neon PostgreSQL] Error querying user by id:', err.message);
+    return null;
+  }
+}
+
 export async function insertUserInNeon(user: any): Promise<void> {
   const dbUrl = getNeonDatabaseUrl();
   if (!dbUrl) return;
@@ -2076,24 +2235,57 @@ export async function insertUserInNeon(user: any): Promise<void> {
     const pool = getNeonPool();
     if (!pool) return;
 
+    const cleanEmail = (user.email || '').trim().toLowerCase();
+
+    // Check if user exists by email or id
+    const existing = await pool.query(
+      'SELECT id FROM users WHERE LOWER(email) = LOWER($1) OR id = $2 LIMIT 1',
+      [cleanEmail, user.id]
+    );
+
+    if (existing.rows && existing.rows.length > 0) {
+      const targetId = existing.rows[0].id;
+      await pool.query(
+        `UPDATE users
+         SET email = $1,
+             name = $2,
+             phone = $3,
+             role = $4,
+             avatar = $5,
+             notes = $6,
+             status = $7,
+             is_suspended = $8,
+             permissions = $9,
+             password_hash = CASE WHEN $10 != '' THEN $10 ELSE password_hash END,
+             salt = CASE WHEN $11 != '' THEN $11 ELSE salt END,
+             updated_at = NOW()
+         WHERE id = $12`,
+        [
+          cleanEmail,
+          user.name || '',
+          user.phone || '',
+          user.role || 'customer',
+          user.avatar || '',
+          user.notes || '',
+          user.status || 'active',
+          Boolean(user.isSuspended),
+          JSON.stringify(user.permissions || {}),
+          user.passwordHash || '',
+          user.salt || '',
+          targetId,
+        ]
+      );
+      return;
+    }
+
+    // Insert brand new customer or user record
     await pool.query(
-      `INSERT INTO users (id, email, name, phone, role, avatar, address, city, postal_code, notes, status, is_suspended, permissions, password_hash, salt, created_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, NOW())
-       ON CONFLICT (id) DO UPDATE SET
-         name = EXCLUDED.name,
-         phone = EXCLUDED.phone,
-         role = EXCLUDED.role,
-         avatar = EXCLUDED.avatar,
-         notes = EXCLUDED.notes,
-         status = EXCLUDED.status,
-         is_suspended = EXCLUDED.is_suspended,
-         permissions = EXCLUDED.permissions,
-         password_hash = CASE WHEN EXCLUDED.password_hash != '' THEN EXCLUDED.password_hash ELSE users.password_hash END,
-         salt = CASE WHEN EXCLUDED.salt != '' THEN EXCLUDED.salt ELSE users.salt END`,
+      `INSERT INTO users (id, email, name, phone, role, avatar, address, city, postal_code, notes, status, is_suspended, permissions, password_hash, salt, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, NOW(), NOW())`,
       [
         user.id,
-        user.email,
-        user.name,
+        cleanEmail,
+        user.name || '',
         user.phone || '',
         user.role || 'customer',
         user.avatar || '',
@@ -2111,6 +2303,161 @@ export async function insertUserInNeon(user: any): Promise<void> {
   } catch (err: any) {
     console.error('[Neon PostgreSQL] Error inserting/updating user in Neon:', err.message);
     throw err;
+  }
+}
+
+export async function updateUserPasswordInNeon(email: string, passwordHash: string, salt: string): Promise<boolean> {
+  const dbUrl = getNeonDatabaseUrl();
+  if (!dbUrl || !email) return false;
+
+  try {
+    await initializeNeonSchema();
+    const pool = getNeonPool();
+    if (!pool) return false;
+
+    const res = await pool.query(
+      `UPDATE users
+       SET password_hash = $1, salt = $2, updated_at = NOW()
+       WHERE LOWER(email) = LOWER($3)`,
+      [passwordHash, salt, email.trim()]
+    );
+    return (res.rowCount ?? 0) > 0;
+  } catch (err: any) {
+    console.error('[Neon PostgreSQL] Error updating user password in Neon:', err.message);
+    return false;
+  }
+}
+
+// -------------------------------------------------------------------------
+// PASSWORD RESET TOKENS / OTP PERSISTENCE (Multi-Instance Vercel Serverless)
+// -------------------------------------------------------------------------
+
+export interface NeonPasswordReset {
+  email: string;
+  codeHash: string;
+  salt: string;
+  resetToken?: string;
+  attempts: number;
+  verified: boolean;
+  expiresAt: number;
+}
+
+export async function savePasswordResetInNeon(
+  email: string,
+  codeHash: string,
+  salt: string,
+  expiresAt: Date
+): Promise<void> {
+  const dbUrl = getNeonDatabaseUrl();
+  if (!dbUrl) return;
+
+  try {
+    await initializeNeonSchema();
+    const pool = getNeonPool();
+    if (!pool) return;
+
+    await pool.query(
+      `INSERT INTO password_resets (email, code_hash, salt, reset_token, attempts, verified, expires_at, created_at)
+       VALUES (LOWER($1), $2, $3, NULL, 0, FALSE, $4, NOW())
+       ON CONFLICT (email) DO UPDATE SET
+         code_hash = EXCLUDED.code_hash,
+         salt = EXCLUDED.salt,
+         reset_token = NULL,
+         attempts = 0,
+         verified = FALSE,
+         expires_at = EXCLUDED.expires_at,
+         created_at = NOW()`,
+      [email.trim().toLowerCase(), codeHash, salt, expiresAt]
+    );
+  } catch (err: any) {
+    console.error('[Neon PostgreSQL] Error saving password reset in Neon:', err.message);
+  }
+}
+
+export async function getPasswordResetFromNeon(email: string): Promise<NeonPasswordReset | null> {
+  const dbUrl = getNeonDatabaseUrl();
+  if (!dbUrl || !email) return null;
+
+  try {
+    await initializeNeonSchema();
+    const pool = getNeonPool();
+    if (!pool) return null;
+
+    const res = await pool.query(
+      'SELECT * FROM password_resets WHERE email = LOWER($1) LIMIT 1',
+      [email.trim().toLowerCase()]
+    );
+    if (res.rows && res.rows.length > 0) {
+      const row = res.rows[0];
+      return {
+        email: row.email,
+        codeHash: row.code_hash,
+        salt: row.salt,
+        resetToken: row.reset_token || undefined,
+        attempts: Number(row.attempts) || 0,
+        verified: Boolean(row.verified),
+        expiresAt: new Date(row.expires_at).getTime(),
+      };
+    }
+    return null;
+  } catch (err: any) {
+    console.error('[Neon PostgreSQL] Error fetching password reset from Neon:', err.message);
+    return null;
+  }
+}
+
+export async function incrementResetAttemptsInNeon(email: string): Promise<number> {
+  const dbUrl = getNeonDatabaseUrl();
+  if (!dbUrl || !email) return 0;
+
+  try {
+    await initializeNeonSchema();
+    const pool = getNeonPool();
+    if (!pool) return 0;
+
+    const res = await pool.query(
+      'UPDATE password_resets SET attempts = attempts + 1 WHERE email = LOWER($1) RETURNING attempts',
+      [email.trim().toLowerCase()]
+    );
+    return res.rows?.[0]?.attempts || 0;
+  } catch (err: any) {
+    console.error('[Neon PostgreSQL] Error incrementing reset attempts in Neon:', err.message);
+    return 0;
+  }
+}
+
+export async function setResetTokenInNeon(email: string, resetToken: string, expiresAt: Date): Promise<void> {
+  const dbUrl = getNeonDatabaseUrl();
+  if (!dbUrl || !email) return;
+
+  try {
+    await initializeNeonSchema();
+    const pool = getNeonPool();
+    if (!pool) return;
+
+    await pool.query(
+      `UPDATE password_resets
+       SET verified = TRUE, reset_token = $2, expires_at = $3
+       WHERE email = LOWER($1)`,
+      [email.trim().toLowerCase(), resetToken, expiresAt]
+    );
+  } catch (err: any) {
+    console.error('[Neon PostgreSQL] Error setting reset token in Neon:', err.message);
+  }
+}
+
+export async function deletePasswordResetInNeon(email: string): Promise<void> {
+  const dbUrl = getNeonDatabaseUrl();
+  if (!dbUrl || !email) return;
+
+  try {
+    await initializeNeonSchema();
+    const pool = getNeonPool();
+    if (!pool) return;
+
+    await pool.query('DELETE FROM password_resets WHERE email = LOWER($1)', [email.trim().toLowerCase()]);
+  } catch (err: any) {
+    console.error('[Neon PostgreSQL] Error deleting password reset from Neon:', err.message);
   }
 }
 

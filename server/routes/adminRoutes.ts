@@ -36,6 +36,7 @@ import {
   insertInvoiceInNeon,
   deleteInvoiceInNeon,
   saveSettingInNeon,
+  getUsersFromNeon,
 } from '../storage/neon.js';
 import { requireAuth, requireAdminOrStaff, type AuthenticatedRequest } from '../middleware.js';
 import { hashPassword, removeUserSessions } from '../auth.js';
@@ -92,11 +93,36 @@ function logAdminAction(adminEmail: string, action: string, entityType: string, 
 }
 
 // 1. Dashboard Statistics (100% Real Database Calculations)
-router.get('/stats', (req: AuthenticatedRequest, res) => {
+router.get('/stats', async (req: AuthenticatedRequest, res) => {
   const db = getDb();
+
+  if (isNeonConfigured()) {
+    try {
+      const [neonUsers, neonOrders, neonProducts] = await Promise.allSettled([
+        getUsersFromNeon(),
+        getOrdersFromNeon(),
+        getProductsFromNeon(),
+      ]);
+      if (neonUsers.status === 'fulfilled' && Array.isArray(neonUsers.value)) {
+        const userMap = new Map<string, any>();
+        (db.users || []).forEach((u) => userMap.set(u.id, u));
+        neonUsers.value.forEach((u) => userMap.set(u.id, u));
+        db.users = Array.from(userMap.values());
+      }
+      if (neonOrders.status === 'fulfilled' && Array.isArray(neonOrders.value)) {
+        db.orders = neonOrders.value;
+      }
+      if (neonProducts.status === 'fulfilled' && Array.isArray(neonProducts.value)) {
+        db.products = neonProducts.value;
+      }
+    } catch (err: any) {
+      console.warn('[Admin Stats] Neon sync note:', err.message);
+    }
+  }
+
   const orders = db.orders;
   const products = db.products;
-  const customers = db.users.filter((u) => u.role === 'customer');
+  const customers = (db.users || []).filter((u) => u.role === 'customer');
 
   const now = new Date();
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
@@ -1226,15 +1252,41 @@ router.delete('/orders/:id', async (req: AuthenticatedRequest, res) => {
 });
 
 // 4. Customers Management
-router.get('/customers', (req: AuthenticatedRequest, res) => {
+router.get('/customers', async (req: AuthenticatedRequest, res) => {
   const db = getDb();
-  const customers = db.users
+
+  // Ensure Admin CRM displays all registered customers from authoritative Neon database
+  if (isNeonConfigured()) {
+    try {
+      const [neonUsers, neonOrders] = await Promise.allSettled([
+        getUsersFromNeon(),
+        getOrdersFromNeon(),
+      ]);
+      if (neonUsers.status === 'fulfilled' && Array.isArray(neonUsers.value)) {
+        const userMap = new Map<string, any>();
+        (db.users || []).forEach((u) => userMap.set(u.id, u));
+        neonUsers.value.forEach((u) => userMap.set(u.id, u));
+        db.users = Array.from(userMap.values());
+      }
+      if (neonOrders.status === 'fulfilled' && Array.isArray(neonOrders.value)) {
+        db.orders = neonOrders.value;
+      }
+    } catch (err: any) {
+      console.warn('[Admin CRM Customers] Neon sync note:', err.message);
+    }
+  }
+
+  const customers = (db.users || [])
     .filter((u) => u.role === 'customer')
     .map((c) => {
-      const userOrders = db.orders.filter(
-        (o) => o.customerId === c.id || o.customerEmail.toLowerCase() === c.email.toLowerCase()
+      const userOrders = (db.orders || []).filter(
+        (o) =>
+          (o.customerId && o.customerId === c.id) ||
+          (o.customerEmail && o.customerEmail.trim().toLowerCase() === c.email.trim().toLowerCase())
       );
-      const totalSpent = userOrders.filter((o) => o.status !== 'cancelled').reduce((sum, o) => sum + o.total, 0);
+      const totalSpent = userOrders
+        .filter((o) => o.status !== 'cancelled')
+        .reduce((sum, o) => sum + (Number(o.total) || 0), 0);
 
       return {
         id: c.id,
@@ -1248,6 +1300,9 @@ router.get('/customers', (req: AuthenticatedRequest, res) => {
         createdAt: c.createdAt,
       };
     });
+
+  // Sort newest registered customers first
+  customers.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   res.json(customers);
 });
@@ -2669,8 +2724,19 @@ router.get('/notifications/stats', (req: AuthenticatedRequest, res) => {
 });
 
 // Get registered customers for "Specific Customer" audience selection
-router.get('/notifications/customers', (req: AuthenticatedRequest, res) => {
+router.get('/notifications/customers', async (req: AuthenticatedRequest, res) => {
   const db = getDb();
+  if (isNeonConfigured()) {
+    try {
+      const neonUsers = await getUsersFromNeon();
+      if (Array.isArray(neonUsers) && neonUsers.length > 0) {
+        const userMap = new Map<string, any>();
+        (db.users || []).forEach((u) => userMap.set(u.id, u));
+        neonUsers.forEach((u) => userMap.set(u.id, u));
+        db.users = Array.from(userMap.values());
+      }
+    } catch {}
+  }
   const customers = (db.users || [])
     .filter((u) => u.role === 'customer')
     .map((u) => ({
