@@ -2082,7 +2082,7 @@ async function saveToRemoteStorage(data: DatabaseSchema): Promise<void> {
 let lastRemoteSyncTimestamp = 0;
 const REMOTE_SYNC_COOLDOWN_MS = 2000;
 
-export async function syncDatabaseFromRemote(): Promise<void> {
+async function syncDatabaseFromRemoteInternal(): Promise<void> {
   const isRemoteConfigured = Boolean(
     isNeonConfigured() ||
     process.env.KV_REST_API_URL ||
@@ -2213,6 +2213,18 @@ export async function syncDatabaseFromRemote(): Promise<void> {
   } catch (err) {
     // Non-fatal remote sync fallback
   }
+}
+
+let inFlightSyncPromise: Promise<void> | null = null;
+
+export function syncDatabaseFromRemote(): Promise<void> {
+  if (inFlightSyncPromise) {
+    return inFlightSyncPromise;
+  }
+  inFlightSyncPromise = syncDatabaseFromRemoteInternal().finally(() => {
+    inFlightSyncPromise = null;
+  });
+  return inFlightSyncPromise;
 }
 
 export function getDb(): DatabaseSchema {

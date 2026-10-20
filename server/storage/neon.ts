@@ -436,56 +436,80 @@ export async function initializeNeonSchema(): Promise<boolean> {
           ALTER TABLE inventory_transactions ADD COLUMN IF NOT EXISTS reference_id VARCHAR(128) DEFAULT '';
           ALTER TABLE inventory_transactions ADD COLUMN IF NOT EXISTS notes TEXT DEFAULT '';
           ALTER TABLE inventory_transactions ALTER COLUMN change_amount DROP NOT NULL;
-
-          -- Essential Categories Seeding
-          INSERT INTO categories (id, name, slug, icon, banner, description, featured, is_active, display_order, subcategories, created_at, updated_at)
-          VALUES
-            ('cat_wallets', 'Men''s Wallets', 'wallets', 'Wallet', '/assets/images/cat_mens_wallet_v2_1790449008902.jpg', 'Quality leather wallets designed for easy everyday carry.', true, true, 1, '["Bifold Wallets", "Slim Front-Pocket", "Long Continental", "RFID Wallets", "Zipper Wallets"]'::jsonb, NOW(), NOW()),
-            ('cat_belts', 'Men''s Belts', 'belts', 'Shield', '/assets/images/cat_mens_belt_v2_1790449023189.jpg', 'Strong leather belts with solid hardware that lasts.', true, true, 2, '["Formal Dress Belts", "Casual Harness Belts", "Reversible Belts", "Braided Belts"]'::jsonb, NOW(), NOW()),
-            ('cat_watches', 'Premium Watches', 'watches', 'Clock', '/assets/images/cat_luxury_watch_v2_1790449038082.jpg', 'Classic timepieces with leather straps and precision movements.', true, true, 3, '["Automatic Chronographs", "Field Timepieces", "Dress Watches", "Exhibition Calibers"]'::jsonb, NOW(), NOW()),
-            ('cat_cardholders', 'Card Holders', 'card-holders', 'CreditCard', 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=1000&auto=format&fit=crop&q=85', 'Ultra-thin card sleeves and accordion cases for seamless everyday carry.', false, true, 4, '["Minimalist Sleeves", "Accordion Cases", "Lanyard ID Holders"]'::jsonb, NOW(), NOW()),
-            ('cat_accessories', 'Leather Accessories', 'accessories', 'Package', 'https://images.unsplash.com/photo-1563903530908-afdd155d057a?w=1000&auto=format&fit=crop&q=85', 'Key cloches, valet catchall trays, travel watch rolls, and heirloom gift box ensembles.', false, true, 5, '["Heirloom Gift Sets", "Valet Trays", "Key Accessories", "Watch Rolls"]'::jsonb, NOW(), NOW())
-          ON CONFLICT (id) DO UPDATE SET
-            name = EXCLUDED.name,
-            icon = EXCLUDED.icon,
-            banner = EXCLUDED.banner,
-            description = EXCLUDED.description,
-            subcategories = EXCLUDED.subcategories,
-            updated_at = NOW();
         `);
+
+        // Check if categories have ever been seeded. If not, seed initial categories once.
+        const catSeedCheck = await client.query("SELECT data FROM app_settings WHERE key = 'categories_seeded' LIMIT 1");
+        const categoriesAlreadySeeded = catSeedCheck.rows && catSeedCheck.rows.length > 0;
+        if (!categoriesAlreadySeeded) {
+          const catCountRes = await client.query('SELECT count(*) as count FROM categories');
+          const catCount = parseInt(catCountRes.rows[0]?.count || '0', 10);
+          if (catCount === 0) {
+            try {
+              const { getInitialDatabase } = await import('../db.js');
+              const initialData = getInitialDatabase();
+              if (initialData && Array.isArray(initialData.categories) && initialData.categories.length > 0) {
+                for (const cat of initialData.categories) {
+                  await client.query(
+                    `INSERT INTO categories (id, name, slug, icon, banner, description, featured, is_active, display_order, subcategories, created_at, updated_at)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW())
+                     ON CONFLICT (id) DO NOTHING`,
+                    [
+                      cat.id,
+                      cat.name,
+                      cat.slug,
+                      cat.icon || 'Package',
+                      cat.banner || '',
+                      cat.description || '',
+                      Boolean(cat.featured),
+                      cat.isActive !== false,
+                      Number((cat as any).displayOrder || (cat as any).order) || 0,
+                      JSON.stringify(cat.subcategories || []),
+                    ]
+                  );
+                }
+              }
+            } catch {}
+          }
+          await client.query(
+            `INSERT INTO app_settings (key, data, updated_at) VALUES ('categories_seeded', '"true"', NOW()) ON CONFLICT (key) DO NOTHING`
+          );
+        }
 
         // Check if coupons have ever been seeded. If not, seed initial coupons once.
         const seedCheck = await client.query("SELECT data FROM app_settings WHERE key = 'coupons_seeded' LIMIT 1");
         const alreadySeeded = seedCheck.rows && seedCheck.rows.length > 0;
-        const cpnCountRes = await client.query('SELECT count(*) as count FROM coupons');
-        const cpnCount = parseInt(cpnCountRes.rows[0]?.count || '0', 10);
-        if (!alreadySeeded && cpnCount === 0) {
-          try {
-            const { getInitialDatabase } = await import('../db.js');
-            const initialData = getInitialDatabase();
-            if (initialData && Array.isArray(initialData.coupons) && initialData.coupons.length > 0) {
-              for (const c of initialData.coupons) {
-                await client.query(
-                  `INSERT INTO coupons (id, code, type, value, min_order_amount, max_discount, usage_limit, used_count, per_user_limit, is_active, expires_at, created_at)
-                   VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW())
-                   ON CONFLICT (id) DO NOTHING`,
-                  [
-                    c.id,
-                    c.code,
-                    c.type || 'percentage',
-                    Number(c.value) || 0,
-                    Number(c.minOrderAmount) || 0,
-                    c.maxDiscount ? Number(c.maxDiscount) : null,
-                    Number(c.usageLimit) || 100,
-                    Number(c.usedCount) || 0,
-                    Number(c.perUserLimit) || 1,
-                    Boolean(c.isActive),
-                    c.expiresAt ? new Date(c.expiresAt) : null,
-                  ]
-                );
+        if (!alreadySeeded) {
+          const cpnCountRes = await client.query('SELECT count(*) as count FROM coupons');
+          const cpnCount = parseInt(cpnCountRes.rows[0]?.count || '0', 10);
+          if (cpnCount === 0) {
+            try {
+              const { getInitialDatabase } = await import('../db.js');
+              const initialData = getInitialDatabase();
+              if (initialData && Array.isArray(initialData.coupons) && initialData.coupons.length > 0) {
+                for (const c of initialData.coupons) {
+                  await client.query(
+                    `INSERT INTO coupons (id, code, type, value, min_order_amount, max_discount, usage_limit, used_count, per_user_limit, is_active, expires_at, created_at)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW())
+                     ON CONFLICT (id) DO NOTHING`,
+                    [
+                      c.id,
+                      c.code,
+                      c.type || 'percentage',
+                      Number(c.value) || 0,
+                      Number(c.minOrderAmount) || 0,
+                      c.maxDiscount ? Number(c.maxDiscount) : null,
+                      Number(c.usageLimit) || 100,
+                      Number(c.usedCount) || 0,
+                      Number(c.perUserLimit) || 1,
+                      Boolean(c.isActive),
+                      c.expiresAt ? new Date(c.expiresAt) : null,
+                    ]
+                  );
+                }
               }
-            }
-          } catch {}
+            } catch {}
+          }
           await client.query(
             `INSERT INTO app_settings (key, data, updated_at) VALUES ('coupons_seeded', '"true"', NOW()) ON CONFLICT (key) DO NOTHING`
           );

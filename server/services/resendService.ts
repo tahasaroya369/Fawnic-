@@ -30,7 +30,7 @@ export function isResendConfigured(): boolean {
  * Defaults to 'FAWNIC <otp@fawnic.store>' per production setup.
  */
 export function getResendSenderAddress(): string {
-  const customFrom = process.env.RESEND_FROM || process.env.EMAIL_FROM;
+  const customFrom = process.env.RESEND_FROM;
   if (customFrom && customFrom.trim().length > 0) {
     return customFrom.trim();
   }

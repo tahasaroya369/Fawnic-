@@ -108,11 +108,16 @@ export function createExpressApp(): express.Express {
     next();
   });
 
-  // Non-blocking background sync for remote storage updates (never blocks response)
-  app.use((req, res, next) => {
+  // Remote database sync middleware (waits up to 5s so cold instances serve fresh data)
+  app.use(async (req, res, next) => {
     const url = req.path || '';
     if (url.startsWith('/api') || url.startsWith('/admin') || url.startsWith('/customer')) {
-      syncDatabaseFromRemote().catch(() => {});
+      try {
+        await Promise.race([
+          syncDatabaseFromRemote().catch(() => {}),
+          new Promise((resolve) => setTimeout(resolve, 5000)),
+        ]);
+      } catch {}
     }
     next();
   });

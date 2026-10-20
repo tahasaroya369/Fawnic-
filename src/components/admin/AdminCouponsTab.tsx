@@ -110,11 +110,12 @@ export const AdminCouponsTab: React.FC<AdminCouponsTabProps> = ({ token }) => {
     }
   };
 
-  const handleDelete = async (coupon: Coupon) => {
-    if (processingId) return; // Prevent duplicate requests
-    if (!confirm(`Are you sure you want to permanently delete coupon "${coupon.code}"? This cannot be undone.`)) {
-      return;
-    }
+  const [deleteConfirmCoupon, setDeleteConfirmCoupon] = useState<Coupon | null>(null);
+
+  const handleDelete = async () => {
+    if (!deleteConfirmCoupon || processingId) return;
+    const coupon = deleteConfirmCoupon;
+    setDeleteConfirmCoupon(null);
 
     try {
       setProcessingId(coupon.id);
@@ -311,7 +312,7 @@ export const AdminCouponsTab: React.FC<AdminCouponsTabProps> = ({ token }) => {
                   <button
                     type="button"
                     disabled={Boolean(processingId)}
-                    onClick={() => handleDelete(c)}
+                    onClick={() => setDeleteConfirmCoupon(c)}
                     className="p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 text-stone-400 hover:text-rose-600 transition cursor-pointer disabled:opacity-50"
                     title="Permanently delete coupon"
                   >
@@ -343,6 +344,43 @@ export const AdminCouponsTab: React.FC<AdminCouponsTabProps> = ({ token }) => {
         }}
         token={token}
       />
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmCoupon && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/80 backdrop-blur-xs">
+          <div className="w-full max-w-md bg-white dark:bg-zinc-950 border border-stone-200 dark:border-zinc-800 rounded-2xl p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95">
+            <div className="flex items-center gap-3 text-rose-600 dark:text-rose-400">
+              <div className="p-2.5 rounded-full bg-rose-500/10">
+                <AlertCircle className="w-6 h-6" />
+              </div>
+              <h3 className="font-serif font-bold text-base text-stone-900 dark:text-stone-100">
+                Delete coupon &ldquo;{deleteConfirmCoupon.code}&rdquo;?
+              </h3>
+            </div>
+
+            <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
+              This coupon will be permanently removed from your catalog. Note that existing orders that applied this coupon will retain their applied discount records.
+            </p>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeleteConfirmCoupon(null)}
+                className="px-4 py-2 bg-stone-100 dark:bg-zinc-800 hover:bg-stone-200 dark:hover:bg-zinc-700 text-xs font-semibold rounded-xl text-stone-700 dark:text-stone-300 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-serif uppercase tracking-wider font-bold rounded-xl transition shadow-sm cursor-pointer"
+              >
+                Delete Coupon
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

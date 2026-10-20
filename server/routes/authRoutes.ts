@@ -14,7 +14,6 @@ import {
   setResetTokenInNeon,
   deletePasswordResetInNeon,
 } from '../storage/neon.js';
-import { isEmailServiceConfigured, sendPasswordResetEmail } from '../services/emailService.js';
 import { isResendConfigured, sendOtpViaResend } from '../services/resendService.js';
 import type { User } from '../../src/types.js';
 
@@ -507,13 +506,8 @@ router.post('/forgot-password/send-code', async (req, res) => {
     verified: false,
   });
 
-  // 3. Dispatch real branded email via Resend API utility (or configured fallback provider)
-  let emailResult: { success: boolean; provider: string; messageId?: string; error?: string };
-  if (isResendConfigured()) {
-    emailResult = await sendOtpViaResend(normalizedEmail, code, user.name);
-  } else {
-    emailResult = await sendPasswordResetEmail(normalizedEmail, code, user.name);
-  }
+  // 3. Dispatch real branded email via Resend API utility exclusively
+  const emailResult = await sendOtpViaResend(normalizedEmail, code, user.name);
 
   // Security Requirement: Never claim an email was sent if the email provider rejects the request
   if (!emailResult.success) {
